@@ -18,5 +18,3 @@ createRoot(document.getElementById('root')!).render(
     </ApolloProvider>
   </StrictMode>,
 )
-
-export default App

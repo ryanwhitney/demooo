@@ -90,12 +90,31 @@ nav{
   display: flex;
   justify-content: center;
   align-items: center;
+  
   .modal-card{
+    position: relative;
     background: #fff;
     padding: 32px;
+    margin: 32px;
     border-radius: 12px;
     min-width: 300px;  
+    padding-top: 48px;
+
+    .modal-button-close{
+      float: right;
+      position: absolute;
+      top:8px;
+      right:8px;
+    }
   }
+}
+
+form{
+  display: block;
+  clear: both;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 @media (prefers-color-scheme: light) {
