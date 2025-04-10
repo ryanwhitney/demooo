@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 
-backend/api/__pycache__/*
+/backend/api/__pycache__
 
 # Editor directories and files
 .vscode/*
