@@ -1,8 +1,10 @@
 import graphene
-from graphene_django import DjangoObjectType
+import graphql_jwt
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
+
 from .models import Profile
 
 
@@ -58,21 +60,21 @@ class CreateUser(graphene.Mutation):
 
 class UpdateProfile(graphene.Mutation):
     profile = graphene.Field(ProfileType)
-    
+
     class Arguments:
         bio = graphene.String()
         website = graphene.String()
-    
+
     @login_required
     def mutate(self, info, bio=None, website=None):
         user = info.context.user
         profile = user.profile
-        
+
         if bio is not None:
             profile.bio = bio
         if website is not None:
             profile.website = website
-            
+
         profile.save()
         return UpdateProfile(profile=profile)
 
@@ -80,7 +82,9 @@ class UpdateProfile(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     update_profile = UpdateProfile.Field()
-    # JWT mutations are added automatically by django-graphql-jwt
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
