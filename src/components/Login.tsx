@@ -3,21 +3,23 @@ import '../App.css'
 import { useMutation } from '@apollo/client';
 import { useAuth } from './auth/AuthProvider'
 import { AUTH_USER } from '../apollo/queries/userQueries'
+import { LoginInput } from '../types/auth'
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState<LoginInput>({
+    username: '',
+    password: ''
+  });
 
   const { setIsAuthenticated } = useAuth();
 
-
   const [authenticateUser, { data, loading, error }] = useMutation(AUTH_USER, {
     variables: {
-      username: email,
-      password: password,
+      username: formData.username,
+      password: formData.password,
     },
     onCompleted: (data) => {
-      setPassword("");
+      setFormData({ username: '', password: '' });
       localStorage.setItem('authToken', data.tokenAuth.token)
       setIsAuthenticated(true)
     }
@@ -30,17 +32,27 @@ function Login() {
     <form onSubmit={e => {
       e.preventDefault();
       authenticateUser();
-      
     }}>
       {JSON.stringify(data)}
-        <label>
-          username: <input type="text" name="username" onChange={e => setEmail(e.target.value)} />
-        </label>
-        <label>
-          password: <input type="password" name="password" onChange={e => setPassword(e.target.value)} />
-        </label>
-        <button type="submit">Login</button>
-
+      <label>
+        username: <input 
+          type="text" 
+          name="username" 
+          autoComplete='username'
+          value={formData.username}
+          onChange={e => setFormData({ ...formData, username: e.target.value })} 
+        />
+      </label>
+      <label>
+        password: <input 
+          type="password" 
+          name="password" 
+          autoComplete='current-password'
+          value={formData.password}
+          onChange={e => setFormData({ ...formData, password: e.target.value })} 
+        />
+      </label>
+      <button type="submit">Login</button>
     </form>
   )
 }

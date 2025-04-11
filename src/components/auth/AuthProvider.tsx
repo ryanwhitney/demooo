@@ -1,25 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { gql } from '@apollo/client';
 import useTokenRefresh from '../../utils/useTokenRefresh'
+import { User, AuthContextType, AuthProviderProps } from '../../types/auth';
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface AuthContextType {
-  isAuthenticated: boolean;
-  setIsAuthenticated: (value: boolean) => void;
-  user: User | null;
-  logout: () => void;
-  refreshLoading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const GET_ME = gql`
   query Whom {
@@ -33,10 +18,6 @@ const GET_ME = gql`
   }
 `;
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
 export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -44,7 +25,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Only fetch user data if we have a token
   const { refetch } = useQuery(GET_ME, {
-    skip: !isAuthenticated, // Use isAuthenticated instead of checking localStorage
+    skip: !isAuthenticated,
     fetchPolicy: 'network-only',
     onCompleted: (data) => {
       if (data?.me) {
@@ -52,7 +33,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     },
     onError: () => {
-      // If query fails, user might not be authenticated
       localStorage.removeItem('authToken');
       setIsAuthenticated(false);
       setUser(null);
