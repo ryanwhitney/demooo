@@ -26,3 +26,5 @@ dist-ssr
 *.sw?
 /backend/backend/__pycache__
 /backend/api/__pycache__
+
+*storybook.log
