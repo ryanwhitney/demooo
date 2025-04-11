@@ -3,7 +3,6 @@ import { useQuery } from '@apollo/client';
 import { gql } from '@apollo/client';
 import useTokenRefresh from '../../utils/useTokenRefresh'
 
-
 interface User {
   id: string;
   username: string;
@@ -14,6 +13,7 @@ interface User {
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  setIsAuthenticated: (value: boolean) => void;
   user: User | null;
   logout: () => void;
   refreshLoading: boolean;
@@ -41,15 +41,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { loading: refreshLoading } = useTokenRefresh();
-  
+
   // Only fetch user data if we have a token
-  const { data } = useQuery(GET_ME, {
-    skip: !localStorage.getItem('authToken'),
+  const { refetch } = useQuery(GET_ME, {
+    skip: !isAuthenticated, // Use isAuthenticated instead of checking localStorage
     fetchPolicy: 'network-only',
     onCompleted: (data) => {
       if (data?.me) {
         setUser(data.me);
-        setIsAuthenticated(true);
       }
     },
     onError: () => {
@@ -59,6 +58,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
     }
   });
+
+  //  Refetch user data when isAuthenticated changes to true
+  useEffect(() => {
+    if (isAuthenticated) {
+      refetch();
+    }
+  }, [isAuthenticated, refetch]);
 
   // Check if user is authenticated on component mount
   useEffect(() => {
@@ -76,6 +82,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Context value with proper typing
   const contextValue: AuthContextType = {
     isAuthenticated,
+    setIsAuthenticated, // Expose the setter
     user,
     logout,
     refreshLoading

@@ -19,7 +19,7 @@ function NavBar() {
         <ul>
           {me.isAuthenticated ?
           <>
-            <li>{me.user?.firstName}</li>
+            <li>{me.user?.username}</li>
             <li><button onClick={me.logout}>Logout</button></li>
           </>
         :

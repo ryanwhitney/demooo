@@ -10,8 +10,7 @@ function Home() {
   const WHO_AM_I = gql`
   query whom {
     me {
-      firstName
-      lastName
+      username
     }
   }
     `

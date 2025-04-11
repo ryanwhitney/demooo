@@ -1,23 +1,29 @@
 import { useState } from 'react'
 import '../App.css'
 import { gql, useMutation } from '@apollo/client';
+import { useAuth } from './auth/AuthProvider'
+import { AUTH_USER, CREATE_USER } from '../apollo/queries/userQueries'
 
 function CreateAccount() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const CREATE_USER = gql`
-  mutation CreateUser($username: String!, $email: String!, $password: String!) {
-    createUser(username: $username, email: $email, password: $password) {
-      user {
-        id
-        username
-        email
-      }
+  const { setIsAuthenticated } = useAuth();
+
+  const [authenticateUser] = useMutation(AUTH_USER, {
+    onCompleted: (data) => {
+      setPassword("")
+      localStorage.setItem('authToken', data.tokenAuth.token)
+      setIsAuthenticated(true)
+    },
+    onError: (error) => {
+      setPassword("");
+      console.error("Authentication error after signup:", error)
+      // temp handling
+      alert("Account created but couldn't log in automatically. Please try logging in manually.")
     }
-  }
-    `
+  });
 
   const [createAccount, { data, loading, error }] = useMutation(CREATE_USER, {
     variables: {
@@ -25,6 +31,15 @@ function CreateAccount() {
       password: password,
       username: username,
     },
+    onCompleted: (data) => {
+      console.log("Account created successfully:", data);
+        authenticateUser({
+          variables: {
+            username: username, 
+            password: password,
+          }
+        })
+    }
   })
 
   if (loading) return 'Submitting...';
@@ -34,7 +49,6 @@ function CreateAccount() {
     <form onSubmit={e => {
       e.preventDefault();
       createAccount();
-      
     }}>
       {JSON.stringify(data)}
         <label>

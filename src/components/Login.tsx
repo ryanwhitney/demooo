@@ -1,20 +1,15 @@
 import { useState } from 'react'
 import '../App.css'
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { useAuth } from './auth/AuthProvider'
+import { AUTH_USER } from '../apollo/queries/userQueries'
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const AUTH_USER = gql`
-  mutation TokenAuth($username: String!, $password: String!) {
-    tokenAuth(username: $username, password: $password) {
-      token
-      payload
-      refreshExpiresIn
-    }
-  }
-    `
+  const { setIsAuthenticated } = useAuth();
+
 
   const [authenticateUser, { data, loading, error }] = useMutation(AUTH_USER, {
     variables: {
@@ -22,7 +17,9 @@ function Login() {
       password: password,
     },
     onCompleted: (data) => {
+      setPassword("");
       localStorage.setItem('authToken', data.tokenAuth.token)
+      setIsAuthenticated(true)
     }
   })
 
@@ -37,12 +34,12 @@ function Login() {
     }}>
       {JSON.stringify(data)}
         <label>
-          email: <input type="text" name="email" onChange={e => setEmail(e.target.value)} />
+          username: <input type="text" name="username" onChange={e => setEmail(e.target.value)} />
         </label>
         <label>
           password: <input type="password" name="password" onChange={e => setPassword(e.target.value)} />
         </label>
-        <button type="submit">Create Account</button>
+        <button type="submit">Login</button>
 
     </form>
   )
