@@ -24,3 +24,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+/backend/backend/__pycache__
+/backend/api/__pycache__
