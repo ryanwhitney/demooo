@@ -10,8 +10,6 @@ function CreateAccount() {
     email: '',
     username: '',
     password: '',
-    firstName: '',
-    lastName: ''
   });
 
   const { setIsAuthenticated } = useAuth();
@@ -32,16 +30,14 @@ function CreateAccount() {
   const [createAccount, { data, loading, error }] = useMutation(CREATE_USER, {
     variables: {
       email: formData.email,
+      username: formData.email,
       password: formData.password,
-      username: formData.username,
-      firstName: formData.firstName,
-      lastName: formData.lastName
     },
     onCompleted: (data) => {
       console.log("Account created successfully:", data);
       authenticateUser({
         variables: {
-          username: formData.username, 
+          username: formData.email, 
           password: formData.password,
         }
       })
@@ -67,36 +63,12 @@ function CreateAccount() {
         />
       </label>
       <label>
-        username: <input 
-          type="text" 
-          name="username" 
-          value={formData.username}
-          onChange={e => setFormData({ ...formData, username: e.target.value })} 
-        />
-      </label>
-      <label>
         password: <input 
           type="password" 
           name="password" 
           autoComplete='new-password'
           value={formData.password}
           onChange={e => setFormData({ ...formData, password: e.target.value })} 
-        />
-      </label>
-      <label>
-        First Name: <input 
-          type="text" 
-          name="firstName" 
-          value={formData.firstName}
-          onChange={e => setFormData({ ...formData, firstName: e.target.value })} 
-        />
-      </label>
-      <label>
-        Last Name: <input 
-          type="text" 
-          name="lastName" 
-          value={formData.lastName}
-          onChange={e => setFormData({ ...formData, lastName: e.target.value })} 
         />
       </label>
       <button type="submit">Create Account</button>

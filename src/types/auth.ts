@@ -25,6 +25,6 @@ export interface LoginInput {
 
 export interface RegisterInput extends LoginInput {
   email: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
 } 

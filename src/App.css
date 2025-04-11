@@ -74,6 +74,8 @@ nav{
     gap: 8px;
     padding: 0;
     margin: 0;
+    align-items: center;
+    font-size: 13px;
     button{
       font-weight: 500;
     }

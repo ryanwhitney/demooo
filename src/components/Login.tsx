@@ -37,8 +37,8 @@ function Login() {
       <label>
         username: <input 
           type="text" 
-          name="username" 
-          autoComplete='username'
+          name="email" 
+          autoComplete='email'
           value={formData.username}
           onChange={e => setFormData({ ...formData, username: e.target.value })} 
         />
