@@ -16,18 +16,31 @@ export const modalBackdropContainer = style({
 
 export const modalCard = style({
   position: 'relative',
-  background: tokens.colors.secondary,
-  padding: tokens.space.md,
-  margin: '32px',
-  borderRadius: '12px',
+  background: tokens.colors.backgroundSecondary,
+  padding: tokens.space.xl,
+  margin: tokens.space.xl,
+  borderRadius: tokens.radii.lg,
   minWidth: '300px',
-  paddingTop: '48px',
   boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px'
 });
 
 export const modalButtonClose = style({
   float: 'right',
   position: 'absolute',
-  top: '8px',
-  right: '8px'
+  top: tokens.space.lg,
+  right: tokens.space.lg
+});
+
+
+export const modalTitle = style({
+  fontSize: tokens.fontSizes.xl,
+  fontWeight: tokens.fontWeights.bold,
+});
+
+
+export const modalDescription = style({
+  fontSize: tokens.fontSizes.md,
+  color: tokens.colors.secondary,
+  marginTop: tokens.space.sm,
+  marginBottom: tokens.space.lg,
 });

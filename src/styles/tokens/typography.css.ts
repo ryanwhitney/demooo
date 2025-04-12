@@ -12,7 +12,7 @@ export const fonts = createGlobalTheme(root, {
 export const fontSizes = createGlobalTheme(root, {
   xs: '10px',
   sm: '11px',
-  base: '13px',
+  md: '13px',
   lg: '17px',
   xl: '21px',
   xxl: '40px'

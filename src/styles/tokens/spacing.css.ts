@@ -11,7 +11,7 @@ export const space = createGlobalTheme(root, {
   md: '8px',
   lg: '16px',
   xl: '32px',
-  xxl: '40px'
+  xxl: '64px'
 });
 
 export const radii = createGlobalTheme(root, {

@@ -11,7 +11,7 @@ export const tokens = {
   fontWeights,
   lineHeights,
   space,
-  radii
+  radii,
 };
 
 // Also export individual token categories for convenience

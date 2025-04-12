@@ -1,7 +1,6 @@
-import { mockData } from '../apollo/mockData'
 import NavBar from '../components/nav/NavBar'
-import TrackChip from '../components/trackChip/TrackChip'
 import { tokens } from '../styles/tokens'
+import { Artist } from '../types/artist'
 
 const homeBanner: React.CSSProperties = ({
   fontSize: tokens.space.xxl,
@@ -22,23 +21,15 @@ const homeBannerText: React.CSSProperties = ({
   // alignItems: 'center',
 });
 
-function Home() {
+function ArtistView({artist}:{artist:Artist}) {
   return (
     <>
       <NavBar />
       <div style={homeBanner}>
-        <h1 style={homeBannerText}>Free your voice memos</h1>
-      </div>
-      <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-        <p style={{ padding: 20, textTransform: 'uppercase', fontSize: 11, letterSpacing:8, }}>Latest</p>
-        <div style={{ display: 'flex', gap: 20, padding: 20, flexWrap: 'wrap' }}>
-          {mockData.tracks.map((track) => (
-            <TrackChip key={track.id} track={track} />
-          ))}
-        </div>
+        <h1 style={homeBannerText}>{artist.title}</h1>
       </div>
     </>
   )
 }
 
-export default Home
+export default ArtistView

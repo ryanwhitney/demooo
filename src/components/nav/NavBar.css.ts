@@ -34,6 +34,7 @@ export const navButton = style({
 
 export const navItemsList = style({
   display: 'flex',
+  alignItems: 'center',
   listStyle: 'none',
   gap: tokens.space.md,
   padding: 0,

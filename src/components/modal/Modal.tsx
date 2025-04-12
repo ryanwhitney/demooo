@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
-import { XCircle } from '@phosphor-icons/react'
 import Button from '../button/Button'
-import { modalBackdropContainer, modalButtonClose, modalCard } from './Modal.css'
+import { modalBackdropContainer, modalButtonClose, modalCard, modalTitle, modalDescription } from './Modal.css'
 
-function Modal({children, onClose}: {children: React.ReactNode, onClose: () => void}) {
+type ModalProps = {
+  children: React.ReactNode;
+  onClose: () => void;
+  title?: string;
+  description?: string;
+}
+
+function Modal({ children, onClose, title, description }: ModalProps) {
   const [opacity, setOpacity] = useState(0)
 
   const TRANSITION_TIME = 100
@@ -21,10 +27,12 @@ function Modal({children, onClose}: {children: React.ReactNode, onClose: () => v
 
   return ( 
     <div className={modalBackdropContainer} style={{transition:`opacity ${TRANSITION_TIME}ms ease-in`,opacity:opacity}} >
-      <div className={modalCard} style={{transition:`opacity ${TRANSITION_TIME}ms ease-in`,opacity:opacity}} >
-        <Button type='button' className={modalButtonClose} onClick={handleClose}><XCircle color='#000000' weight='fill' /></Button>
+      <section className={modalCard} style={{transition:`opacity ${TRANSITION_TIME}ms ease-in`,opacity:opacity}} >
+        <Button variant='icon' type='button' title='close modal' className={modalButtonClose} onClick={handleClose}>&times;</Button>
+        <h1 className={modalTitle}>{title}</h1>
+        <p className={modalDescription}>{description}</p>
         {children}
-      </div>
+      </section>
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { tokens } from './tokens';
 
 globalStyle('html, body', {
   fontFamily: tokens.fonts.monospace,
-  fontSize: tokens.fontSizes.base,
+  fontSize: tokens.fontSizes.md,
   lineHeight: tokens.lineHeights.normal,
   color: tokens.colors.primary,
   backgroundColor: tokens.colors.background,

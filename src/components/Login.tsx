@@ -4,8 +4,14 @@ import { useAuth } from '../hooks/useAuth';
 import { AUTH_USER } from '../apollo/queries/userQueries'
 import { LoginInput } from '../types/auth'
 import Button from './button/Button'
+import ProgressIndicator from './progressIndicator/ProgressIndicator.tsx'
+import TextInput from './textInput/TextInput'
 
-function Login() {
+type LoginProps = {
+  onSuccess: () => void;
+}
+
+function Login({ onSuccess }: LoginProps) {
   const [formData, setFormData] = useState<LoginInput>({
     username: '',
     password: ''
@@ -13,7 +19,7 @@ function Login() {
 
   const { setIsAuthenticated } = useAuth();
 
-  const [authenticateUser, { data, loading, error }] = useMutation(AUTH_USER, {
+  const [authenticateUser, { loading, error }] = useMutation(AUTH_USER, {
     variables: {
       username: formData.username,
       password: formData.password,
@@ -22,10 +28,10 @@ function Login() {
       setFormData({ username: '', password: '' });
       localStorage.setItem('authToken', data.tokenAuth.token)
       setIsAuthenticated(true)
+      onSuccess()
     }
   })
 
-  if (loading) return 'Submitting...';
   if (error) return `Submission error! ${error.message}`;
 
   return ( 
@@ -33,26 +39,27 @@ function Login() {
       e.preventDefault();
       authenticateUser();
     }}>
-      {JSON.stringify(data)}
-      <label>
-        username: <input 
-          type="text" 
-          name="email" 
-          autoComplete='email'
-          value={formData.username}
-          onChange={e => setFormData({ ...formData, username: e.target.value })} 
-        />
-      </label>
-      <label>
-        password: <input 
-          type="password" 
-          name="password" 
-          autoComplete='current-password'
-          value={formData.password}
-          onChange={e => setFormData({ ...formData, password: e.target.value })} 
-        />
-      </label>
-      <Button size='small' type="submit">Login</Button>
+      <TextInput
+        label="Email"
+        type="email"
+        placeholder="sad@bedroomguitar.com"
+        value={formData.username}
+        onChange={e => setFormData({ ...formData, username: e.target.value })} 
+        required
+      />
+      
+      <TextInput
+        label="Password"
+        type="password"
+        placeholder="Enter your password"
+        value={formData.password}
+        onChange={e => setFormData({ ...formData, password: e.target.value })} 
+        required
+      />
+      <br/>
+      <Button size='large' style={{width: '100%'}} type="submit">
+        {loading ? <ProgressIndicator/> : 'Login'}
+      </Button>
     </form>
   )
 }

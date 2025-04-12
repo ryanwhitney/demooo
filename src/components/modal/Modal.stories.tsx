@@ -19,11 +19,12 @@ export const Default: Story = {
   },
 }
 
-export const WithForm: Story = {
+export const WithTitle: Story = {
   args: {
+    title: 'Login',
+    description: 'Please enter your credentials',
     children: (
       <form>
-        <h2>Login Form</h2>
         <div>
           <label>Username:</label>
           <input type="text" />
@@ -39,11 +40,12 @@ export const WithForm: Story = {
   },
 }
 
-export const WithLongContent: Story = {
+export const WithTitleAndDescription: Story = {
   args: {
+    title: 'Long Content',
+    description: 'This modal contains a lot of text',
     children: (
       <div>
-        <h2>Long Content Modal</h2>
         <p>This is a paragraph of text.</p>
         <p>This is another paragraph of text.</p>
         <p>This is yet another paragraph of text.</p>

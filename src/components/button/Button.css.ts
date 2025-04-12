@@ -7,10 +7,9 @@ export const buttonStyles = recipe({
     borderRadius: tokens.radii.md,
     border: '1px solid transparent',
     cursor: 'pointer',
-    transition: 'border-color 250ms ease-in-out',
+    transition: 'all 250ms ease-in-out',
     color: tokens.colors.primary,
     backgroundColor: tokens.colors.background,
-    
     ':disabled': {
       opacity: 0.6,
       cursor: 'not-allowed',
@@ -33,12 +32,18 @@ export const buttonStyles = recipe({
         },
       },
       icon: {
-        backgroundColor: 'transparent',
-        color: 'inherit',
+        display: 'block',
+        backgroundColor: tokens.colors.background,
+        borderRadius: tokens.radii.full,
+        color: tokens.colors.secondary,
+        lineHeight: 0,
+        padding: '8px !important',
+        aspectRatio: '1/1',
         border: 'none',
         ':hover': {
-          opacity: 0.8,
-          border: 'none'
+          color: tokens.colors.primary,
+          border: 'none',
+          borderWidth:0,
         },
         ':active': {
           opacity: 0.8,
@@ -55,11 +60,11 @@ export const buttonStyles = recipe({
       },
       medium: {
         padding: `${tokens.space.sm} ${tokens.space.md}`,
-        fontSize: tokens.fontSizes.base,
+        fontSize: tokens.fontSizes.md,
       },
       large: {
         padding: `${tokens.space.md} ${tokens.space.lg}`,
-        fontSize: tokens.fontSizes.lg,
+        fontSize: tokens.fontSizes.md,
       },
     },
   },

@@ -35,14 +35,14 @@ function NavBar() {
         </ul>
       </nav>
       {showLoginModal && createPortal(
-       <Modal onClose={() => setShowLoginModal(false)}>
-        <Login/>
+       <Modal title='Log in' onClose={() => setShowLoginModal(false)}>
+        <Login onSuccess={() => setShowLoginModal(false)}/>
        </Modal>,
         document.body
       )}
       {showSignUpModal && createPortal(
-       <Modal onClose={() => setShowSignUpModal(false)}>
-        <CreateAccount/>
+       <Modal title='Join demooo' onClose={() => setShowSignUpModal(false)}>
+        <CreateAccount onSuccess={() => setShowSignUpModal(false)}/>
        </Modal>,
         document.body
       )}
