@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client';
 import { useAuth } from './auth/AuthProvider'
 import { AUTH_USER } from '../apollo/queries/userQueries'
 import { LoginInput } from '../types/auth'
-import Button from './common/button/Button'
+import Button from './button/Button'
 
 function Login() {
   const [formData, setFormData] = useState<LoginInput>({

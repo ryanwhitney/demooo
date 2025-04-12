@@ -1,5 +1,5 @@
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
-import { tokens } from '../../../styles/tokens';
+import { tokens } from '../../styles/tokens';
 
 export const buttonStyles = recipe({
   base: {
