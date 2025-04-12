@@ -1,6 +1,6 @@
 import NavBar from '../components/nav/NavBar'
 import { tokens } from '../styles/tokens'
-import { Track } from '../types/track'
+import { useSearchParams } from 'react-router'
 
 const homeBanner: React.CSSProperties = ({
   fontSize: tokens.space.xxl,
@@ -9,24 +9,25 @@ const homeBanner: React.CSSProperties = ({
   display: 'flex',
   justifyContent: 'space-around',
   alignItems: 'center',
+  textAlign: 'center',
   paddingTop: 100,
   paddingBottom: 60,
 });
+
 const homeBannerText: React.CSSProperties = ({
   fontSize: tokens.fontSizes.xxl,
   fontWeight: tokens.fontWeights.normal,
-  // textTransform: 'uppercase',
-  // display: 'flex',
-  // justifyContent: 'space-between',
-  // alignItems: 'center',
 });
 
-function TrackView({track}:{track:Track}) {
+function TrackView() {
+  const [searchParams] = useSearchParams();
+  const trackId = searchParams.get('id');
+
   return (
     <>
       <NavBar />
       <div style={homeBanner}>
-        <h1 style={homeBannerText}>{track.title}</h1>
+        <h1 style={homeBannerText}>{trackId} - Track {trackId}</h1>
       </div>
     </>
   )

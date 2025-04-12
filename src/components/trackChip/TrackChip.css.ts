@@ -29,6 +29,13 @@ export const trackText = style({
   marginLeft: tokens.space.px,
 });
 
+export const trackTitle = style({
+  cursor: 'pointer',
+  color: tokens.colors.primary,
+  textDecoration: 'none',
+});
 export const trackArtist = style({
+  cursor: 'pointer',
   color: tokens.colors.secondary,
+  textDecoration: 'none',
 });

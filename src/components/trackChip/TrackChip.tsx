@@ -1,5 +1,6 @@
+import { Link } from "react-router"
 import { Track } from "../../types/track"
-import { trackArtist, trackChipWrapper, trackText, waveformWrapper } from "./TrackChip.css"
+import { trackArtist, trackChipWrapper, trackText, trackTitle, waveformWrapper } from "./TrackChip.css"
 
 const Waveform = ({width = 60}:{width?: number} ) => {
 
@@ -39,8 +40,8 @@ function TrackChip({ track }: { track: Track }) {
         <Waveform width={55} />
       </div>
       <div className={trackText}>
-        <p>{track.title}</p>
-        <p className={trackArtist}>{track.artist}</p>
+        <Link to={`/${track.artist}/track?id=${track.id}`} className={trackTitle}>{track.title}</Link>
+        <Link to={`/${track.artist}`} className={trackArtist}>{track.artist}</Link>
       </div>
     </div>
   );

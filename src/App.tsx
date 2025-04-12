@@ -7,6 +7,8 @@ import './styles/reset.css'
 import './styles/global.css'
 import Home from './routes/Home';
 import { AuthProvider } from './providers/AuthProvider'
+import ArtistView from './routes/ArtistView'
+import TrackView from './routes/TrackView'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -15,6 +17,8 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/:artistName" element={<ArtistView />} />
+            <Route path="/:artistName/track" element={<TrackView />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

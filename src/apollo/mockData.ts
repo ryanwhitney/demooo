@@ -1,7 +1,7 @@
 export const mockData = {
   tracks: [
     {
-      id: "feakop-feaw-fk-af-",
+      id: "feakop-feaw-fk-af",
       title: 'side_a.aif',
       artist: 'ryanwhitney',
       description: 'recorded drunk in a hotel room in new orleans.',

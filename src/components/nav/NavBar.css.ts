@@ -13,6 +13,7 @@ export const nav = style({
 export const logo = style({
   cursor: 'pointer',
   transition: 'all 250ms ease-in-out',
+  padding: `${tokens.space.lg} ${tokens.space.lg}`,
   ':hover': {
     opacity: 0.95,
     scale: 1.1,
@@ -27,6 +28,12 @@ export const navList = style({
   margin: 0,
   alignItems: 'center',
 });
+
+
+export const navBarUser = style({
+  color: tokens.colors.tertiary,
+});
+
 
 export const navButton = style({
   fontWeight: 500
