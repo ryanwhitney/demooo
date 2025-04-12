@@ -1,10 +1,9 @@
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
-import { tokens } from '../../styles/tokens';
+import { tokens } from '../../../styles/tokens';
 
 export const buttonStyles = recipe({
   base: {
     fontFamily: tokens.fonts.monospace,
-    fontSize: tokens.fontSizes.sm,
     borderRadius: tokens.radii.md,
     border: '1px solid transparent',
     cursor: 'pointer',
@@ -52,7 +51,7 @@ export const buttonStyles = recipe({
     size: {
       small: {
         padding: `${tokens.space.xs} ${tokens.space.sm}`,
-        fontSize: tokens.fontSizes.sm,
+        fontSize: tokens.fontSizes.xs,
       },
       medium: {
         padding: `${tokens.space.sm} ${tokens.space.md}`,

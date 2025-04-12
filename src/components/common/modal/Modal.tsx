@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { XCircle } from '@phosphor-icons/react'
-import Button from './Button'
+import Button from '../button/Button'
 import { modalBackdropContainer, modalButtonClose, modalCard } from './Modal.css'
 
 function Modal({children, onClose}: {children: React.ReactNode, onClose: () => void}) {

@@ -1,5 +1,5 @@
 import { style } from '@vanilla-extract/css';
-import { tokens } from '../../styles/tokens'
+import { tokens } from '../../../styles/tokens'
 
 // Modal styles
 export const modalBackdropContainer = style({
@@ -16,7 +16,7 @@ export const modalBackdropContainer = style({
 
 export const modalCard = style({
   position: 'relative',
-  background: tokens.colors.background,
+  background: tokens.colors.secondary,
   padding: tokens.space.md,
   margin: '32px',
   borderRadius: '12px',
