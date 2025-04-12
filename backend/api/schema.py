@@ -4,7 +4,7 @@ from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
 from graphene_file_upload.scalars import Upload
 from django.core.files.storage import default_storage
-from graphql_jwt.utils import jwt_payload
+
 import os
 
 # Import only your custom models
@@ -232,39 +232,10 @@ class DeleteTrack(graphene.Mutation):
         return DeleteTrack(success=True)
 
 
-def custom_jwt_payload(user, context=None):
-    payload = jwt_payload(user, context)
-    # Convert UUID to string
-    payload['user_id'] = str(user.id)
-    return payload
-
-# Add this to your schema.py to see the raw request data
-class EchoMutation(graphene.Mutation):
-    result = graphene.String()
-    
-    class Arguments:
-        input = graphene.String()
-    
-    def mutate(self, info, input=None):
-        # Log all request data
-        print("DEBUG: Raw request body:", info.context.body)
-        print("DEBUG: POST data:", dict(info.context.POST))
-        
-        # Get GraphQL operation details
-        operation_name = info.context.POST.get('operationName')
-        variables = info.context.POST.get('variables')
-        
-        print(f"DEBUG: Operation: {operation_name}")
-        print(f"DEBUG: Variables: {variables}")
-        
-        result = f"Received: {input}, Full request data logged to console"
-        return EchoMutation(result=result)
-
 class Mutation(graphene.ObjectType):
-    echo = EchoMutation.Field()
     create_user = CreateUser.Field()
     update_profile = UpdateProfile.Field()
-    token_auth = graphql_jwt.ObtainJSONWebToken.Field()  # Remove the payload_handler parameter
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
     
