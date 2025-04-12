@@ -1,22 +1,11 @@
 import { createContext, useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
 import useTokenRefresh from '../utils/useTokenRefresh';
 import { User, AuthContextType, AuthProviderProps } from '../types/auth';
+import { GET_ME } from '../apollo/queries/userQueries'
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const GET_ME = gql`
-  query Whom {
-    me {
-      id
-      username
-      email
-      firstName
-      lastName
-    }
-  }
-`;
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

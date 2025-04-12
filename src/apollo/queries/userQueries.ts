@@ -20,3 +20,15 @@ export const AUTH_USER = gql`
     }
   }
 `
+
+export const GET_ME = gql`
+  query Whom {
+    me {
+      id
+      username
+      email
+      firstName
+      lastName
+    }
+  }
+`;
