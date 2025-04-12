@@ -39,6 +39,7 @@
     "eslint-plugin-storybook": "^0.12.0",
     "globals": "^15.15.0",
     "storybook": "^8.6.12",
+    "storybook-addon-apollo-client": "^8.1.2",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0"

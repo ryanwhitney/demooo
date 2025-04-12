@@ -8,7 +8,8 @@ const config: StorybookConfig = {
   "addons": [
     "@storybook/addon-essentials",
     "@storybook/addon-onboarding",
-    "@storybook/addon-interactions"
+    "@storybook/addon-interactions",
+    "storybook-addon-apollo-client",
   ],
   "framework": {
     "name": "@storybook/react-vite",
