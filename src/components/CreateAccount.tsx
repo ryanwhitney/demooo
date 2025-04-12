@@ -66,6 +66,12 @@ function CreateAccount({ onSuccess }: CreateAccountProps) {
   return ( 
     <form onSubmit={e => {
       e.preventDefault();
+      console.log("About to send mutation with:", {
+        username: formData.email,
+        email: formData.email,
+        password: formData.password
+      });
+      
       createAccount();
     }}>
       {JSON.stringify(data)}
@@ -73,9 +79,9 @@ function CreateAccount({ onSuccess }: CreateAccountProps) {
         label="Email"
         type="email"
         placeholder="ryan@sadbedroommusic.com"
-        value={formData.username}
+        value={formData.email}
         debounceTime={500}
-        onChange={e => setFormData({ ...formData, username: e.target.value})}
+        onChange={e => setFormData({ ...formData, email: e.target.value})}
         validate={validateEmail}
         required
       />
