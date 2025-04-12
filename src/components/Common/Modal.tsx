@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import '../../App.css'
+import { XCircle } from '@phosphor-icons/react'
+import Button from './Button'
+import { modalBackdropContainer, modalButtonClose, modalCard } from './Modal.css'
 
 function Modal({children, onClose}: {children: React.ReactNode, onClose: () => void}) {
   const [opacity, setOpacity] = useState(0)
@@ -18,9 +20,9 @@ function Modal({children, onClose}: {children: React.ReactNode, onClose: () => v
   }, [])
 
   return ( 
-    <div className='modal-backdrop-container' style={{transition:`opacity ${TRANSITION_TIME}ms ease-in`,opacity:opacity}} >
-      <div className='modal-card' style={{transition:`opacity ${TRANSITION_TIME}ms ease-in`,opacity:opacity}} >
-        <button className='modal-button-close' onClick={handleClose}>close</button>
+    <div className={modalBackdropContainer} style={{transition:`opacity ${TRANSITION_TIME}ms ease-in`,opacity:opacity}} >
+      <div className={modalCard} style={{transition:`opacity ${TRANSITION_TIME}ms ease-in`,opacity:opacity}} >
+        <Button type='button' className={modalButtonClose} onClick={handleClose}><XCircle color='#000000' weight='fill' /></Button>
         {children}
       </div>
     </div>

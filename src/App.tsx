@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { ApolloProvider } from '@apollo/client';
 import { client } from './apollo/client';
-import './index.css'
+import './styles/reset.css'
+import './styles/global.css'
 import Home from './routes/Home';
 import { AuthProvider } from './components/auth/AuthProvider'
 

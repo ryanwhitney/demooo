@@ -1,45 +1,32 @@
-import '../App.css'
-import NavBar from '../components/NavBar'
-import { gql, useQuery } from '@apollo/client';
+import NavBar from '../components/nav/NavBar'
+import { tokens } from '../styles/tokens'
 
-
+const homeBanner: React.CSSProperties = ({
+  fontSize: tokens.space.xxl,
+  fontWeight: tokens.fontWeights.normal,
+  textTransform: 'uppercase',
+  display: 'flex',
+  justifyContent: 'space-around',
+  alignItems: 'center',
+  paddingTop: 100,
+  paddingBottom: 60,
+});
+const homeBannerText: React.CSSProperties = ({
+  fontSize: tokens.fontSizes.xxl,
+  fontWeight: tokens.fontWeights.normal,
+  // textTransform: 'uppercase',
+  // display: 'flex',
+  // justifyContent: 'space-between',
+  // alignItems: 'center',
+});
 
 function Home() {
-
-
-  const WHO_AM_I = gql`
-  query whom {
-    me {
-      username
-    }
-  }
-    `
-
-  const { data, loading, error } = useQuery(WHO_AM_I)
-
-
-
   return (
     <>
       <NavBar />
-      <main>
-      <div className="card">
-        <button >
-          {error && 
-           <p>{error.message}</p>
-          }
-          {loading && 
-           <p>loading…</p>
-          }
-          {data && 
-           <p>{data.me.firstName}</p>
-          }
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div style={homeBanner}>
+        <h1 style={homeBannerText}>Free your voice notes</h1>
       </div>
-      </main>
     </>
   )
 }

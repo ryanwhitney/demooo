@@ -1,0 +1,40 @@
+import { style } from '@vanilla-extract/css';
+import { tokens } from '../../styles/tokens'
+
+export const nav = style({
+  padding: tokens.space.lg,
+  paddingLeft: tokens.space.xl,
+  paddingRight: tokens.space.xl,
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
+
+export const logo = style({
+  cursor: 'pointer',
+  transition: 'all 250ms ease-in-out',
+  ':hover': {
+    opacity: 0.95,
+    scale: 1.1,
+  },
+});
+
+export const navList = style({
+  display: 'flex',
+  listStyle: 'none',
+  gap: tokens.space.md,
+  padding: 0,
+  margin: 0,
+  alignItems: 'center',
+});
+
+export const navButton = style({
+  fontWeight: 500
+});
+
+export const navItemsList = style({
+  display: 'flex',
+  listStyle: 'none',
+  gap: tokens.space.md,
+  padding: 0,
+});

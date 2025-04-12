@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import '../App.css'
 import { useMutation } from '@apollo/client';
 import { useAuth } from './auth/AuthProvider'
 import { AUTH_USER, CREATE_USER } from '../apollo/queries/userQueries'

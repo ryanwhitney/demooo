@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import '../App.css'
 import { useMutation } from '@apollo/client';
 import { useAuth } from './auth/AuthProvider'
 import { AUTH_USER } from '../apollo/queries/userQueries'
 import { LoginInput } from '../types/auth'
+import Button from './common/Button'
 
 function Login() {
   const [formData, setFormData] = useState<LoginInput>({
@@ -52,7 +52,7 @@ function Login() {
           onChange={e => setFormData({ ...formData, password: e.target.value })} 
         />
       </label>
-      <button type="submit">Login</button>
+      <Button size='small' type="submit">Login</Button>
     </form>
   )
 }
