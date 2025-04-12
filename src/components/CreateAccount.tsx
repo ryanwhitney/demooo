@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation } from '@apollo/client';
-import { useAuth } from './auth/AuthProvider'
+import { useAuth } from '../hooks/useAuth'
 import { AUTH_USER, CREATE_USER } from '../apollo/queries/userQueries'
 import { RegisterInput } from '../types/auth'
 

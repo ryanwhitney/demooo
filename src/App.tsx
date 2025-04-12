@@ -6,7 +6,7 @@ import { client } from './apollo/client';
 import './styles/reset.css'
 import './styles/global.css'
 import Home from './routes/Home';
-import { AuthProvider } from './components/auth/AuthProvider'
+import { AuthProvider } from './providers/AuthProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
