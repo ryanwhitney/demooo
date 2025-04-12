@@ -4,7 +4,7 @@ import Modal from '../modal/Modal'
 import CreateAccount from '../CreateAccount'
 import Login from '../Login'
 import { useAuth } from '../../hooks/useAuth'
-import { logo, nav, navBarUser, navItemsList } from './NavBar.css'
+import { logo, navBar, navBarUser, navItemsList } from './NavBar.css'
 import Button from '../button/Button'
 import demoSvg from '../../assets/demoooooooooooooooo.svg'
 import { Link } from 'react-router'
@@ -17,7 +17,7 @@ function NavBar() {
 
   return ( 
     <>
-      <nav className={nav}>
+      <nav className={navBar}>
         <Link to="/" className={logo}><img src={demoSvg} alt="Demo" /></Link>
         <ul className={navItemsList}>
           {me.isAuthenticated ?

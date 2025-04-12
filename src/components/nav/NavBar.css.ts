@@ -1,10 +1,11 @@
 import { style } from '@vanilla-extract/css';
 import { tokens } from '../../styles/tokens'
 
-export const nav = style({
+export const navBar = style({
   padding: tokens.space.lg,
   paddingLeft: tokens.space.xl,
   paddingRight: tokens.space.xl,
+  backgroundColor: tokens.colors.background,
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
