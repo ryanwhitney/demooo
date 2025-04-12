@@ -34,6 +34,8 @@ const Waveform = ({width = 60}:{width?: number} ) => {
 }
 
 function TrackChip({ track }: { track: Track }) {
+  
+  
   return (
     <div className={trackChipWrapper}>
       <div className={waveformWrapper}>

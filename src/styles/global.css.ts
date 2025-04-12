@@ -10,4 +10,12 @@ globalStyle('html, body', {
   WebkitFontSmoothing: 'antialiased',
   MozOsxFontSmoothing: 'grayscale',
   minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+});
+
+globalStyle('main', {
+  maxWidth: 960,
+  margin: '0 auto',
 });

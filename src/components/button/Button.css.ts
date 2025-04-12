@@ -60,7 +60,7 @@ export const buttonStyles = recipe({
       },
       medium: {
         padding: `${tokens.space.sm} ${tokens.space.md}`,
-        fontSize: tokens.fontSizes.md,
+        fontSize: tokens.fontSizes.sm,
       },
       large: {
         padding: `${tokens.space.md} ${tokens.space.lg}`,

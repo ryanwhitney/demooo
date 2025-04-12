@@ -19,7 +19,7 @@ const homeBannerText: React.CSSProperties = ({
   fontWeight: tokens.fontWeights.normal,
 });
 
-function ArtistView() {
+function ArtistPage() {
   const { artistName } = useParams();
 
   return (
@@ -32,4 +32,4 @@ function ArtistView() {
   )
 }
 
-export default ArtistView
+export default ArtistPage

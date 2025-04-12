@@ -8,6 +8,7 @@ export const mockData = {
       duration: 120,
       createdAt: '2025-04-04',
       recordedAt: '2025-04-04',
+      albumArt: 'https://picsum.photos/300/300.jpg',
       tags: "synth, electronic, op-1",
     },
     {
@@ -18,6 +19,7 @@ export const mockData = {
       duration: 161,
       createdAt: '2025-01-01',
       recordedAt: '2025-01-01',
+      albumArt: 'https://picsum.photos/300/300.jpg',
       tags: "drum machine, electronic"
     },
   ]

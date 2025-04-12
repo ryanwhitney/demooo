@@ -33,6 +33,7 @@ export const navList = style({
 
 export const navBarUser = style({
   color: tokens.colors.tertiary,
+  padding: tokens.space.lg,
 });
 
 

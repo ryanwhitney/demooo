@@ -1,11 +1,11 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter } from 'react-router';
-import TrackChip from './TrackChip';
+import TrackView from './TrackView';
 import { mockData } from '../../apollo/mockData'
 
-const meta: Meta<typeof TrackChip> = {
-  title: 'Components/TrackChip',
-  component: TrackChip,
+const meta: Meta<typeof TrackView> = {
+  title: 'Components/TrackView',
+  component: TrackView,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -24,10 +24,10 @@ const meta: Meta<typeof TrackChip> = {
 
 export default meta;
 
-type Story = StoryObj<typeof TrackChip>;
+type Story = StoryObj<typeof TrackView>;
 
 export const Default: Story = {
   args: {
-    track: mockData.tracks[0],    
+    track: mockData.tracks[0],
   },
 };

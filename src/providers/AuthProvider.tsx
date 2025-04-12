@@ -45,7 +45,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     localStorage.removeItem('authToken');
     setIsAuthenticated(false);
     setUser(null);
-    window.location.href = '/';
   };
 
   // Context value with proper typing
