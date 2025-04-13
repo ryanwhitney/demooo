@@ -36,7 +36,7 @@ const RecentTracks = () => {
 			</p>
 			<div style={{ display: "flex", gap: 20, padding: 20, flexWrap: "wrap" }}>
 				{data?.tracks?.map((track: Track) => (
-					<TrackChip key={track.id} track={track} />
+					<TrackChip key={`${track.id}`} track={track} />
 				))}
 			</div>
 		</div>

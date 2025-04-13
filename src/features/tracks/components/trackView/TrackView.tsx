@@ -33,8 +33,8 @@ const Waveform = ({ width = 60 }: { width?: number }) => {
 				const waveform =
 					waveformBars[Math.floor(Math.random() * waveformBars.length)];
 				return (
+					// biome-ignore lint/correctness/useJsxKeyInIterable: <explanation>
 					<rect
-						key={count}
 						x={index * 5} // Space by 5
 						y={waveform.y}
 						width={waveform.width}

@@ -34,7 +34,6 @@ function Home() {
 			<div style={homeBanner}>
 				<h1 style={homeBannerText}>Free your voice memos</h1>
 			</div>
-			<ProgressIndicator />
 			{auth.isAuthenticated && <TrackUpload />}
 			<RecentTracks />
 		</>

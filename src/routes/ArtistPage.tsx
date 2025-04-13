@@ -30,14 +30,13 @@ const ArtistPage = () => {
 			) : (
 				<div>
 					<h2>{data.user.username}</h2>
-					{tracks &&
-						tracks.map((track: Track) => (
-							<div key={track.id}>
-								<Link to={`/${data.user.username}/track?id=${track.id}`}>
-									{track.title}
-								</Link>
-							</div>
-						))}
+					{tracks?.map((track: Track) => (
+						<div key={track.id}>
+							<Link to={`/${data.user.username}/track?id=${track.id}`}>
+								{track.title}
+							</Link>
+						</div>
+					))}
 				</div>
 			)}
 		</>

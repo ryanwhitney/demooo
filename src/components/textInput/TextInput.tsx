@@ -51,13 +51,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 		// Use external error message if provided, otherwise use internal error
 		const errorMessage = externalErrorMessage || internalError;
 
-		// Cancel any pending validation on unmount
+		// We will handle cleanup directly in the component
 		useEffect(() => {
-			return () => {
-				if (timeoutRef.current) {
-					clearTimeout(timeoutRef.current);
-				}
-			};
+			// No cleanup needed here - we'll handle it when setting a new timeout
 		}, []);
 
 		// Handle debounced validation
@@ -75,6 +71,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 			// Clear any existing timeout
 			if (timeoutRef.current) {
 				clearTimeout(timeoutRef.current);
+				timeoutRef.current = null;
 			}
 
 			// Schedule new validation

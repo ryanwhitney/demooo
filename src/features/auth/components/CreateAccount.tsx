@@ -10,7 +10,7 @@ import TextInput from "@/components/textInput/TextInput";
 import { useAuth } from "@/hooks/useAuth";
 import type { RegisterInput } from "@/types/auth";
 import { useLazyQuery, useMutation } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 type CreateAccountProps = {
 	onSuccess: () => void;
@@ -102,12 +102,22 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 		return "";
 	}
 
+	// Store the timer in a ref so we can clear it when needed
+	const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
+	// Clean up the timer when username changes
 	useEffect(() => {
+		// Clear previous timer if it exists
+		if (timerRef.current) {
+			clearTimeout(timerRef.current);
+			timerRef.current = undefined;
+		}
+
+		// Set new timer if username is long enough
 		if (formData.username.length >= 3) {
-			const timer = setTimeout(() => {
+			timerRef.current = setTimeout(() => {
 				checkUsername({ variables: { username: formData.username } });
 			}, 500);
-			return () => clearTimeout(timer);
 		}
 	}, [formData.username, checkUsername]);
 
