@@ -1,21 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import type React from "react";
+import { animatedDots } from "./ProgressIndicator.css";
 
 function ProgressIndicator(): React.ReactNode {
-  const [dots, setDots] = useState(".")
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (dots.length > 4) {
-        setDots("")
-      } else {
-        setDots((prevDots) => (prevDots + "."))
-      }
-    }, 300)
-
-    return () => clearInterval(interval)
-  }, [dots])
-
-  return dots
+	return <span className={animatedDots} />;
 }
 
-export default ProgressIndicator
+export default ProgressIndicator;
