@@ -48,7 +48,7 @@ function Login({ onSuccess }: LoginProps) {
         <TextInput
           label="Username"
           type="text"
-          placeholder=""
+          // placeholder=""
           value={formData.username}
           autoComplete='username'
           onChange={e => setFormData({ ...formData, username: e.target.value })} 
@@ -58,7 +58,7 @@ function Login({ onSuccess }: LoginProps) {
         <TextInput
           label="Password"
           type="password"
-          placeholder="Enter your password"
+          // placeholder="Enter your password"
           value={formData.password}
           autoComplete='current-password'
           onChange={e => setFormData({ ...formData, password: e.target.value })} 

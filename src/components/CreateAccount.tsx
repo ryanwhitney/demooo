@@ -123,7 +123,7 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
         <TextInput
           label="Username"
           type="text"
-          placeholder="ryannn"
+          // placeholder="ryannn"
           value={formData.username}
           autoComplete='username'
           debounceTime={750}
@@ -134,7 +134,7 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
         <TextInput
           label="Email"
           type="email"
-          placeholder="ryan@sadbedroommusic.com"
+          // placeholder="ryan@sadbedroommusic.com"
           value={formData.email}
           autoComplete='email'
           debounceTime={2000}
@@ -145,7 +145,7 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
         <TextInput
           label="Password"
           type="password"
-          placeholder="Enter your password"
+          // placeholder="Enter your password"
           autoComplete='new-password'
           value={formData.password}
           onChange={e => setFormData({ ...formData, password: e.target.value })}
