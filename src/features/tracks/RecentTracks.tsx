@@ -1,7 +1,7 @@
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
-import { GET_ALL_TRACKS } from "../apollo/queries/trackQueries";
-import type { Track } from "../types/track";
+import { GET_ALL_TRACKS } from "../../apollo/queries/trackQueries";
+import type { Track } from "../../types/track";
 import TrackChip from "./trackChip/TrackChip";
 
 const RecentTracks = () => {

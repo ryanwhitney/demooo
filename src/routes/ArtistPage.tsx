@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import NavBar from "../components/nav/NavBar";
+import NavBar from "../features/nav/NavBar";
 import { Link, useParams } from "react-router";
 import { GET_ARTIST } from "../apollo/queries/userQueries";
 import { useEffect, useState } from "react";
