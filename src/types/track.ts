@@ -6,6 +6,12 @@ export interface Track {
   albumArt?: string;
   duration: number; 
   createdAt: string; 
+  user: TrackUser;
   recordedAt: string;
   tags: string; // comma-separated tags
+}
+
+export interface TrackUser {
+  username: string;
+  id: string;
 }

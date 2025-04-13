@@ -35,15 +35,14 @@ const Waveform = ({width = 60}:{width?: number} ) => {
 
 function TrackChip({ track }: { track: Track }) {
   
-  
   return (
     <div className={trackChipWrapper}>
       <div className={waveformWrapper}>
         <Waveform width={55} />
       </div>
       <div className={trackText}>
-        <Link to={`/${track.artist}/track?id=${track.id}`} className={trackTitle}>{track.title}</Link>
-        <Link to={`/${track.artist}`} className={trackArtist}>{track.artist}</Link>
+        <Link to={`/${track.user.username}/track?id=${track.id}`} className={trackTitle}>{track.title}</Link>
+        <Link to={`/${track.user.username}`} className={trackArtist}>{track.user.username}</Link>
       </div>
     </div>
   );

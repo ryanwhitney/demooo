@@ -1,7 +1,8 @@
 import graphene
 from graphql_jwt.decorators import login_required
-from ..types.user import UserType
+
 from ..models import User
+from ..types.user import UserType
 
 
 class UserQueries:
@@ -18,6 +19,3 @@ class UserQueries:
             return User.objects.get(username=username)
         except User.DoesNotExist:
             return None
-
-    def resolve_users(self, info):
-        return User.objects.all() 

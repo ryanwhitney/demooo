@@ -1,6 +1,5 @@
-import { mockData } from '../apollo/mockData'
 import NavBar from '../components/nav/NavBar'
-import TrackChip from '../components/trackChip/TrackChip'
+import RecentTracks from '../components/RecentTracks'
 import TrackUpload from '../components/trackUpload/TrackUpload'
 import { useAuth } from '../hooks/useAuth'
 import { tokens } from '../styles/tokens'
@@ -39,14 +38,7 @@ function Home() {
       {auth.isAuthenticated && (
         <TrackUpload />
       )}
-      <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-        <p style={{ padding: 20, textTransform: 'uppercase', fontSize: 11, letterSpacing:8, opacity: 0.3, }}>Latest</p>
-        <div style={{ display: 'flex', gap: 20, padding: 20, flexWrap: 'wrap' }}>
-          {mockData.tracks.map((track) => (
-            <TrackChip key={track.id} track={track} />
-          ))}
-        </div>
-      </div>
+      <RecentTracks />
     </>
   )
 }

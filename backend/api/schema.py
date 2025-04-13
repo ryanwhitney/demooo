@@ -19,10 +19,10 @@ class Mutation(graphene.ObjectType):
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
-    
+
     # Profile mutations
     update_profile = UpdateProfile.Field()
-    
+
     # Track mutations
     upload_track = UploadTrack.Field()
     update_track = UpdateTrack.Field()

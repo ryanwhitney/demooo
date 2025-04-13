@@ -28,3 +28,4 @@ dist-ssr
 /backend/api/__pycache__
 
 *storybook.log
+*.pyc

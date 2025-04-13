@@ -12,6 +12,7 @@ export const colors = createGlobalTheme(root, {
   indigo500: '#636CFF',
   blackTransparent50: 'rgba(0, 0, 0, 0.5)',
   red500: '#ff3b30',
+  redOpacity10: 'rgba(255,59,48,.1)',
   green500: '#34c759',
 
   // transparency-based one-offs, ripping from apple
@@ -39,8 +40,9 @@ export const colorTokens = createGlobalTheme(root, {
   quaternaryDark: `${colors.quaternaryDark, colors.quaternaryDarkP3}`,
   background: colors.black,
   backgroundSecondary: colors.gray900,
-  backdrop: colors.blackTransparent50,
+  backdrop: colors.blackOpacity50,
   focusRing: colors.indigo500,
   error: colors.red500,
+  errorBackground: colors.redOpacity10,
   success: colors.green500
 })
