@@ -44,9 +44,10 @@ const TrackUpload = () => {
 			<h2>Upload New Track</h2>
 
 			<div>
-				<label>Title:</label>
+				<label htmlFor="upload">Title:</label>
 				<input
 					type="text"
+					name="upload"
 					value={title}
 					onChange={(e) => setTitle(e.target.value)}
 					required
@@ -54,17 +55,19 @@ const TrackUpload = () => {
 			</div>
 
 			<div>
-				<label>Description:</label>
+				<label htmlFor="description">Description:</label>
 				<textarea
+					name="description"
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 				/>
 			</div>
 
 			<div>
-				<label>Audio File:</label>
+				<label htmlFor="audiofile">Audio File:</label>
 				<input
 					type="file"
+					name=""
 					accept="audio/*"
 					onChange={handleFileChange}
 					required
