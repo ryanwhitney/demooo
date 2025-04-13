@@ -145,30 +145,36 @@ class UploadTrack(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
         description = graphene.String()
-        tags = graphene.String()
         file = Upload(required=True)
 
     @login_required
-    def mutate(self, info, title, file, description=None, tags=None):
-        # Create track instance first (needed for upload path function)
+    @login_required
+    def mutate(self, info, title, file, description=None):
+        # Create track instance first
         track = Track(
             user=info.context.user,
             title=title,
             description=description or "",
-            tags=tags or "",
         )
-
-        # Save to get an ID (needed for upload path)
+        # Save to get an ID
         track.save()
 
         # Get file extension
         _, ext = os.path.splitext(file.name)
 
-        # Create custom filename
-        filename = f"{track.id}{ext}"
+        # Use user_id as artist folder and track_id as track folder
+        artist_id = str(info.context.user.id)
+        track_id = str(track.id)
 
-        # Define the path for the file
-        path = f'audio/artists/{track.user.id}/tracks/{track.id}/{filename}'
+        # Define path structure: audio/artist_id/track_id/track_id.ext
+        filename = f"{track_id}{ext}"
+        path = f'audio/{artist_id}/{track_id}/{filename}'
+
+        # Check if file already exists at this path
+        if default_storage.exists(path):
+            # Clean up the track we just created
+            track.delete()
+            raise Exception(f"A file already exists at {path}")
 
         # Save the file
         file_path = default_storage.save(path, file)

@@ -14,7 +14,9 @@
   "dependencies": {
     "@apollo/client": "^3.13.6",
     "@phosphor-icons/react": "^2.1.7",
+    "@types/apollo-upload-client": "^18.0.0",
     "@vanilla-extract/recipes": "^0.5.5",
+    "apollo-upload-client": "^18.0.1",
     "graphql": "^16.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

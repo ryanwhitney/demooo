@@ -55,7 +55,7 @@ class Track(models.Model):
     tags = models.TextField(blank=True, help_text="Comma separated tags")
 
     # Audio file field with custom upload path
-    audio_file = models.FileField(upload_to=track_upload_path)
+    audio_file = models.FileField(max_length=255, upload_to=track_upload_path)
 
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)

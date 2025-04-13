@@ -1,6 +1,8 @@
 import { mockData } from '../apollo/mockData'
 import NavBar from '../components/nav/NavBar'
 import TrackChip from '../components/trackChip/TrackChip'
+import TrackUpload from '../components/trackUpload/TrackUpload'
+import { useAuth } from '../hooks/useAuth'
 import { tokens } from '../styles/tokens'
 
 const homeBanner: React.CSSProperties = ({
@@ -23,13 +25,20 @@ const homeBannerText: React.CSSProperties = ({
   // alignItems: 'center',
 });
 
+
 function Home() {
+
+  const auth = useAuth()
+
   return (
     <>
       <NavBar />
       <div style={homeBanner}>
         <h1 style={homeBannerText}>Free your voice memos</h1>
       </div>
+      {auth.isAuthenticated && (
+        <TrackUpload />
+      )}
       <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
         <p style={{ padding: 20, textTransform: 'uppercase', fontSize: 11, letterSpacing:8, opacity: 0.3, }}>Latest</p>
         <div style={{ display: 'flex', gap: 20, padding: 20, flexWrap: 'wrap' }}>
