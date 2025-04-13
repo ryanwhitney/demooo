@@ -7,12 +7,25 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node
 node_modules
 dist
 dist-ssr
 *.local
 
-/backend/api/__pycache__
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # Editor directories and files
 .vscode/*
@@ -24,8 +37,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-/backend/backend/__pycache__
-/backend/api/__pycache__
 
+# Other
 *storybook.log
-*.pyc
