@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPLOAD_TRACK } from '../../apollo/queries/trackQueries';
 
 const TrackUpload = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   
   const [uploadTrack, { loading, error }] = useMutation(UPLOAD_TRACK);
   
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
   };
   
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!file) {

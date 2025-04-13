@@ -39,6 +39,7 @@ export const inputStyles = recipe({
   variants: {
     state: {
       default: {},
+      pending: {},
       error: {
         borderColor: tokens.colors.error,
         ':focus': {

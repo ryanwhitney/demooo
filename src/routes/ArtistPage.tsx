@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client'
 import NavBar from '../components/nav/NavBar'
-import { tokens } from '../styles/tokens'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { GET_ARTIST } from '../apollo/queries/userQueries'
 import { useEffect, useState } from 'react'
 import { Track } from '../types/track'
@@ -9,7 +8,7 @@ import { Track } from '../types/track'
 
 const ArtistPage = () => {
   const { artistName } = useParams();
-  const [tracks, setTracks] = useState<[Track]>([])
+  const [tracks, setTracks] = useState<[Track] | null>(null)
   const { data, loading, error, refetch } = useQuery(GET_ARTIST, {
     variables: { username: artistName },
     onCompleted: (data) => {
@@ -32,10 +31,9 @@ const ArtistPage = () => {
       ) : (
         <div>
           <h2>{data.user.username}</h2>
-          {tracks.map((track: Track) => (
+          {tracks && tracks.map((track: Track) => (
             <div key={track.id}>
-              <p>{track.title}</p>
-              <p>{track.artist}</p>
+              <Link to={`/${data.user.username}/track?id=${track.id}`}>{track.title}</Link>
             </div>
           ))}
         </div>

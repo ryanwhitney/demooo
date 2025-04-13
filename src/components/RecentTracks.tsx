@@ -12,7 +12,7 @@ const RecentTracks = () => {
     refetch()
   }, [])
 
-  if (error) return `Submission error! ${error.message}`;
+  if (error) return `${error.message}`;
   if (loading) return `Submission error! `;
 
   return(

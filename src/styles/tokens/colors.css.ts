@@ -10,7 +10,7 @@ export const colors = createGlobalTheme(root, {
   gray900: '#131313',
   
   indigo500: '#636CFF',
-  blackTransparent50: 'rgba(0, 0, 0, 0.5)',
+  blackOpacity50: 'rgba(0, 0, 0, 0.5)',
   red500: '#ff3b30',
   redOpacity10: 'rgba(255,59,48,.1)',
   green500: '#34c759',

@@ -9,6 +9,10 @@ export const mockData = {
       createdAt: '2025-04-04',
       recordedAt: '2025-04-04',
       albumArt: 'https://picsum.photos/300/300.jpg',
+      user: {
+        id: "long-uuidstring",
+        username: "ryanwhitney",
+      },
       tags: "synth, electronic, op-1",
     },
     {
@@ -20,6 +24,10 @@ export const mockData = {
       createdAt: '2025-01-01',
       recordedAt: '2025-01-01',
       albumArt: 'https://picsum.photos/300/300.jpg',
+      user: {
+        id: "long-awffjoaw-fewa",
+        username: "ryanwhitney",
+      },
       tags: "drum machine, electronic"
     },
   ]
