@@ -8,10 +8,12 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router";
 import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
+import TrackUpload from "@/features/tracks/components/trackUpload/TrackUpload";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
 	const [showLoginModal, setShowLoginModal] = useState(false);
+	const [showUploadModal, setShowUploadModal] = useState(false);
 
 	const me = useAuth();
 
@@ -32,7 +34,12 @@ function NavBar() {
 								<Button variant="primary">favs</Button>
 							</li>
 							<li>
-								<Button variant="primary">upload</Button>
+								<Button
+									variant="primary"
+									onClick={() => setShowUploadModal(true)}
+								>
+									upload
+								</Button>
 							</li>
 							<li>
 								<Button variant="primary" onClick={me.logout}>
@@ -81,6 +88,16 @@ function NavBar() {
 				createPortal(
 					<Modal title="Join demooo" onClose={() => setShowSignUpModal(false)}>
 						<CreateAccount onSuccess={() => setShowSignUpModal(false)} />
+					</Modal>,
+					document.body,
+				)}
+			{showUploadModal &&
+				createPortal(
+					<Modal
+						title="Upload a Track"
+						onClose={() => setShowSignUpModal(false)}
+					>
+						<TrackUpload />
 					</Modal>,
 					document.body,
 				)}
