@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from "@apollo/client"
 
 /**** MUTATIONS ****/
 
@@ -12,7 +12,7 @@ export const CREATE_USER = gql`
       }
     }
   }
-`;
+`
 export const AUTH_USER = gql`
   mutation TokenAuth($username: String!, $password: String!) {
     tokenAuth(username: $username, password: $password) {
@@ -21,7 +21,7 @@ export const AUTH_USER = gql`
       refreshExpiresIn
     }
   }
-`;
+`
 
 /**** QUERIES ****/
 
@@ -37,6 +37,7 @@ export const GET_ME = gql`
   }
 `;
 
+
 export const GET_USERNAME = gql`
   query CheckUsernameAvailability($username: String!) {
     user(username: $username) {
@@ -44,7 +45,7 @@ export const GET_USERNAME = gql`
       username
     }
   }
-`;
+`
 
 export const GET_ARTIST = gql`
   query GetArtist($username: String!) {
@@ -66,4 +67,4 @@ export const GET_ARTIST = gql`
       }
     }
   }
-`;
+`

@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 /**** MUTATIONS ****/
 
@@ -33,7 +33,7 @@ export const GET_TRACK = gql`
       }
     }
   }
-`;
+`
 
 export const GET_ALL_TRACKS = gql`
   query GetAllTracks {
@@ -50,7 +50,7 @@ export const GET_ALL_TRACKS = gql`
       }
     }
   }
-`;
+`
 
 export const GET_USER_TRACKS = gql`
   query GetUserTracks($username: String!) {
@@ -64,4 +64,4 @@ export const GET_USER_TRACKS = gql`
       updatedAt
     }
   }
-`;
+`
