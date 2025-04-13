@@ -10,18 +10,24 @@ import ArtistPage from "./routes/ArtistPage";
 import Home from "./routes/Home";
 import TrackPage from "./routes/TrackPage";
 
-createRoot(document.getElementById("root")!).render(
-	<StrictMode>
-		<ApolloProvider client={client}>
-			<AuthProvider>
-				<BrowserRouter>
-					<Routes>
-						<Route path="/" element={<Home />} />
-						<Route path="/:artistName" element={<ArtistPage />} />
-						<Route path="/:artistName/track" element={<TrackPage />} />
-					</Routes>
-				</BrowserRouter>
-			</AuthProvider>
-		</ApolloProvider>
-	</StrictMode>,
-);
+// Get the root element
+const rootElement = document.getElementById("root");
+
+// Check if the element exists before trying to render
+if (rootElement) {
+	createRoot(rootElement).render(
+		<StrictMode>
+			<ApolloProvider client={client}>
+				<AuthProvider>
+					<BrowserRouter>
+						<Routes>
+							<Route path="/" element={<Home />} />
+							<Route path="/:artistName" element={<ArtistPage />} />
+							<Route path="/:artistName/track" element={<TrackPage />} />
+						</Routes>
+					</BrowserRouter>
+				</AuthProvider>
+			</ApolloProvider>
+		</StrictMode>,
+	);
+}
