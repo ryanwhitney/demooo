@@ -46,3 +46,25 @@ export const GET_USERNAME = gql`
     }
   }
 `
+
+export const GET_ARTIST = gql`
+  query GetArtist($username: String!) {
+    user(username: $username) {
+      id
+      username
+      firstName
+      lastName
+      profile {
+        id
+        bio
+        website
+      }
+      tracks {
+        id
+        title
+        description
+        audioUrl
+      }
+    }
+  }
+`
