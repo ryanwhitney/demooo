@@ -18,8 +18,8 @@ class Profile(models.Model):
     """Profile model with UUID and linked to custom User model"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.TextField(max_length=80, blank=True)
     bio = models.TextField(max_length=500, blank=True)
-    website = models.URLField(max_length=200, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -43,26 +43,25 @@ def track_upload_path(instance, filename):
     Generate file path for track uploads:
     audio/artists/<user_id>/tracks/<track_id>/<filename>
     """
-    return f'audio/artists/{instance.user.id}/tracks/{instance.id}/{filename}'
+    return f'audio/artists/{instance.artist.id}/tracks/{instance.id}/{filename}'
 
 
 class Track(models.Model):
     """Model for audio tracks uploaded by users"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tracks')
-    title = models.CharField(max_length=255)
+    artist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tracks', db_column='user_id')
+    title = models.CharField(max_length=125)
+    title_slug = models.SlugField(max_length=255)  # longer to allow for slug dashes
     description = models.TextField(blank=True)
-    tags = models.TextField(blank=True, help_text="Comma separated tags")
-
-    # Audio file field with custom upload path
     audio_file = models.FileField(max_length=255, upload_to=track_upload_path)
-
-    # Metadata
+    audio_length = models.IntegerField(default=0)
+    audio_waveform_data = models.JSONField(blank=True, null=True)
+    audio_waveform_resolution = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.title} by {self.user.username}"
+        return f"{self.title} by {self.artist.username}"
 
     class Meta:
         ordering = ['-created_at']

@@ -7,6 +7,7 @@ class TrackQueries:
     track = graphene.Field(TrackType, id=graphene.ID())
     tracks = graphene.List(TrackType)
     user_tracks = graphene.List(TrackType, username=graphene.String())
+    track_by_slug = graphene.Field(TrackType, username=graphene.String(), slug=graphene.String())
 
     def resolve_track(self, info, id):
         try:
@@ -20,6 +21,15 @@ class TrackQueries:
     def resolve_user_tracks(self, info, username):
         try:
             user = User.objects.get(username=username)
-            return Track.objects.filter(user=user)
+            return Track.objects.filter(artist=user)
         except User.DoesNotExist:
-            return [] 
+            return []
+
+    def resolve_track_by_slug(self, info, username, slug):
+        try:
+            # First find the artist by username
+            user = User.objects.get(username=username)
+            # Then get their track with the matching slug
+            return Track.objects.get(artist=user, title_slug=slug)
+        except (User.DoesNotExist, Track.DoesNotExist):
+            return None

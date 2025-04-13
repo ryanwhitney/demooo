@@ -8,13 +8,16 @@ class TrackType(DjangoObjectType):
     class Meta:
         model = Track
         fields = (
-            'id', 
-            'user', 
-            'title', 
-            'description', 
-            'tags', 
-            'audio_file', 
-            'created_at', 
+            'id',
+            'title',
+            'title_slug',
+            'artist',  # Only include artist, not user
+            'description',
+            'audio_file',
+            'audio_length',
+            'audio_waveform_data',
+            'audio_waveform_resolution',
+            'created_at',
             'updated_at'
         )
     
@@ -23,4 +26,5 @@ class TrackType(DjangoObjectType):
     def resolve_audio_url(self, info):
         if self.audio_file:
             return self.audio_file.url
-        return None 
+        return None
+    

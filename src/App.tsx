@@ -23,7 +23,10 @@ if (rootElement) {
 						<Routes>
 							<Route path="/" element={<Home />} />
 							<Route path="/:artistName" element={<ArtistPage />} />
-							<Route path="/:artistName/track" element={<TrackPage />} />
+							<Route
+								path="/:artistName/track/:titleSlug"
+								element={<TrackPage />}
+							/>
 						</Routes>
 					</BrowserRouter>
 				</AuthProvider>

@@ -3,8 +3,10 @@ import os
 from graphql_jwt.decorators import login_required
 from graphene_file_upload.scalars import Upload
 from django.core.files.storage import default_storage
+from django.utils.text import slugify
 from ..types.track import TrackType
 from ..models import Track
+
 
 
 class UploadTrack(graphene.Mutation):
@@ -18,8 +20,9 @@ class UploadTrack(graphene.Mutation):
     @login_required
     def mutate(self, info, title, file, description=None):
         track = Track(
-            user=info.context.user,
+            artist=info.context.user,
             title=title,
+            title_slug=slugify(title),
             description=description or "",
         )
         track.save()

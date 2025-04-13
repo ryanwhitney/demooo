@@ -57,7 +57,7 @@ function TrackView({ track }: { track: Track }) {
 						<p>
 							by{" "}
 							<Link to={`/${track.artist}`} className={trackViewArtist}>
-								{track.artist}
+								{track.artist.username}
 							</Link>
 						</p>
 					</div>
@@ -70,9 +70,6 @@ function TrackView({ track }: { track: Track }) {
               <p>Recorded at: {track.recordedAt.toLocaleDateString()}</p> */}
 					</div>
 					<div className={trackViewTagsWrapper} />
-				</div>
-				<div>
-					<img src={track.albumArt} alt={track.title} />
 				</div>
 			</div>
 		</main>

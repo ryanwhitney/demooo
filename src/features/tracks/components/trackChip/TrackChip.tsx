@@ -53,13 +53,13 @@ function TrackChip({ track }: { track: Track }) {
 			</div>
 			<div className={trackText}>
 				<Link
-					to={`/${track.user.username}/track?id=${track.id}`}
+					to={`/${track.artist.username}/track/${track.titleSlug}`}
 					className={trackTitle}
 				>
 					{track.title}
 				</Link>
-				<Link to={`/${track.user.username}`} className={trackArtist}>
-					{track.user.username}
+				<Link to={`/${track.artist.username}`} className={trackArtist}>
+					{track.artist.username}
 				</Link>
 			</div>
 		</div>

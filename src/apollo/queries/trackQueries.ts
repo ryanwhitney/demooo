@@ -23,11 +23,10 @@ export const GET_TRACK = gql`
       id
       title
       description
-      tags
       audioUrl
       createdAt
       updatedAt
-      user {
+      artist {
         username
         id
       }
@@ -40,11 +39,11 @@ export const GET_ALL_TRACKS = gql`
     tracks {
       id
       title
+      titleSlug
       description
-      tags
       audioUrl
       createdAt
-      user {
+      artist {
         username
         id
       }
@@ -57,11 +56,33 @@ export const GET_USER_TRACKS = gql`
     userTracks(username: $username) {
       id
       title
+      titleSLug
+      artist{
+        id
+        username
+      }
       description
-      tags
       audioUrl
       createdAt
       updatedAt
+    }
+  }
+`;
+
+export const GET_TRACK_BY_SLUG = gql`
+  query GetTrackBySlug($username: String!, $slug: String!) {
+    trackBySlug(username: $username, slug: $slug) {
+      id
+      title
+      titleSlug
+      description
+      audioUrl
+      createdAt
+      updatedAt
+      artist {
+        username
+        id
+      }
     }
   }
 `;

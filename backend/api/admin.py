@@ -47,7 +47,7 @@ class CustomUserAdmin(UserAdmin):
 @admin.register(Track)
 class TrackAdmin(admin.ModelAdmin):
     list_display = ('title', 'user_link', 'created_at', 'has_audio', 'audio_player')
-    list_filter = ('created_at', 'user')
+    list_filter = ('created_at', 'artist')
     search_fields = ('title', 'description', 'tags', 'user__username')
     readonly_fields = ('id', 'created_at', 'updated_at', 'audio_player')
     

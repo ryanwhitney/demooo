@@ -55,14 +55,18 @@ export const GET_ARTIST = gql`
       lastName
       profile {
         id
+        name
         bio
-        website
       }
       tracks {
         id
         title
         description
         audioUrl
+        artist {
+          id
+          username
+        }
       }
     }
   }
