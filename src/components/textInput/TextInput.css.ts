@@ -1,7 +1,7 @@
 import { style  } from '@vanilla-extract/css';
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
-import { tokens } from '../../styles/tokens';
-import { colors } from '../../styles/tokens/colors.css'
+import { tokens } from '@/styles/tokens';
+import { colors } from '@/styles/tokens/colors.css'
 
 const baseInput = style({
   display: 'block',

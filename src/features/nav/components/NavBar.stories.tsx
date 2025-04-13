@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import NavBar from './NavBar'
-import { GET_ME } from '../../apollo/queries/userQueries'
-import { AuthContext } from '../../providers/AuthContext'
-import { AuthContextType } from '../../types/auth'
+import { GET_ME } from '@/apollo/queries/userQueries'
+import { AuthContext } from '@/providers/AuthContext'
+import { AuthContextType } from '@/types/auth'
 import { MemoryRouter } from 'react-router'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

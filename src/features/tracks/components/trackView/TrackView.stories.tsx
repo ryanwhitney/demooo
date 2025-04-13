@@ -1,7 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { MemoryRouter } from 'react-router';
-import TrackView from './TrackView';
-import { mockData } from '../../apollo/mockData'
+import { Meta, StoryObj } from '@storybook/react'
+import { MemoryRouter } from 'react-router'
+import TrackView from './TrackView'
+import { mockData } from '@/apollo/mockData'
 
 const meta: Meta<typeof TrackView> = {
   title: 'Components/TrackView',
@@ -9,8 +9,8 @@ const meta: Meta<typeof TrackView> = {
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
-    backgrounds: { 
-      default: 'black' 
+    backgrounds: {
+      default: 'black',
     },
   },
   decorators: [
@@ -20,14 +20,14 @@ const meta: Meta<typeof TrackView> = {
       </MemoryRouter>
     ),
   ],
-};
+}
 
-export default meta;
+export default meta
 
-type Story = StoryObj<typeof TrackView>;
+type Story = StoryObj<typeof TrackView>
 
 export const Default: Story = {
   args: {
     track: mockData.tracks[0],
   },
-};
+}

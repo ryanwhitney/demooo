@@ -1,5 +1,5 @@
 import { style } from '@vanilla-extract/css';
-import { tokens } from '../../styles/tokens'
+import { tokens } from '@/styles/tokens'
 
 export const navBar = style({
   padding: tokens.space.lg,
