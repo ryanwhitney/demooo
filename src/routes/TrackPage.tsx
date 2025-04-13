@@ -1,4 +1,4 @@
-import NavBar from "../features/nav/NavBar";
+import NavBar from "../components/nav/NavBar";
 import { useSearchParams } from "react-router";
 import { mockData } from "../apollo/mockData";
 import TrackView from "../components/trackView/TrackView";

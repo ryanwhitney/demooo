@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Track } from "@/types/track";
+import { Track } from "../../types/track";
 import {
 	trackArtist,
 	trackChipWrapper,
@@ -22,7 +22,6 @@ const Waveform = ({ width = 60 }: { width?: number }) => {
 		<svg
 			width={width}
 			height="29"
-			aria-hidden="true"
 			viewBox={`0 0 ${width} 29`}
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
@@ -32,7 +31,7 @@ const Waveform = ({ width = 60 }: { width?: number }) => {
 					waveformBars[Math.floor(Math.random() * waveformBars.length)];
 				return (
 					<rect
-						key={count}
+						key={index}
 						x={index * 5} // Space by 5
 						y={waveform.y}
 						width={waveform.width}

@@ -1,5 +1,5 @@
-import NavBar from "../features/nav/NavBar";
-import RecentTracks from "../features/tracks/RecentTracks";
+import NavBar from "../components/nav/NavBar";
+import RecentTracks from "../components/RecentTracks";
 import TrackUpload from "../components/trackUpload/TrackUpload";
 import { useAuth } from "../hooks/useAuth";
 import { tokens } from "../styles/tokens";

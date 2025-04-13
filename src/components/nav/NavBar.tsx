@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import Modal from "../../components/modal/Modal";
+import Modal from "../modal/Modal";
 import CreateAccount from "../CreateAccount";
 import Login from "../Login";
 import { useAuth } from "../../hooks/useAuth";
 import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
-import Button from "../../components/button/Button";
+import Button from "../button/Button";
 import demoSvg from "../../assets/demoooooooooooooooo.svg";
 import { Link } from "react-router";
 

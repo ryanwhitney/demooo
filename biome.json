@@ -4,9 +4,8 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
-  "files": { 
-    "ignoreUnknown": true, 
-    "includes": ["src/**/*.js", "!**/*.min.js", "src/**/*.ts", "!**/*.min.ts", "src/**/*.tsx", "!**/*.min.tsx"]
+  "files": { "ignoreUnknown": false, 
+	"includes": ["src/**/*.js", "!**/*.min.js", "src/**/*.ts", "!**/*.min.ts", "src/**/*.tsx", "!**/*.min.tsx"]
  },
   "formatter": { "enabled": true, "indentStyle": "tab" },
   "linter": {
