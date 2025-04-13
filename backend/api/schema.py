@@ -10,20 +10,23 @@ import os
 # Import only your custom models
 from .models import User, Profile, Track
 
+
 class UserType(DjangoObjectType):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'tracks')
+
 
 class ProfileType(DjangoObjectType):
     class Meta:
         model = Profile
         fields = ('id', 'user', 'bio', 'website', 'created_at', 'updated_at')
 
+
 class TrackType(DjangoObjectType):
     class Meta:
         model = Track
-        fields = ('id', 'user', 'title', 'description', 'tabs', 'audio_file', 
+        fields = ('id', 'user', 'title', 'description', 'tags', 'audio_file', 
                  'created_at', 'updated_at')
     
     audio_url = graphene.String()
@@ -33,38 +36,39 @@ class TrackType(DjangoObjectType):
             return self.audio_file.url
         return None
 
+
 class Query(graphene.ObjectType):
     me = graphene.Field(UserType)
     user = graphene.Field(UserType, username=graphene.String())
     users = graphene.List(UserType)
-    
+
     # Track queries
     track = graphene.Field(TrackType, id=graphene.ID())
     tracks = graphene.List(TrackType)
     user_tracks = graphene.List(TrackType, username=graphene.String())
-    
+
     @login_required
     def resolve_me(self, info):
         return info.context.user
-    
+
     def resolve_user(self, info, username):
         try:
             return User.objects.get(username=username)
         except User.DoesNotExist:
             return None
-    
+
     def resolve_users(self, info):
         return User.objects.all()
-    
+
     def resolve_track(self, info, id):
         try:
             return Track.objects.get(pk=id)
         except Track.DoesNotExist:
             return None
-    
+
     def resolve_tracks(self, info):
         return Track.objects.all()
-    
+
     def resolve_user_tracks(self, info, username):
         try:
             user = User.objects.get(username=username)
@@ -75,25 +79,25 @@ class Query(graphene.ObjectType):
 
 class CreateUser(graphene.Mutation):
     user = graphene.Field(UserType)
-    
+
     class Arguments:
         username = graphene.String(required=True)
         password = graphene.String(required=True)
         email = graphene.String(required=True)
         first_name = graphene.String()
         last_name = graphene.String()
-    
+
     def mutate(self, info, username, password, email, first_name=None, last_name=None):
         # Debug print to see what's being received
         print(f"Creating user with username: {username}, email: {email}")
-        
+
         # Check if user already exists
         if User.objects.filter(username=username).exists():
             raise Exception(f"User with username '{username}' already exists")
-        
+
         if User.objects.filter(email=email).exists():
             raise Exception(f"User with email '{email}' already exists")
-            
+
         # Create new user with all required fields
         user = User(
             username=username,
@@ -102,7 +106,7 @@ class CreateUser(graphene.Mutation):
             last_name=last_name or "",
         )
         user.set_password(password)
-        
+
         # Try/except to catch any errors during save
         try:
             user.save()
@@ -110,125 +114,127 @@ class CreateUser(graphene.Mutation):
         except Exception as e:
             print(f"Error saving user: {str(e)}")
             raise Exception(f"Failed to create user: {str(e)}")
-        
+
         return CreateUser(user=user)
+
 
 class UpdateProfile(graphene.Mutation):
     profile = graphene.Field(ProfileType)
-    
+
     class Arguments:
         bio = graphene.String()
         website = graphene.String()
-    
+
     @login_required
     def mutate(self, info, bio=None, website=None):
         user = info.context.user
         profile = user.profile
-        
+
         if bio is not None:
             profile.bio = bio
         if website is not None:
             profile.website = website
-            
+
         profile.save()
         return UpdateProfile(profile=profile)
 
+
 class UploadTrack(graphene.Mutation):
     track = graphene.Field(TrackType)
-    
+
     class Arguments:
         title = graphene.String(required=True)
         description = graphene.String()
-        tabs = graphene.String()
+        tags = graphene.String()
         file = Upload(required=True)
-    
+
     @login_required
-    def mutate(self, info, title, file, description=None, tabs=None):
+    def mutate(self, info, title, file, description=None, tags=None):
         # Create track instance first (needed for upload path function)
         track = Track(
             user=info.context.user,
             title=title,
             description=description or "",
-            tabs=tabs or "",
+            tags=tags or "",
         )
-        
+
         # Save to get an ID (needed for upload path)
         track.save()
-        
+
         # Get file extension
         _, ext = os.path.splitext(file.name)
-        
+
         # Create custom filename
         filename = f"{track.id}{ext}"
-        
+
         # Define the path for the file
         path = f'audio/artists/{track.user.id}/tracks/{track.id}/{filename}'
-        
+
         # Save the file
         file_path = default_storage.save(path, file)
-        
+
         # Update track with file path
         track.audio_file = file_path
         track.save()
-        
+
         return UploadTrack(track=track)
 
 
 class UpdateTrack(graphene.Mutation):
     track = graphene.Field(TrackType)
-    
+
     class Arguments:
         id = graphene.ID(required=True)
         title = graphene.String()
         description = graphene.String()
-        tabs = graphene.String()
-    
+        tags = graphene.String()
+
     @login_required
-    def mutate(self, info, id, title=None, description=None, tabs=None):
+    def mutate(self, info, id, title=None, description=None, tags=None):
         try:
             track = Track.objects.get(pk=id)
         except Track.DoesNotExist:
             raise Exception("Track not found")
-        
+
         # Check ownership
         if track.user != info.context.user:
             raise Exception("You do not have permission to update this track")
-        
+
         if title is not None:
             track.title = title
         if description is not None:
             track.description = description
-        if tabs is not None:
-            track.tabs = tabs
-            
+        if tags is not None:
+            track.tags = tags
+
         track.save()
         return UpdateTrack(track=track)
 
 
 class DeleteTrack(graphene.Mutation):
     success = graphene.Boolean()
-    
+
     class Arguments:
         id = graphene.ID(required=True)
-    
+
     @login_required
     def mutate(self, info, id):
         try:
             track = Track.objects.get(pk=id)
         except Track.DoesNotExist:
             raise Exception("Track not found")
-        
+
         # Check ownership
         if track.user != info.context.user:
             raise Exception("You do not have permission to delete this track")
-        
+
         # Delete the file from storage
         if track.audio_file:
             default_storage.delete(track.audio_file.name)
-            
+
         # Delete the track record
         track.delete()
-        
+
         return DeleteTrack(success=True)
 
 
@@ -238,7 +244,7 @@ class Mutation(graphene.ObjectType):
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
-    
+
     # Track mutations
     upload_track = UploadTrack.Field()
     update_track = UpdateTrack.Field()
