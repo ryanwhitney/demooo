@@ -56,7 +56,10 @@ function TrackView({ track }: { track: Track }) {
 						<h1 className={trackViewTitle}>{track.title}</h1>
 						<p>
 							by{" "}
-							<Link to={`/${track.artist}`} className={trackViewArtist}>
+							<Link
+								to={`/${track.artist.username}`}
+								className={trackViewArtist}
+							>
 								{track.artist.username}
 							</Link>
 						</p>
@@ -64,10 +67,15 @@ function TrackView({ track }: { track: Track }) {
 					<div className={trackViewWaveformWrapper}>
 						<Waveform width={200} />
 					</div>
+					{/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
+					<audio controls>
+						<source
+							src={`http://localhost:8000${track.audioUrl}`}
+							type="audio/mpeg"
+						/>
+					</audio>
 					<div className={trackViewDetails}>
 						<p>{track.description || "no notes"}</p>
-						{/* <p>Created at: {track.createdAt.toLocaleDateString()}</p>
-              <p>Recorded at: {track.recordedAt.toLocaleDateString()}</p> */}
 					</div>
 					<div className={trackViewTagsWrapper} />
 				</div>

@@ -1,5 +1,4 @@
 import { useParams } from "react-router";
-import { mockData } from "../apollo/mockData";
 import NavBar from "../features/nav/components/NavBar";
 import TrackView from "../features/tracks/components/trackView/TrackView";
 import { GET_TRACK_BY_SLUG } from "@/apollo/queries/trackQueries";

@@ -53,7 +53,7 @@ function Modal({ children, onClose, title, description }: ModalProps) {
 					className={modalButtonClose}
 					onClick={handleClose}
 				>
-					&times;
+					<span aria-label="X">&times;</span>
 				</Button>
 				<h1 className={modalTitle}>{title}</h1>
 				<p className={modalDescription}>{description}</p>

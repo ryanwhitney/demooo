@@ -8,7 +8,7 @@ import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import TextInput from "@/components/textInput/TextInput";
 import { useAuth } from "@/hooks/useAuth";
-import type { RegisterInput } from "@/types/auth";
+import type { SignupFormInput } from "@/types/auth";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { useEffect, useState, useRef } from "react";
 
@@ -18,7 +18,7 @@ type CreateAccountProps = {
 
 const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 	const [usernameError, setUsernameError] = useState("");
-	const [formData, setFormData] = useState<RegisterInput>({
+	const [formData, setFormData] = useState<SignupFormInput>({
 		email: "",
 		username: "",
 		password: "",
@@ -174,9 +174,15 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 				<br />
 				<Button
 					size="large"
-					style={{ width: "100%" }}
 					type="submit"
-					disabled={!!usernameError || checkingUsername}
+					disabled={
+						!!usernameError ||
+						checkingUsername ||
+						loading ||
+						!formData.username ||
+						!formData.password ||
+						!formData.email
+					}
 				>
 					{loading ? <ProgressIndicator /> : "Joinnnn"}
 				</Button>

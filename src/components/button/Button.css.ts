@@ -24,6 +24,7 @@ export const buttonStyles = recipe({
 		variant: {
 			// base variants
 			primary: {
+				width: "100%",
 				":hover": {
 					borderColor: tokens.colors.focusRing,
 				},

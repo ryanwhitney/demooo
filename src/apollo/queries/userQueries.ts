@@ -61,6 +61,7 @@ export const GET_ARTIST = gql`
       tracks {
         id
         title
+        titleSlug
         description
         audioUrl
         artist {

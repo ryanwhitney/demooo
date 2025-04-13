@@ -23,6 +23,7 @@ export const GET_TRACK = gql`
       id
       title
       description
+      titleSLug
       audioUrl
       createdAt
       updatedAt
@@ -56,7 +57,7 @@ export const GET_USER_TRACKS = gql`
     userTracks(username: $username) {
       id
       title
-      titleSLug
+      titleSlug
       artist{
         id
         username

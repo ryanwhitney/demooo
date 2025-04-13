@@ -4,7 +4,7 @@ import ErrorBox from "@/components/errorBox/ErrorBox.tsx";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator.tsx";
 import TextInput from "@/components/textInput/TextInput";
 import { useAuth } from "@/hooks/useAuth";
-import type { LoginInput } from "@/types/auth";
+import type { LoginFormInput } from "@/types/auth";
 import { useMutation } from "@apollo/client";
 import { useState } from "react";
 
@@ -12,8 +12,8 @@ type LoginProps = {
 	onSuccess: () => void;
 };
 
-function Login({ onSuccess }: LoginProps) {
-	const [formData, setFormData] = useState<LoginInput>({
+const Login = ({ onSuccess }: LoginProps) => {
+	const [formData, setFormData] = useState<LoginFormInput>({
 		username: "",
 		password: "",
 	});
@@ -66,12 +66,16 @@ function Login({ onSuccess }: LoginProps) {
 					required
 				/>
 				<br />
-				<Button size="large" style={{ width: "100%" }} type="submit">
+				<Button
+					size="large"
+					type="submit"
+					disabled={loading || !formData.username || !formData.password}
+				>
 					{loading ? <ProgressIndicator /> : "Login"}
 				</Button>
 			</form>
 		</>
 	);
-}
+};
 
 export default Login;

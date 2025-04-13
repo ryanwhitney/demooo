@@ -28,7 +28,12 @@ function NavBar() {
 						<>
 							<li className={navBarUser}>{me.user?.username}</li>
 							<li>
-								<Button variant="primary">explore</Button>
+								<Button
+									variant="primary"
+									onClick={() => setShowLoginModal(true)}
+								>
+									explore
+								</Button>
 							</li>
 							<li>
 								<Button variant="primary">favs</Button>
@@ -95,7 +100,7 @@ function NavBar() {
 				createPortal(
 					<Modal
 						title="Upload a Track"
-						onClose={() => setShowSignUpModal(false)}
+						onClose={() => setShowUploadModal(false)}
 					>
 						<TrackUpload />
 					</Modal>,

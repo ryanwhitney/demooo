@@ -18,12 +18,12 @@ export interface AuthProviderProps {
 	children: React.ReactNode;
 }
 
-export interface LoginInput {
+export interface LoginFormInput {
 	username: string;
 	password: string;
 }
 
-export interface RegisterInput extends LoginInput {
+export interface SignupFormInput extends LoginFormInput {
 	email: string;
 	firstName?: string;
 	lastName?: string;
