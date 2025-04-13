@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import NavBar from "./NavBar";
-import { GET_ME } from "../../apollo/queries/userQueries";
-import { AuthContext } from "../../providers/AuthProvider";
-import { AuthContextType } from "../../types/auth";
-import { MemoryRouter } from "react-router";
+import type { Meta, StoryObj } from '@storybook/react'
+import NavBar from './NavBar'
+import { GET_ME } from '../../apollo/queries/userQueries'
+import { AuthContext } from '../../providers/AuthContext'
+import { AuthContextType } from '../../types/auth'
+import { MemoryRouter } from 'react-router'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const withAuthAndRouter = (value: Partial<AuthContextType>) => (Story: any) => {
@@ -13,8 +13,8 @@ const withAuthAndRouter = (value: Partial<AuthContextType>) => (Story: any) => {
     user: null,
     logout: () => {},
     refreshLoading: false,
-    ...value
-  };
+    ...value,
+  }
 
   return (
     <MemoryRouter>
@@ -22,23 +22,23 @@ const withAuthAndRouter = (value: Partial<AuthContextType>) => (Story: any) => {
         <Story />
       </AuthContext.Provider>
     </MemoryRouter>
-  );
-};
+  )
+}
 
 const meta: Meta<typeof NavBar> = {
-  title: "Components/NavBar",
+  title: 'Components/NavBar',
   component: NavBar,
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof NavBar>;
+export default meta
+type Story = StoryObj<typeof NavBar>
 
 export const LoggedOut: Story = {
   decorators: [
     withAuthAndRouter({
       isAuthenticated: false,
       user: null,
-    })
+    }),
   ],
   parameters: {
     apolloClient: {
@@ -49,28 +49,28 @@ export const LoggedOut: Story = {
           },
           result: {
             data: {
-              me: null
+              me: null,
             },
           },
         },
       ],
     },
   },
-};
+}
 
 export const LoggedIn: Story = {
   decorators: [
     withAuthAndRouter({
       isAuthenticated: true,
       user: {
-        id: "18",
-        username: "music@man.com",
-        email: "music@man.com",
-        firstName: "",
-        lastName: "",
+        id: '18',
+        username: 'music@man.com',
+        email: 'music@man.com',
+        firstName: '',
+        lastName: '',
       },
-      logout: () => console.log("Logout clicked")
-    })
+      logout: () => console.log('Logout clicked'),
+    }),
   ],
   parameters: {
     apolloClient: {
@@ -82,11 +82,11 @@ export const LoggedIn: Story = {
           result: {
             data: {
               me: {
-                id: "18",
-                username: "music@man.com",
-                email: "music@man.com",
-                firstName: "",
-                lastName: "",
+                id: '18',
+                username: 'music@man.com',
+                email: 'music@man.com',
+                firstName: '',
+                lastName: '',
               },
             },
           },
@@ -94,4 +94,4 @@ export const LoggedIn: Story = {
       ],
     },
   },
-};
+}

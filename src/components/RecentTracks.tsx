@@ -10,7 +10,7 @@ const RecentTracks = () => {
 
   useEffect(() => {
     refetch()
-  }, [])
+  }, [refetch])
 
   if (error) return `${error.message}`;
   if (loading) return `Submission error! `;

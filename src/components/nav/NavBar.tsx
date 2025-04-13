@@ -15,40 +15,75 @@ function NavBar() {
 
   const me = useAuth()
 
-  return ( 
+  return (
     <>
       <nav className={navBar}>
-        <Link to="/" className={logo}><img src={demoSvg} alt="Demo" /></Link>
+        <Link to="/" className={logo}>
+          <img src={demoSvg} alt="Demo" />
+        </Link>
         <ul className={navItemsList}>
-          {me.isAuthenticated ?
-          <>
-            <li className={navBarUser}>{me.user?.username}</li>
-            <li><Button variant='primary'>explore</Button></li>
-            <li><Button variant='primary'>favs</Button></li>
-            <li><Button variant='primary'>upload</Button></li>
-            <li><Button variant='primary' onClick={me.logout}>logout</Button></li>
-          </>
-        :
-          <>
-            <li><Button variant='primary' onClick={() => setShowLoginModal(true)}>explore</Button></li>
-            <li><Button variant='primary' onClick={() => setShowLoginModal(true)}>log in</Button></li>
-            <li><Button variant='primary' onClick={() => setShowSignUpModal(true)}>join</Button></li>
-          </>
-        }
+          {me.isAuthenticated ? (
+            <>
+              <li className={navBarUser}>{me.user?.username}</li>
+              <li>
+                <Button variant="primary">explore</Button>
+              </li>
+              <li>
+                <Button variant="primary">favs</Button>
+              </li>
+              <li>
+                <Button variant="primary">upload</Button>
+              </li>
+              <li>
+                <Button variant="primary" onClick={me.logout}>
+                  logout
+                </Button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowLoginModal(true)}
+                >
+                  explore
+                </Button>
+              </li>
+              <li>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowLoginModal(true)}
+                >
+                  log in
+                </Button>
+              </li>
+              <li>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowSignUpModal(true)}
+                >
+                  join
+                </Button>
+              </li>
+            </>
+          )}
         </ul>
       </nav>
-      {showLoginModal && createPortal(
-       <Modal title='Log in' onClose={() => setShowLoginModal(false)}>
-        <Login onSuccess={() => setShowLoginModal(false)}/>
-       </Modal>,
-        document.body
-      )}
-      {showSignUpModal && createPortal(
-       <Modal title='Join demooo' onClose={() => setShowSignUpModal(false)}>
-        <CreateAccount onSuccess={() => setShowSignUpModal(false)}/>
-       </Modal>,
-        document.body
-      )}
+      {showLoginModal &&
+        createPortal(
+          <Modal title="Log in" onClose={() => setShowLoginModal(false)}>
+            <Login onSuccess={() => setShowLoginModal(false)} />
+          </Modal>,
+          document.body
+        )}
+      {showSignUpModal &&
+        createPortal(
+          <Modal title="Join demooo" onClose={() => setShowSignUpModal(false)}>
+            <CreateAccount onSuccess={() => setShowSignUpModal(false)} />
+          </Modal>,
+          document.body
+        )}
     </>
   )
 }
