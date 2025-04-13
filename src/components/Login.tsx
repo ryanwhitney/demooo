@@ -6,6 +6,7 @@ import { LoginInput } from '../types/auth'
 import Button from './button/Button'
 import ProgressIndicator from './progressIndicator/ProgressIndicator.tsx'
 import TextInput from './textInput/TextInput'
+import ErrorBox from './errorBox/ErrorBox.tsx'
 
 type LoginProps = {
   onSuccess: () => void;
@@ -32,35 +33,43 @@ function Login({ onSuccess }: LoginProps) {
     }
   })
 
-  if (error) return `Submission error! ${error.message}`;
 
   return ( 
-    <form onSubmit={e => {
-      e.preventDefault();
-      authenticateUser();
-    }}>
-      <TextInput
-        label="Email"
-        type="email"
-        placeholder="sad@bedroomguitar.com"
-        value={formData.username}
-        onChange={e => setFormData({ ...formData, username: e.target.value })} 
-        required
-      />
-      
-      <TextInput
-        label="Password"
-        type="password"
-        placeholder="Enter your password"
-        value={formData.password}
-        onChange={e => setFormData({ ...formData, password: e.target.value })} 
-        required
-      />
-      <br/>
-      <Button size='large' style={{width: '100%'}} type="submit">
-        {loading ? <ProgressIndicator/> : 'Login'}
-      </Button>
-    </form>
+
+    <>
+
+      {error && (
+        <ErrorBox text={error.message} />
+      )}
+      <form onSubmit={e => {
+        e.preventDefault();
+        authenticateUser();
+      }}>
+        <TextInput
+          label="Username"
+          type="text"
+          placeholder=""
+          value={formData.username}
+          autoComplete='username'
+          onChange={e => setFormData({ ...formData, username: e.target.value })} 
+          required
+        />
+        
+        <TextInput
+          label="Password"
+          type="password"
+          placeholder="Enter your password"
+          value={formData.password}
+          autoComplete='current-password'
+          onChange={e => setFormData({ ...formData, password: e.target.value })} 
+          required
+        />
+        <br/>
+        <Button size='large' style={{width: '100%'}} type="submit">
+          {loading ? <ProgressIndicator/> : 'Login'}
+        </Button>
+      </form>
+    </>
   )
 }
 

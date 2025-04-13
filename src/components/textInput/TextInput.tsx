@@ -1,4 +1,4 @@
-import React, { forwardRef, InputHTMLAttributes, useState, useEffect } from 'react';
+import React, { forwardRef, InputHTMLAttributes, useState, useEffect, useRef } from 'react';
 import {
   inputStyles,
   inputContainer,
@@ -10,23 +10,15 @@ import {
 
 export type TextInputProps = InputHTMLAttributes<HTMLInputElement> &
   InputVariants & {
-    /** Label text for the input */
     label?: string;
-    /** Help text to be displayed below the input */
     helperText?: string;
-    /** Error message to be displayed */
     errorMessage?: string;
-    /** Optional class name for custom styling */
     className?: string;
-    /** Validation function */
-    validate?: (value: string) => string;
-    /** Debounce time in milliseconds */
+    validate?: (value: string) => string | Promise<string>;
     debounceTime?: number;
+    onValidated?: (isValid: boolean) => void;
   }
 
-/**
- * TextInput component for forms with accessible labels and error states
- */
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
   (
     {
@@ -40,59 +32,83 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       onChange,
       validate,
       debounceTime = 500,
+      onValidated,
       ...props
     },
     ref
   ) => {
     const [internalError, setInternalError] = useState('');
+    const [isValidating, setIsValidating] = useState(false);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     
     // Use external error message if provided, otherwise use internal error
     const errorMessage = externalErrorMessage || internalError;
+    
+    // Cancel any pending validation on unmount
+    useEffect(() => {
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
+    }, []);
 
     // Handle debounced validation
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       // Call original onChange if provided
       if (onChange) {
         onChange(e);
       }
       
-      // Skip  if no validate function
+      // Skip if no validate function
       if (!validate) return;
       
       const value = e.target.value;
       
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const timeoutId = (e.target as any)._timeoutId;
-      if (timeoutId) clearTimeout(timeoutId);
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       
-      const newTimeoutId = setTimeout(() => {
-        const error = validate(value);
-        setInternalError(error);
+      // Schedule new validation
+      timeoutRef.current = setTimeout(async () => {
+        setIsValidating(true);
+        try {
+
+          const validationResult = validate(value);
+          let error = '';
+          
+          if (validationResult instanceof Promise) {
+            error = await validationResult;
+          } else {
+            error = validationResult;
+          }
+          
+          setInternalError(error);
+          if (onValidated) {
+            onValidated(!error);
+          }
+        } catch (err) {
+          console.error('Validation error:', err);
+          setInternalError('Validation failed');
+          if (onValidated) {
+            onValidated(false);
+          }
+        } finally {
+          setIsValidating(false);
+        }
       }, debounceTime);
-      
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (e.target as any)._timeoutId = newTimeoutId;
     };
 
-    useEffect(() => {
-      return () => {
-        if (ref && 'current' in ref && ref.current) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const timeoutId = (ref.current as any)._timeoutId;
-          if (timeoutId) clearTimeout(timeoutId);
-        }
-      };
-    }, []);
-
     const inputId = id || `input-${Math.random().toString(36).substring(2, 9)}`;
-    const inputState = errorMessage ? 'error' : state;
-    
+    const inputState = errorMessage ? 'error' : isValidating ? 'pending' : state;
+
     // Combine styles
     const inputClassName = [
       inputStyles({ state: inputState }),
       className
     ].filter(Boolean).join(' ');
-    
+
     return (
       <div className={inputContainer}>
         {label && (
@@ -105,12 +121,13 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           id={inputId}
           className={inputClassName}
           aria-invalid={inputState === 'error'}
+          aria-busy={isValidating}
           aria-describedby={
             errorMessage
               ? `${inputId}-error`
               : helpText
-              ? `${inputId}-helper`
-              : undefined
+                ? `${inputId}-helper`
+                : undefined
           }
           required={required}
           onChange={handleChange}
@@ -138,5 +155,4 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
   }
 );
 
-TextInput.displayName = 'TextInput';
 export default TextInput;

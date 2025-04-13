@@ -20,7 +20,9 @@ export const modalCard = style({
   padding: tokens.space.xl,
   margin: tokens.space.xl,
   borderRadius: tokens.radii.lg,
-  minWidth: '300px',
+  width: '300px',
+  display:' grid',
+  gridTemplateColumns: 'minmax(min-content, max-content)',
   boxShadow: 'rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px'
 });
 
