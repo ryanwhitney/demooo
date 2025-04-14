@@ -1,20 +1,18 @@
 import { tokens } from "@/styles/tokens";
 import type { Track } from "@/types/track";
 import { formatTime } from "@/utils/formatTime";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import PlayButton from "./playButton/PlayButton";
 import { parseWaveformData } from "./utilities/parseWaveformData";
 import { calculateProgressFromPointer } from "./utilities/calculateProgressFromPointer";
 
 const Waveform = ({
 	data,
-	currentTime,
 	duration,
 	onTimeChange,
 	onScrubbing,
 }: {
 	data: number[];
-	currentTime: number;
 	duration: number;
 	onTimeChange: (newTime: number) => void;
 	onScrubbing?: (isScrubbing: boolean, previewTime: number) => void;
@@ -22,13 +20,6 @@ const Waveform = ({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
 	const [displayProgress, setDisplayProgress] = useState(0);
-
-	// Calculate current progress and update display when component props change
-	useEffect(() => {
-		if (!isDragging && duration > 0) {
-			setDisplayProgress(currentTime / duration);
-		}
-	}, [currentTime, duration, isDragging]);
 
 	// Calculate and set time based on progress value
 	const updateTimeFromProgress = useCallback(
@@ -43,104 +34,117 @@ const Waveform = ({
 	// Direct click handler
 	const handleClick = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			// Skip if this was part of a drag operation that's already handled by pointerDown
+			if (isDragging) return;
+
 			const element = containerRef.current;
 			if (!element) return;
 
 			const progress = calculateProgressFromPointer(e, element);
+			const newTime = progress * duration;
 
-			// Update time directly - this is important for click behavior
-			updateTimeFromProgress(progress);
-			setDisplayProgress(progress);
+			// If we have a scrubbing callback, handle playback properly
+			if (onScrubbing) {
+				// Tell parent component we're starting a scrub operation
+				onScrubbing(true, newTime);
 
-			console.log("Click - progress:", progress, "time:", progress * duration);
+				// Update display immediately for responsive feedback
+				setDisplayProgress(progress);
+
+				// Update the audio position
+				onTimeChange(newTime);
+
+				// Immediately end the scrub operation, which will trigger playback resume if needed
+				onScrubbing(false, newTime);
+			} else {
+				// Simple mode - just update time
+				setDisplayProgress(progress);
+				onTimeChange(newTime);
+			}
 		},
-		[duration, updateTimeFromProgress],
+		[duration, isDragging, onScrubbing, onTimeChange],
 	);
 
-	// Start drag operation
-	const startDrag = useCallback(
-		(e: React.PointerEvent | PointerEvent) => {
+	// Set up pointer down handler - this handles both clicks and the start of drags
+	const handlePointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			const element = containerRef.current;
+			if (!element) return;
+
+			// Prevent default to avoid text selection and other browser behaviors
 			e.preventDefault();
 			e.stopPropagation();
 
-			const element = containerRef.current;
-			if (!element) return;
+			// Get initial position and update time immediately for responsive feedback
+			const initialProgress = calculateProgressFromPointer(e, element);
+			const initialTime = initialProgress * duration;
 
+			// Update display immediately
+			setDisplayProgress(initialProgress);
+
+			// Start the drag operation first before changing time
 			setIsDragging(true);
-			if (onScrubbing) onScrubbing(true, currentTime);
 
-			// For initial drag, we also want to instantly update the time
-			const progress = calculateProgressFromPointer(e, element);
-			setDisplayProgress(progress);
-			updateTimeFromProgress(progress);
-		},
-		[currentTime, onScrubbing, updateTimeFromProgress],
-	);
-
-	// Continue drag operation
-	const continueDrag = useCallback(
-		(e: PointerEvent) => {
-			e.preventDefault();
-
-			if (!isDragging || !containerRef.current) return;
-
-			const progress = calculateProgressFromPointer(e, containerRef.current);
-			setDisplayProgress(progress);
-
-			// Preview time during drag
+			// Notify scrubbing start first, which will handle pausing playback if needed
 			if (onScrubbing) {
-				const previewTime = progress * duration;
-				onScrubbing(true, previewTime);
+				onScrubbing(true, initialTime);
 			}
-		},
-		[duration, isDragging, onScrubbing],
-	);
 
-	// End drag operation
-	const endDrag = useCallback(
-		(e: PointerEvent) => {
-			e.preventDefault();
-
-			if (!isDragging || !containerRef.current) return;
-
-			const progress = calculateProgressFromPointer(e, containerRef.current);
-			setDisplayProgress(progress);
-			updateTimeFromProgress(progress);
-			setIsDragging(false);
-
-			if (onScrubbing) onScrubbing(false, progress * duration);
-
-			console.log(
-				"Drag end - progress:",
-				progress,
-				"time:",
-				progress * duration,
-			);
-		},
-		[duration, isDragging, onScrubbing, updateTimeFromProgress],
-	);
-
-	// Set up pointer down handler
-	const handlePointerDown = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			// If it's a simple click (not a drag), handle it directly
-			const element = containerRef.current;
-			if (!element) return;
-
-			// Start drag operation
-			startDrag(e);
+			// Now update the time position after scrubbing state is set
+			onTimeChange(initialTime);
 
 			// Set up document-level handlers
-			const handleDocMove = (e: PointerEvent) => continueDrag(e);
+			const handleDocMove = (e: PointerEvent) => {
+				e.preventDefault();
+				if (!element) return;
+
+				const progress = calculateProgressFromPointer(e, element);
+
+				// Always update display immediately
+				setDisplayProgress(progress);
+
+				const newTime = progress * duration;
+
+				// Notify of scrubbing update first, which keeps the scrubbing state active
+				if (onScrubbing) {
+					onScrubbing(true, newTime);
+				}
+
+				// Then update the actual audio position
+				onTimeChange(newTime);
+			};
+
 			const handleDocUp = (e: PointerEvent) => {
-				endDrag(e);
+				e.preventDefault();
+				if (!element) return;
+
+				const finalProgress = calculateProgressFromPointer(e, element);
+				const finalTime = finalProgress * duration;
+
+				// Update the display position
+				setDisplayProgress(finalProgress);
+
+				// Actually change the audio position
+				onTimeChange(finalTime);
+
+				// End dragging mode
+				setIsDragging(false);
+
+				// Finally notify scrubbing ended, which will resume playback if it was playing before
+				if (onScrubbing) {
+					// Small delay to make sure everything else is processed first
+					setTimeout(() => {
+						onScrubbing(false, finalTime);
+					}, 0);
+				}
+
 				// Clean up event listeners
 				document.removeEventListener("pointermove", handleDocMove);
 				document.removeEventListener("pointerup", handleDocUp);
 				document.removeEventListener("pointercancel", handleDocUp);
 			};
 
-			// Add temporary document-level event listeners
+			// Add document-level event listeners with passive: false to allow preventDefault
 			document.addEventListener("pointermove", handleDocMove, {
 				passive: false,
 			});
@@ -149,7 +153,7 @@ const Waveform = ({
 				passive: false,
 			});
 		},
-		[continueDrag, endDrag, startDrag],
+		[duration, onScrubbing, onTimeChange],
 	);
 
 	const progressWidth = displayProgress * 100;
@@ -248,6 +252,7 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 	const [duration, setDuration] = useState(0);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const audioRef = useRef<HTMLAudioElement>(null);
+	const wasPlayingRef = useRef(false);
 
 	// Toggle play/pause state
 	const togglePlayPause = useCallback(() => {
@@ -302,13 +307,38 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 	// Handle scrubbing state to prevent time updates during scrubbing
 	const handleScrubbing = useCallback(
 		(scrubbing: boolean, previewTime: number) => {
+			if (scrubbing && !isScrubbing) {
+				// Remember if we were playing before scrubbing started
+				wasPlayingRef.current = isPlaying;
+
+				// Quietly pause audio during scrubbing (no icon update)
+				if (isPlaying && audioRef.current) {
+					audioRef.current.pause();
+				}
+			}
+			// If ending scrub and was playing, resume playback
+			else if (!scrubbing && isScrubbing) {
+				if (wasPlayingRef.current && audioRef.current) {
+					// Need to directly update the isPlaying state BEFORE calling play()
+					// to prevent race conditions with the onPause handler
+					setIsPlaying(true);
+
+					audioRef.current.play().catch((err) => {
+						console.error("Error resuming playback:", err);
+						// Reset the playing state if play fails
+						setIsPlaying(false);
+					});
+				}
+			}
+
 			setIsScrubbing(scrubbing);
+
+			// Update visual time during scrubbing
 			if (scrubbing) {
-				// Update UI time without changing audio position during scrubbing
 				setCurrentTime(previewTime);
 			}
 		},
-		[],
+		[isPlaying, isScrubbing],
 	);
 
 	const audioFileUrl = track.audioFile?.startsWith("http")
@@ -338,7 +368,13 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 					onLoadedMetadata={handleLoadedMetadata}
 					onEnded={handleAudioEnded}
 					onPlay={() => setIsPlaying(true)}
-					onPause={() => setIsPlaying(false)}
+					onPause={() => {
+						// Only update the playing state if we're not in a scrubbing operation
+						// This prevents the onPause event from changing the play button state during scrubbing
+						if (!isScrubbing) {
+							setIsPlaying(false);
+						}
+					}}
 					src={audioFileUrl}
 				/>
 				<PlayButton isPlaying={isPlaying} onClick={togglePlayPause} />
@@ -351,7 +387,6 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 				>
 					<Waveform
 						data={waveformData}
-						currentTime={currentTime}
 						duration={duration}
 						onTimeChange={jumpToPosition}
 						onScrubbing={handleScrubbing}
