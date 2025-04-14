@@ -3,81 +3,9 @@ import type { Track } from "@/types/track";
 import { formatTime } from "@/utils/formatTime";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PlayButton from "./playButton/PlayButton";
-import { parseWaveformData } from "./parseWaveformData";
+import { parseWaveformData } from "./utilities/parseWaveformData";
+import { calculateProgressFromPointer } from "./utilities/calculateProgressFromPointer";
 
-// Generic utilities for drag interactions
-type PointerPosition = { clientX: number; clientY: number };
-
-// Utility to calculate progress from pointer position
-const calculateProgressFromPointer = (
-	pointerEvent: PointerPosition,
-	containerElement: HTMLElement,
-): number => {
-	const rect = containerElement.getBoundingClientRect();
-	let positionX = pointerEvent.clientX - rect.left;
-
-	// Constrain to bounds (0-100%)
-	positionX = Math.max(0, Math.min(positionX, rect.width));
-
-	// Calculate percentage
-	return positionX / rect.width;
-};
-
-// Hook for managing drag interactions
-const useDragProgress = (
-	initialProgress: number,
-	onProgressChange: (progress: number) => void,
-	onProgressCommit: (progress: number) => void,
-) => {
-	const [isDragging, setIsDragging] = useState(false);
-	const [progress, setProgress] = useState(initialProgress);
-
-	// Update internal progress when external value changes (if not dragging)
-	useEffect(() => {
-		if (!isDragging) {
-			setProgress(initialProgress);
-		}
-	}, [initialProgress, isDragging]);
-
-	const handleDragStart = useCallback(
-		(pointerEvent: PointerPosition, element: HTMLElement) => {
-			setIsDragging(true);
-			console.log("drag start");
-			const newProgress = calculateProgressFromPointer(pointerEvent, element);
-			setProgress(newProgress);
-			onProgressChange(newProgress);
-		},
-		[onProgressChange],
-	);
-
-	const handleDragMove = useCallback(
-		(pointerEvent: PointerPosition, element: HTMLElement) => {
-			if (isDragging) {
-				const newProgress = calculateProgressFromPointer(pointerEvent, element);
-				setProgress(newProgress);
-				onProgressChange(newProgress);
-			}
-		},
-		[isDragging, onProgressChange],
-	);
-
-	const handleDragEnd = useCallback(() => {
-		if (isDragging) {
-			setIsDragging(false);
-			onProgressCommit(progress);
-		}
-	}, [isDragging, onProgressCommit, progress]);
-
-	return {
-		isDragging,
-		progress,
-		handleDragStart,
-		handleDragMove,
-		handleDragEnd,
-	};
-};
-
-// The enhanced Waveform component with both mouse and touch support
 const Waveform = ({
 	data,
 	currentTime,
@@ -92,102 +20,164 @@ const Waveform = ({
 	onScrubbing?: (isScrubbing: boolean, previewTime: number) => void;
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const currentProgress = currentTime / duration;
+	const [isDragging, setIsDragging] = useState(false);
+	const [displayProgress, setDisplayProgress] = useState(0);
 
-	const height = 30;
-	const width = 200;
+	// Calculate current progress and update display when component props change
+	useEffect(() => {
+		if (!isDragging && duration > 0) {
+			setDisplayProgress(currentTime / duration);
+		}
+	}, [currentTime, duration, isDragging]);
 
-	// Handler for progress changes during drag
-	const handleProgressChange = useCallback(
-		(newProgress: number) => {
-			const previewTime = newProgress * duration;
-			onScrubbing?.(true, previewTime);
-		},
-		[duration, onScrubbing],
-	);
-
-	// Handler for final progress commit
-	const handleProgressCommit = useCallback(
-		(finalProgress: number) => {
-			const newTime = finalProgress * duration;
+	// Calculate and set time based on progress value
+	const updateTimeFromProgress = useCallback(
+		(progress: number) => {
+			if (duration <= 0) return;
+			const newTime = progress * duration;
 			onTimeChange(newTime);
-			onScrubbing?.(false, newTime);
 		},
-		[duration, onTimeChange, onScrubbing],
+		[duration, onTimeChange],
 	);
 
-	// Use our custom hook for drag state management
-	const {
-		isDragging,
-		progress: displayProgress,
-		handleDragStart,
-		handleDragMove,
-		handleDragEnd,
-	} = useDragProgress(
-		currentProgress,
-		handleProgressChange,
-		handleProgressCommit,
+	// Direct click handler
+	const handleClick = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			const element = containerRef.current;
+			if (!element) return;
+
+			const progress = calculateProgressFromPointer(e, element);
+
+			// Update time directly - this is important for click behavior
+			updateTimeFromProgress(progress);
+			setDisplayProgress(progress);
+
+			console.log("Click - progress:", progress, "time:", progress * duration);
+		},
+		[duration, updateTimeFromProgress],
+	);
+
+	// Start drag operation
+	const startDrag = useCallback(
+		(e: React.PointerEvent | PointerEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+
+			const element = containerRef.current;
+			if (!element) return;
+
+			setIsDragging(true);
+			if (onScrubbing) onScrubbing(true, currentTime);
+
+			// For initial drag, we also want to instantly update the time
+			const progress = calculateProgressFromPointer(e, element);
+			setDisplayProgress(progress);
+			updateTimeFromProgress(progress);
+		},
+		[currentTime, onScrubbing, updateTimeFromProgress],
+	);
+
+	// Continue drag operation
+	const continueDrag = useCallback(
+		(e: PointerEvent) => {
+			e.preventDefault();
+
+			if (!isDragging || !containerRef.current) return;
+
+			const progress = calculateProgressFromPointer(e, containerRef.current);
+			setDisplayProgress(progress);
+
+			// Preview time during drag
+			if (onScrubbing) {
+				const previewTime = progress * duration;
+				onScrubbing(true, previewTime);
+			}
+		},
+		[duration, isDragging, onScrubbing],
+	);
+
+	// End drag operation
+	const endDrag = useCallback(
+		(e: PointerEvent) => {
+			e.preventDefault();
+
+			if (!isDragging || !containerRef.current) return;
+
+			const progress = calculateProgressFromPointer(e, containerRef.current);
+			setDisplayProgress(progress);
+			updateTimeFromProgress(progress);
+			setIsDragging(false);
+
+			if (onScrubbing) onScrubbing(false, progress * duration);
+
+			console.log(
+				"Drag end - progress:",
+				progress,
+				"time:",
+				progress * duration,
+			);
+		},
+		[duration, isDragging, onScrubbing, updateTimeFromProgress],
+	);
+
+	// Set up pointer down handler
+	const handlePointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			// If it's a simple click (not a drag), handle it directly
+			const element = containerRef.current;
+			if (!element) return;
+
+			// Start drag operation
+			startDrag(e);
+
+			// Set up document-level handlers
+			const handleDocMove = (e: PointerEvent) => continueDrag(e);
+			const handleDocUp = (e: PointerEvent) => {
+				endDrag(e);
+				// Clean up event listeners
+				document.removeEventListener("pointermove", handleDocMove);
+				document.removeEventListener("pointerup", handleDocUp);
+				document.removeEventListener("pointercancel", handleDocUp);
+			};
+
+			// Add temporary document-level event listeners
+			document.addEventListener("pointermove", handleDocMove, {
+				passive: false,
+			});
+			document.addEventListener("pointerup", handleDocUp, { passive: false });
+			document.addEventListener("pointercancel", handleDocUp, {
+				passive: false,
+			});
+		},
+		[continueDrag, endDrag, startDrag],
 	);
 
 	const progressWidth = displayProgress * 100;
-
-	// Setup event handlers for both mouse and touch
-	useEffect(() => {
-		const element = containerRef.current;
-		if (!element) return;
-
-		const handlePointerDown = (e: PointerEvent) => {
-			e.preventDefault();
-
-			// Capture the pointer to ensure all events go to this element
-			element.setPointerCapture(e.pointerId);
-
-			handleDragStart(e, element);
-		};
-
-		const handlePointerMove = (e: PointerEvent) => {
-			handleDragMove(e, element);
-		};
-
-		const handlePointerUp = (e: PointerEvent) => {
-			// Release the pointer capture
-			if (element.hasPointerCapture(e.pointerId)) {
-				element.releasePointerCapture(e.pointerId);
-			}
-
-			handleDragEnd();
-		};
-
-		const handlePointerCancel = (e: PointerEvent) => {
-			// Handle cases where interaction is cancelled (e.g. user switches apps)
-			if (element.hasPointerCapture(e.pointerId)) {
-				element.releasePointerCapture(e.pointerId);
-			}
-
-			handleDragEnd();
-		};
-
-		// Add event listeners
-		element.addEventListener("pointerdown", handlePointerDown);
-		element.addEventListener("pointermove", handlePointerMove);
-		element.addEventListener("pointerup", handlePointerUp);
-		element.addEventListener("pointercancel", handlePointerCancel);
-		// Adding pointer leave/out to handle edge cases
-		element.addEventListener("pointerleave", handlePointerCancel);
-
-		// Clean up
-		return () => {
-			element.removeEventListener("pointerdown", handlePointerDown);
-			element.removeEventListener("pointermove", handlePointerMove);
-			element.removeEventListener("pointerup", handlePointerUp);
-			element.removeEventListener("pointercancel", handlePointerCancel);
-			element.removeEventListener("pointerleave", handlePointerCancel);
-		};
-	}, [handleDragStart, handleDragMove, handleDragEnd]);
+	const height = 30;
+	const width = 240;
 
 	return (
 		<div
 			ref={containerRef}
+			onPointerDown={handlePointerDown}
+			onClick={handleClick}
+			onKeyDown={(e) => {
+				// Handle space or enter key as a click at current position
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					if (containerRef.current) {
+						const centerProgress = 0.5; // Default to middle if using keyboard
+						updateTimeFromProgress(centerProgress);
+						setDisplayProgress(centerProgress);
+					}
+				}
+			}}
+			tabIndex={0}
+			role="slider"
+			aria-label="Audio timeline"
+			aria-valuemin={0}
+			aria-valuemax={100}
+			aria-valuenow={Math.round(displayProgress * 100)}
 			style={{
 				position: "relative",
 				height: height,
@@ -196,15 +186,6 @@ const Waveform = ({
 				touchAction: "none", // Prevent browser handling of touch events
 			}}
 		>
-			<div
-				style={{
-					position: "absolute",
-					left: 0,
-					top: 0,
-					bottom: 0,
-					right: 0,
-				}}
-			/>
 			<div
 				style={{
 					width: 2.5,
@@ -265,48 +246,76 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
-	const audioRef = useRef(null);
+	const [isScrubbing, setIsScrubbing] = useState(false);
+	const audioRef = useRef<HTMLAudioElement>(null);
 
-	const togglePlayPause = () => {
+	// Toggle play/pause state
+	const togglePlayPause = useCallback(() => {
 		if (audioRef.current) {
 			if (isPlaying) {
 				audioRef.current.pause();
 			} else {
-				audioRef.current.play().catch((error) => {
+				audioRef.current.play().catch((error: Error) => {
 					console.error("Error playing audio:", error);
 				});
 			}
 			setIsPlaying(!isPlaying);
 		}
-	};
+	}, [isPlaying]);
 
 	// Update button state when audio naturally ends
-	const handleAudioEnded = () => {
+	const handleAudioEnded = useCallback(() => {
 		setIsPlaying(false);
-	};
+	}, []);
 
-	const handleTimeUpdate = () => {
-		if (audioRef.current) {
+	// Handle time updates from the audio element
+	const handleTimeUpdate = useCallback(() => {
+		if (audioRef.current && !isScrubbing) {
 			setCurrentTime(audioRef.current.currentTime);
 		}
-	};
+	}, [isScrubbing]);
 
-	const handleLoadedMetadata = () => {
+	// Set duration when metadata is loaded
+	const handleLoadedMetadata = useCallback(() => {
 		if (audioRef.current) {
 			setDuration(audioRef.current.duration);
 		}
-	};
+	}, []);
 
-	const jumpToPosition = (time: number) => {
+	// Jump to a specific time position
+	const jumpToPosition = useCallback((time: number) => {
 		if (audioRef.current) {
-			audioRef.current.currentTime = time; // Set to your fixed time
-			setCurrentTime(time); // Also update the state
+			// Ensure time is within bounds
+			const boundedTime = Math.max(
+				0,
+				Math.min(time, audioRef.current.duration || 0),
+			);
+
+			// Set the audio element's current time directly
+			audioRef.current.currentTime = boundedTime;
+
+			// Also update the state for the UI
+			setCurrentTime(boundedTime);
 		}
-	};
+	}, []);
+
+	// Handle scrubbing state to prevent time updates during scrubbing
+	const handleScrubbing = useCallback(
+		(scrubbing: boolean, previewTime: number) => {
+			setIsScrubbing(scrubbing);
+			if (scrubbing) {
+				// Update UI time without changing audio position during scrubbing
+				setCurrentTime(previewTime);
+			}
+		},
+		[],
+	);
+
 	const audioFileUrl = track.audioFile?.startsWith("http")
 		? track.audioFile
 		: `http://localhost:8000/media/${track.audioFile}`;
 	const waveformData = parseWaveformData(track.audioWaveformData);
+
 	return (
 		<div
 			style={{
@@ -344,7 +353,8 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 						data={waveformData}
 						currentTime={currentTime}
 						duration={duration}
-						onTimeChange={(time) => jumpToPosition(time)}
+						onTimeChange={jumpToPosition}
+						onScrubbing={handleScrubbing}
 					/>
 				</div>
 			</div>
