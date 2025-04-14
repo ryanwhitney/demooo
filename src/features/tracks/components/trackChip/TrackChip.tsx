@@ -1,14 +1,22 @@
+import type { HTMLAttributes } from "react";
 import type { Track } from "@/types/track";
 import { Link } from "react-router";
 import {
 	trackArtist,
+	trackChipPlayButton,
 	trackChipWrapper,
 	trackText,
 	trackTitle,
+	waveformElement,
 	waveformWrapper,
 } from "./TrackChip.css";
+import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
 
-const Waveform = ({ width = 60 }: { width?: number }) => {
+type WaveformProps = HTMLAttributes<SVGSVGElement> & {
+	width?: number;
+};
+
+const Waveform = ({ width = 60, ...rest }: WaveformProps) => {
 	const waveformBars = [
 		{ width: 1, height: 8, y: 10 },
 		{ width: 1, height: 13, y: 8 },
@@ -26,6 +34,7 @@ const Waveform = ({ width = 60 }: { width?: number }) => {
 			viewBox={`0 0 ${width} 29`}
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			{...rest}
 		>
 			{Array.from({ length: count }).map((_, index) => {
 				const waveform =
@@ -52,7 +61,13 @@ function TrackChip({ track }: { track: Track }) {
 			className={trackChipWrapper}
 		>
 			<div className={waveformWrapper}>
-				<Waveform width={55} />
+				<PlayButton
+					className={trackChipPlayButton}
+					isPlaying={false}
+					onClick={() => {}}
+					color="white"
+				/>
+				<Waveform className={waveformElement} width={55} />
 			</div>
 			<div className={trackText}>
 				<p className={trackTitle}>{track.title}</p>
