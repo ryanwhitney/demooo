@@ -400,7 +400,13 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 					}}
 					src={audioFileUrl}
 				/>
-				<PlayButton isPlaying={isPlaying} onClick={togglePlayPause} />
+				<div>
+					<PlayButton
+						style={{ width: 44, height: 44, padding: 12 }}
+						isPlaying={isPlaying}
+						onClick={togglePlayPause}
+					/>
+				</div>
 				<div
 					style={{
 						background: tokens.colors.backgroundSecondary,
