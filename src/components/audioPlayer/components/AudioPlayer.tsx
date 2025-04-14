@@ -206,10 +206,11 @@ const Waveform = ({
 					left: `${progressWidth}%`,
 					top: -4,
 					bottom: -4,
-					transition: `width ${isDragging ? "0ms" : "200ms"} ease-out`,
+					transition: "opacity 3.5s ease-in",
 					background: tokens.colors.focusRing,
 					borderRadius: 2,
-					opacity: `${progressWidth * 0.05}`,
+					zIndex: 2,
+					opacity: currentTime === 0 ? 0 : 100,
 				}}
 			/>
 			<div
