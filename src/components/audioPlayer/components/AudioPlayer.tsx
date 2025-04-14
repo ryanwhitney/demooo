@@ -1,17 +1,19 @@
 import { tokens } from "@/styles/tokens";
 import type { Track } from "@/types/track";
 import { formatTime } from "@/utils/formatTime";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PlayButton from "./playButton/PlayButton";
 import { parseWaveformData } from "./utilities/parseWaveformData";
 import { calculateProgressFromPointer } from "./utilities/calculateProgressFromPointer";
 
 const Waveform = ({
+	currentTime,
 	data,
 	duration,
 	onTimeChange,
 	onScrubbing,
 }: {
+	currentTime: number;
 	data: number[];
 	duration: number;
 	onTimeChange: (newTime: number) => void;
@@ -20,6 +22,13 @@ const Waveform = ({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
 	const [displayProgress, setDisplayProgress] = useState(0);
+
+	// Calculate current progress and update display when component props change
+	useEffect(() => {
+		if (!isDragging && duration > 0) {
+			setDisplayProgress(currentTime / duration);
+		}
+	}, [currentTime, duration, isDragging]);
 
 	// Calculate and set time based on progress value
 	const updateTimeFromProgress = useCallback(
@@ -386,6 +395,7 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 					}}
 				>
 					<Waveform
+						currentTime={currentTime}
 						data={waveformData}
 						duration={duration}
 						onTimeChange={jumpToPosition}
