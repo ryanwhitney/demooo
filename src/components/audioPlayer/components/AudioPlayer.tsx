@@ -42,6 +42,7 @@ const useDragProgress = (
 	const handleDragStart = useCallback(
 		(pointerEvent: PointerPosition, element: HTMLElement) => {
 			setIsDragging(true);
+			console.log("drag start");
 			const newProgress = calculateProgressFromPointer(pointerEvent, element);
 			setProgress(newProgress);
 			onProgressChange(newProgress);
@@ -184,7 +185,6 @@ const Waveform = ({
 		};
 	}, [handleDragStart, handleDragMove, handleDragEnd]);
 
-	console.log(data);
 	return (
 		<div
 			ref={containerRef}
@@ -207,13 +207,27 @@ const Waveform = ({
 			/>
 			<div
 				style={{
+					width: 2.5,
+					position: "absolute",
+					left: `${progressWidth}%`,
+					top: -4,
+					bottom: -4,
+					transition: `width ${isDragging ? "0ms" : "200ms"} ease-out`,
+					background: tokens.colors.focusRing,
+					borderRadius: 2,
+					opacity: `${progressWidth * 0.05}`,
+				}}
+			/>
+			<div
+				style={{
 					width: `${progressWidth}%`,
 					position: "absolute",
 					left: 0,
 					top: 0,
 					bottom: 0,
-					backgroundColor: tokens.colors.backgroundSecondary,
-					opacity: 0.7,
+					transition: `width ${isDragging ? "0ms" : "200ms"} ease-out`,
+					background: `linear-gradient(90deg, ${tokens.colors.backgroundSecondary}, rgba(0,0,0,0.2))`,
+					color: "white",
 				}}
 			/>
 			<svg
@@ -231,13 +245,14 @@ const Waveform = ({
 					const xPosition = index * spacing;
 					return (
 						<rect
-							key={index}
+							key={index * amplitude}
 							x={xPosition}
 							y={yPosition}
 							width={1.2}
 							height={barHeight}
 							style={{ borderRadius: 20 }}
-							fill="#D9D9D9"
+							fill="currentColor"
+							rx="0.5"
 						/>
 					);
 				})}
@@ -247,7 +262,6 @@ const Waveform = ({
 };
 
 const AudioPlayer = ({ track }: { track: Track }) => {
-	console.log(track);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
@@ -284,22 +298,15 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 	};
 
 	const jumpToPosition = (time: number) => {
-		console.log("waveclick");
 		if (audioRef.current) {
-			console.log("we have it");
 			audioRef.current.currentTime = time; // Set to your fixed time
 			setCurrentTime(time); // Also update the state
 		}
 	};
-	console.log("audio file", track.audioFile);
 	const audioFileUrl = track.audioFile?.startsWith("http")
 		? track.audioFile
 		: `http://localhost:8000/media/${track.audioFile}`;
-
-	console.log(track.audioWaveformData);
-	console.log(JSON.stringify(track.audioWaveformData));
 	const waveformData = parseWaveformData(track.audioWaveformData);
-	console.log("parsed:", waveformData);
 	return (
 		<div
 			style={{
