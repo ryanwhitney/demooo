@@ -13,6 +13,7 @@ interface AudioContextType {
 	resumeTrack: () => void;
 	setCurrentTime: (time: number) => void;
 	setDuration: (duration: number) => void;
+	setIsPlaying: (isPlaying: boolean) => void;
 }
 
 // Create context with a default value matching the interface
@@ -26,6 +27,7 @@ const AudioContext = createContext<AudioContextType>({
 	resumeTrack: () => {},
 	setCurrentTime: () => {},
 	setDuration: () => {},
+	setIsPlaying: () => {},
 });
 
 export function AudioProvider({ children }: { children: ReactNode }) {
@@ -35,9 +37,17 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 	const [duration, setDuration] = useState(0);
 
 	const playTrack = (track: Track) => {
-		alert("Playing track");
+		// If it's the same track, just resume
+		if (currentTrack?.id === track.id) {
+			setIsPlaying(true);
+			return;
+		}
+		// Otherwise, set the new track and start playing
 		setCurrentTrack(track);
 		setIsPlaying(true);
+		// Reset time when changing tracks
+		setCurrentTime(0);
+		setDuration(0);
 	};
 
 	const pauseTrack = () => {
@@ -60,6 +70,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 				resumeTrack,
 				setCurrentTime,
 				setDuration,
+				setIsPlaying,
 			}}
 		>
 			{children}

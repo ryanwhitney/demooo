@@ -1,16 +1,21 @@
 import AudioPlayer from "@/components/audioPlayer/components/AudioPlayer";
 import { useAudio } from "@/providers/AudioProvider";
 import { tokens } from "@/styles/tokens";
+import type { Track } from "@/types/track";
 
 const GlobalPlayer = () => {
-	const track = useAudio();
-	const hasTrack = track.currentTrack !== null;
+	const audio = useAudio();
+	const hasTrack = audio.currentTrack !== null;
+
+	if (!hasTrack) {
+		return null;
+	}
 
 	return (
 		<div
 			style={{
 				position: "fixed",
-				bottom: `${hasTrack ? 8 : -50}`,
+				bottom: 8,
 				transition: "bottom 0.3s ease-in-out",
 				right: 8,
 				borderRadius: 23,
@@ -31,7 +36,11 @@ const GlobalPlayer = () => {
 					marginTop: -12,
 				}}
 			>
-				{hasTrack && <AudioPlayer track={track.currentTrack} />}
+				<AudioPlayer
+					track={audio.currentTrack as Track}
+					isPlaying={audio.isPlaying}
+					onPlayPause={audio.setIsPlaying}
+				/>
 			</div>
 		</div>
 	);

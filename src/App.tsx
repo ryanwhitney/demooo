@@ -6,10 +6,11 @@ import { client } from "./apollo/client";
 import "./styles/reset.css";
 import "./styles/global.css";
 import { AuthProvider } from "./providers/AuthProvider";
+import { AudioProvider } from "./providers/AudioProvider";
 import ArtistPage from "./routes/ArtistPage";
 import Home from "./routes/Home";
 import TrackPage from "./routes/TrackPage";
-import AudioPlayer from "./components/audioPlayer/components/AudioPlayer";
+import GlobalPlayer from "./features/globalPlayer/components/GlobalPlayer";
 import { mockData } from "./apollo/mockData";
 import { tokens } from "./styles/tokens";
 
@@ -22,16 +23,19 @@ if (rootElement) {
 		<StrictMode>
 			<ApolloProvider client={client}>
 				<AuthProvider>
-					<BrowserRouter>
-						<Routes>
-							<Route path="/" element={<Home />} />
-							<Route path="/:artistName" element={<ArtistPage />} />
-							<Route
-								path="/:artistName/track/:titleSlug"
-								element={<TrackPage />}
-							/>
-						</Routes>
-					</BrowserRouter>
+					<AudioProvider>
+						<BrowserRouter>
+							<Routes>
+								<Route path="/" element={<Home />} />
+								<Route path="/:artistName" element={<ArtistPage />} />
+								<Route
+									path="/:artistName/track/:titleSlug"
+									element={<TrackPage />}
+								/>
+							</Routes>
+							<GlobalPlayer />
+						</BrowserRouter>
+					</AudioProvider>
 				</AuthProvider>
 			</ApolloProvider>
 		</StrictMode>,

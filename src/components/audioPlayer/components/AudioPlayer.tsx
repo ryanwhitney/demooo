@@ -264,7 +264,17 @@ const Waveform = ({
 	);
 };
 
-const AudioPlayer = ({ track }: { track: Track }) => {
+interface AudioPlayerProps {
+	track: Track;
+	isPlaying?: boolean;
+	onPlayPause?: (isPlaying: boolean) => void;
+}
+
+const AudioPlayer = ({
+	track,
+	isPlaying: externalIsPlaying,
+	onPlayPause,
+}: AudioPlayerProps) => {
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
@@ -272,91 +282,92 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const wasPlayingRef = useRef(false);
 
+	// Sync with external play state if provided
+	useEffect(() => {
+		if (externalIsPlaying !== undefined && externalIsPlaying !== isPlaying) {
+			if (externalIsPlaying) {
+				audioRef.current?.play().catch((error: Error) => {
+					console.error("Error playing audio:", error);
+					setIsPlaying(false);
+					onPlayPause?.(false);
+				});
+			} else {
+				audioRef.current?.pause();
+			}
+			setIsPlaying(externalIsPlaying);
+		}
+	}, [externalIsPlaying, isPlaying, onPlayPause]);
+
 	// Toggle play/pause state
 	const togglePlayPause = useCallback(() => {
 		if (audioRef.current) {
-			if (isPlaying) {
-				audioRef.current.pause();
-			} else {
+			const newPlayingState = !isPlaying;
+			if (newPlayingState) {
 				audioRef.current.play().catch((error: Error) => {
 					console.error("Error playing audio:", error);
+					setIsPlaying(false);
+					onPlayPause?.(false);
 				});
+			} else {
+				audioRef.current.pause();
 			}
-			setIsPlaying(!isPlaying);
+			setIsPlaying(newPlayingState);
+			onPlayPause?.(newPlayingState);
 		}
-	}, [isPlaying]);
+	}, [isPlaying, onPlayPause]);
 
-	// Update button state when audio naturally ends
 	const handleAudioEnded = useCallback(() => {
 		setIsPlaying(false);
-	}, []);
+		onPlayPause?.(false);
+	}, [onPlayPause]);
 
-	// Handle time updates from the audio element
 	const handleTimeUpdate = useCallback(() => {
 		if (audioRef.current && !isScrubbing) {
 			setCurrentTime(audioRef.current.currentTime);
 		}
 	}, [isScrubbing]);
 
-	// Set duration when metadata is loaded
 	const handleLoadedMetadata = useCallback(() => {
 		if (audioRef.current) {
 			setDuration(audioRef.current.duration);
 		}
 	}, []);
 
-	// Jump to a specific time position
 	const jumpToPosition = useCallback((time: number) => {
 		if (audioRef.current) {
-			// Ensure time is within bounds
 			const boundedTime = Math.max(
 				0,
 				Math.min(time, audioRef.current.duration || 0),
 			);
-
-			// Set the audio element's current time directly
 			audioRef.current.currentTime = boundedTime;
-
-			// Also update the state for the UI
 			setCurrentTime(boundedTime);
 		}
 	}, []);
 
-	// Handle scrubbing state to prevent time updates during scrubbing
 	const handleScrubbing = useCallback(
 		(scrubbing: boolean, previewTime: number) => {
 			if (scrubbing && !isScrubbing) {
-				// Remember if we were playing before scrubbing started
 				wasPlayingRef.current = isPlaying;
-
-				// Quietly pause audio during scrubbing (no icon update)
 				if (isPlaying && audioRef.current) {
 					audioRef.current.pause();
 				}
-			}
-			// If ending scrub and was playing, resume playback
-			else if (!scrubbing && isScrubbing) {
+			} else if (!scrubbing && isScrubbing) {
 				if (wasPlayingRef.current && audioRef.current) {
-					// Need to directly update the isPlaying state BEFORE calling play()
-					// to prevent race conditions with the onPause handler
 					setIsPlaying(true);
-
+					onPlayPause?.(true);
 					audioRef.current.play().catch((err) => {
 						console.error("Error resuming playback:", err);
-						// Reset the playing state if play fails
 						setIsPlaying(false);
+						onPlayPause?.(false);
 					});
 				}
 			}
-
 			setIsScrubbing(scrubbing);
-
-			// Update visual time during scrubbing
 			if (scrubbing) {
 				setCurrentTime(previewTime);
 			}
 		},
-		[isPlaying, isScrubbing],
+		[isPlaying, isScrubbing, onPlayPause],
 	);
 
 	const audioFileUrl = track.audioFile?.startsWith("http")
@@ -367,17 +378,20 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 	return (
 		<div className={audioPlayerWrapper}>
 			<div className={controlsWrapper}>
+				{/* biome-ignore lint/a11y/useMediaCaption: Audio captions not required for music player */}
 				<audio
 					ref={audioRef}
 					onTimeUpdate={handleTimeUpdate}
 					onLoadedMetadata={handleLoadedMetadata}
 					onEnded={handleAudioEnded}
-					onPlay={() => setIsPlaying(true)}
+					onPlay={() => {
+						setIsPlaying(true);
+						onPlayPause?.(true);
+					}}
 					onPause={() => {
-						// Only update the playing state if we're not in a scrubbing operation
-						// This prevents the onPause event from changing the play button state during scrubbing
 						if (!isScrubbing) {
 							setIsPlaying(false);
+							onPlayPause?.(false);
 						}
 					}}
 					src={audioFileUrl}

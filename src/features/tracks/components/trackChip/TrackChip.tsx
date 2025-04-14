@@ -12,7 +12,6 @@ import {
 } from "./TrackChip.css";
 import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
 import { useAudio } from "@/providers/AudioProvider";
-import { handleError } from "@apollo/client/link/http/parseAndCheckHttpResponse";
 
 type WaveformProps = HTMLAttributes<SVGSVGElement> & {
 	width?: number;
@@ -58,10 +57,19 @@ const Waveform = ({ width = 60, ...rest }: WaveformProps) => {
 
 function TrackChip({ track }: { track: Track }) {
 	const globalAudio = useAudio();
+	const isCurrentTrack = globalAudio.currentTrack?.id === track.id;
+	const isPlaying = isCurrentTrack && globalAudio.isPlaying;
 
-	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.stopPropagation();
-		globalAudio.playTrack(track);
+	const handleClick = () => {
+		if (isCurrentTrack) {
+			if (isPlaying) {
+				globalAudio.pauseTrack();
+			} else {
+				globalAudio.resumeTrack();
+			}
+		} else {
+			globalAudio.playTrack(track);
+		}
 	};
 
 	return (
@@ -77,8 +85,8 @@ function TrackChip({ track }: { track: Track }) {
 			>
 				<PlayButton
 					className={trackChipPlayButton}
-					isPlaying={false}
-					onClick={() => handleClick}
+					isPlaying={isPlaying}
+					onClick={handleClick}
 					color="white"
 				/>
 				<Waveform className={waveformElement} width={55} />
