@@ -30,6 +30,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 				<p>Artist not found</p>
 			) : (
 				<div className={artistViewWrapper}>
+					<title>Music | {data.user.username}</title>
 					<h2>{data.user.username}</h2>
 					<div className={artistTrackViewInfo}>
 						{tracks?.map((track: Track) => (

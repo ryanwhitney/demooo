@@ -2,23 +2,27 @@ import AudioPlayer from "@/components/audioPlayer/components/AudioPlayer";
 import { useAudio } from "@/providers/AudioProvider";
 import { tokens } from "@/styles/tokens";
 import type { Track } from "@/types/track";
+import { useEffect, useState } from "react";
 
 const GlobalPlayer = () => {
+	const [isVisible, setIsVisible] = useState(false);
 	const audio = useAudio();
 	const shouldShow =
 		audio.currentTrack !== null && audio.activeSource === "global";
 	const isPlaying = shouldShow && audio.isPlaying;
 
-	if (!shouldShow) {
-		return null;
-	}
+	useEffect(() => {
+		setTimeout(() => {
+			setIsVisible(shouldShow);
+		}, 50);
+	}, [shouldShow]);
 
 	return (
 		<div
 			style={{
 				position: "fixed",
-				bottom: 8,
-				transition: "bottom 0.3s ease-in-out",
+				bottom: `${isVisible ? "8px" : "-30px"}`,
+				transition: "bottom 300ms ease-in-out",
 				right: 8,
 				borderRadius: 23,
 				backgroundColor: "rgba(60, 60, 69, 0.3)",
@@ -38,13 +42,17 @@ const GlobalPlayer = () => {
 					marginTop: -12,
 				}}
 			>
-				<AudioPlayer
-					track={audio.currentTrack as Track}
-					isPlaying={isPlaying}
-					onPlayPause={audio.setIsPlaying}
-					onTimeUpdate={audio.setCurrentTime}
-					onDurationChange={audio.setDuration}
-				/>
+				{shouldShow ? (
+					<AudioPlayer
+						track={audio.currentTrack as Track}
+						isPlaying={isPlaying}
+						onPlayPause={audio.setIsPlaying}
+						onTimeUpdate={audio.setCurrentTime}
+						onDurationChange={audio.setDuration}
+					/>
+				) : (
+					<div>emptu</div>
+				)}
 			</div>
 		</div>
 	);

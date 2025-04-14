@@ -14,6 +14,7 @@ import SinglePlayer from "@/features/audio/globalPlayer/SinglePlayer";
 function TrackView({ track }: { track: Track }) {
 	return (
 		<main>
+			<title>Music | {track.artist.username}</title>
 			<div className={trackViewWrapper}>
 				<div className={trackViewInfo}>
 					<div>
