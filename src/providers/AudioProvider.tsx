@@ -2,13 +2,16 @@
 import type { Track } from "@/types/track";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
+type PlayerSource = "global" | "track-view";
+
 // Define the type for our context value
 interface AudioContextType {
 	currentTrack: Track | null;
 	isPlaying: boolean;
 	currentTime: number;
 	duration: number;
-	playTrack: (track: Track) => void;
+	activeSource: PlayerSource | null;
+	playTrack: (track: Track, source: PlayerSource) => void;
 	pauseTrack: () => void;
 	resumeTrack: () => void;
 	setCurrentTime: (time: number) => void;
@@ -22,6 +25,7 @@ const AudioContext = createContext<AudioContextType>({
 	isPlaying: false,
 	currentTime: 0,
 	duration: 0,
+	activeSource: null,
 	playTrack: () => {},
 	pauseTrack: () => {},
 	resumeTrack: () => {},
@@ -35,17 +39,19 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
+	const [activeSource, setActiveSource] = useState<PlayerSource | null>(null);
 
-	const playTrack = (track: Track) => {
-		// If it's the same track, just resume
-		if (currentTrack?.id === track.id) {
+	const playTrack = (track: Track, source: PlayerSource) => {
+		// If it's the same track from the same source, just resume
+		if (currentTrack?.id === track.id && activeSource === source) {
 			setIsPlaying(true);
 			return;
 		}
-		// Otherwise, set the new track and start playing
+
+		// If we're switching sources or tracks, reset state
 		setCurrentTrack(track);
+		setActiveSource(source);
 		setIsPlaying(true);
-		// Reset time when changing tracks
 		setCurrentTime(0);
 		setDuration(0);
 	};
@@ -65,6 +71,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 				isPlaying,
 				currentTime,
 				duration,
+				activeSource,
 				playTrack,
 				pauseTrack,
 				resumeTrack,

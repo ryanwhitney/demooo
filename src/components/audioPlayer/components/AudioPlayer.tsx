@@ -1,4 +1,3 @@
-import { tokens } from "@/styles/tokens";
 import type { Track } from "@/types/track";
 import { formatTime } from "@/utils/formatTime";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -268,12 +267,18 @@ interface AudioPlayerProps {
 	track: Track;
 	isPlaying?: boolean;
 	onPlayPause?: (isPlaying: boolean) => void;
+	onTimeUpdate?: (time: number) => void;
+	onDurationChange?: (duration: number) => void;
+	onEnded?: () => void;
 }
 
 const AudioPlayer = ({
 	track,
 	isPlaying: externalIsPlaying,
 	onPlayPause,
+	onTimeUpdate,
+	onDurationChange,
+	onEnded,
 }: AudioPlayerProps) => {
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
@@ -281,6 +286,22 @@ const AudioPlayer = ({
 	const [isScrubbing, setIsScrubbing] = useState(false);
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const wasPlayingRef = useRef(false);
+	const previousTrackId = useRef<string | null>(null);
+
+	// Reset state when track changes
+	useEffect(() => {
+		if (previousTrackId.current !== track.id) {
+			setCurrentTime(0);
+			setDuration(0);
+			if (audioRef.current) {
+				audioRef.current.currentTime = 0;
+				if (externalIsPlaying) {
+					audioRef.current.play().catch(console.error);
+				}
+			}
+			previousTrackId.current = track.id;
+		}
+	}, [track.id, externalIsPlaying]);
 
 	// Sync with external play state if provided
 	useEffect(() => {
@@ -319,30 +340,39 @@ const AudioPlayer = ({
 	const handleAudioEnded = useCallback(() => {
 		setIsPlaying(false);
 		onPlayPause?.(false);
-	}, [onPlayPause]);
+		onEnded?.();
+	}, [onPlayPause, onEnded]);
 
 	const handleTimeUpdate = useCallback(() => {
 		if (audioRef.current && !isScrubbing) {
-			setCurrentTime(audioRef.current.currentTime);
+			const newTime = audioRef.current.currentTime;
+			setCurrentTime(newTime);
+			onTimeUpdate?.(newTime);
 		}
-	}, [isScrubbing]);
+	}, [isScrubbing, onTimeUpdate]);
 
 	const handleLoadedMetadata = useCallback(() => {
 		if (audioRef.current) {
-			setDuration(audioRef.current.duration);
+			const newDuration = audioRef.current.duration;
+			setDuration(newDuration);
+			onDurationChange?.(newDuration);
 		}
-	}, []);
+	}, [onDurationChange]);
 
-	const jumpToPosition = useCallback((time: number) => {
-		if (audioRef.current) {
-			const boundedTime = Math.max(
-				0,
-				Math.min(time, audioRef.current.duration || 0),
-			);
-			audioRef.current.currentTime = boundedTime;
-			setCurrentTime(boundedTime);
-		}
-	}, []);
+	const jumpToPosition = useCallback(
+		(time: number) => {
+			if (audioRef.current) {
+				const boundedTime = Math.max(
+					0,
+					Math.min(time, audioRef.current.duration || 0),
+				);
+				audioRef.current.currentTime = boundedTime;
+				setCurrentTime(boundedTime);
+				onTimeUpdate?.(boundedTime);
+			}
+		},
+		[onTimeUpdate],
+	);
 
 	const handleScrubbing = useCallback(
 		(scrubbing: boolean, previewTime: number) => {
@@ -365,9 +395,10 @@ const AudioPlayer = ({
 			setIsScrubbing(scrubbing);
 			if (scrubbing) {
 				setCurrentTime(previewTime);
+				onTimeUpdate?.(previewTime);
 			}
 		},
-		[isPlaying, isScrubbing, onPlayPause],
+		[isPlaying, isScrubbing, onPlayPause, onTimeUpdate],
 	);
 
 	const audioFileUrl = track.audioFile?.startsWith("http")
