@@ -4,9 +4,10 @@ import { style } from "@vanilla-extract/css";
 export const trackChipWrapper = style({
 	width: 110,
 	padding: tokens.space.md,
-	border: `1px solid transparent`,
+	border: '1px solid transparent',
 	borderRadius: tokens.radii.lg,
-	transition: "border-color 0.2s ease-in-out",
+	transition: "all 0.2s ease-in-out",
+	textDecoration: "none",
 	":hover": {
 		borderColor: tokens.colors.tertiaryDark,
 	},
@@ -38,4 +39,9 @@ export const trackArtist = style({
 	cursor: "pointer",
 	color: tokens.colors.secondary,
 	textDecoration: "none",
+	width: 'fit-content',
+	transition: "color 0.1s ease-in-out",
+	':hover':{
+		color: tokens.colors.primary,
+	}
 });
