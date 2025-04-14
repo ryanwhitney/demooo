@@ -5,8 +5,8 @@
 // const samples = evenSample(data, 4);
 // Result: [0.1, 0.3, 0.6, 0.8]
 
-export function arraySample({array, sampleCount}:{array: [], sampleCount: number}) {
-  const result: never[] = [];
+export function arraySample({array, sampleCount}:{array: number[], sampleCount: number}): number[] {
+  const result: number[] = [];
   const ratio = array.length / sampleCount;
   
   for (let i = 0; i < sampleCount; i++) {

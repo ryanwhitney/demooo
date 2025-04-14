@@ -14,7 +14,7 @@ from ..models import Track
 from ..types.track import TrackType
 
 
-def generate_waveform(file_path, resolution=80):
+def generate_waveform(file_path, resolution=200):
     """Generate waveform data from an audio file."""
     try:
         # Load the audio file with librosa
@@ -90,7 +90,7 @@ class UploadTrack(graphene.Mutation):
                 temp_file.flush()
                 print("WORKING ON IT")
                 # Generate waveform data with 80 data points
-                waveform_data = generate_waveform(temp_file.name, resolution=80)
+                waveform_data = generate_waveform(temp_file.name, resolution=200)
                 
                 # Store the waveform data
                 track.audio_waveform_data = json.dumps(waveform_data)

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import PlayButton from "./playButton/PlayButton";
 import { parseWaveformData } from "./utilities/parseWaveformData";
 import { calculateProgressFromPointer } from "./utilities/calculateProgressFromPointer";
+import { arraySample } from "@/utils/arraySample";
 
 const Waveform = ({
 	currentTime,
@@ -169,6 +170,17 @@ const Waveform = ({
 	const height = 30;
 	const width = 240;
 
+	const barWidth = 1.2;
+	const spacing = 3;
+	let xPosition = (barWidth + spacing) * -1;
+
+	const bars = 240 / (spacing + barWidth);
+	const sampledWavelengthData = arraySample({
+		array: data,
+		sampleCount: Math.floor(bars),
+	});
+	console.log("BARSLENGTH", sampledWavelengthData.length);
+
 	return (
 		<div
 			ref={containerRef}
@@ -223,6 +235,7 @@ const Waveform = ({
 					transition: `width ${isDragging ? "0ms" : "200ms"} ease-out`,
 					background: `linear-gradient(90deg, ${tokens.colors.backgroundSecondary}, rgba(0,0,0,0.2))`,
 					color: "white",
+					opacity: progressWidth,
 				}}
 			/>
 			<svg
@@ -233,17 +246,17 @@ const Waveform = ({
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
 			>
-				{data.map((amplitude, index) => {
+				{sampledWavelengthData.map((amplitude, index) => {
 					const barHeight = height * amplitude;
-					const spacing = 3;
+
 					const yPosition = (height - barHeight) / 2;
-					const xPosition = index * spacing;
+					xPosition = xPosition + barWidth + spacing;
 					return (
 						<rect
 							key={index * amplitude}
 							x={xPosition}
 							y={yPosition}
-							width={1.2}
+							width={barWidth}
 							height={barHeight}
 							style={{ borderRadius: 20 }}
 							fill="currentColor"
