@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'api',
+     'api',
     'graphene_django',
     'corsheaders',
 ]
@@ -55,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -148,7 +149,6 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [
     FRONTEND_DIR / 'assets',
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media settings for file uploads
 MEDIA_URL = '/media/'
