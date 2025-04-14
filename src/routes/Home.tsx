@@ -1,6 +1,6 @@
-import NavBar from "../features/nav/components/NavBar";
-import RecentTracks from "../features/tracks/components/RecentTracks";
-import { tokens } from "../styles/tokens";
+import NavBar from "@/features/nav/NavBar";
+import RecentTracks from "@/features/tracks/RecentTracks";
+import { tokens } from "@/styles/tokens";
 
 const homeBanner: React.CSSProperties = {
 	fontSize: tokens.space.xxl,

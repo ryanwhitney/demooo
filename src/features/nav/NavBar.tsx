@@ -1,14 +1,14 @@
 import demoSvg from "@/assets/demoooooooooooooooo.svg";
 import Button from "@/components/button/Button";
 import Modal from "@/components/modal/Modal";
-import CreateAccount from "@/features/auth/components/CreateAccount";
-import Login from "@/features/auth/components/Login";
+import CreateAccount from "@/features/auth/CreateAccount";
+import Login from "@/features/auth/Login";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router";
 import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
-import TrackUpload from "@/features/tracks/components/trackUpload/TrackUpload";
+import TrackUpload from "@/features/tracks/trackUpload/TrackUpload";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);

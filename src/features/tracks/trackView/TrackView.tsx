@@ -9,7 +9,7 @@ import {
 	trackViewWaveformWrapper,
 	trackViewWrapper,
 } from "./TrackView.css";
-import AudioPlayer from "@/components/audioPlayer/components/AudioPlayer";
+import SinglePlayer from "@/features/audio/globalPlayer/SinglePlayer";
 
 function TrackView({ track }: { track: Track }) {
 	return (
@@ -29,9 +29,7 @@ function TrackView({ track }: { track: Track }) {
 						</p>
 					</div>
 					<div className={trackViewWaveformWrapper}>
-						<div className="flex items-center gap-4">
-							<AudioPlayer track={track} />
-						</div>
+						<SinglePlayer track={track} />
 					</div>
 					<div className={trackViewDetails}>
 						<p>{track.description || "no notes"}</p>

@@ -5,9 +5,11 @@ import type { Track } from "@/types/track";
 
 const GlobalPlayer = () => {
 	const audio = useAudio();
-	const hasTrack = audio.currentTrack !== null;
+	const shouldShow =
+		audio.currentTrack !== null && audio.activeSource === "global";
+	const isPlaying = shouldShow && audio.isPlaying;
 
-	if (!hasTrack) {
+	if (!shouldShow) {
 		return null;
 	}
 
@@ -38,8 +40,10 @@ const GlobalPlayer = () => {
 			>
 				<AudioPlayer
 					track={audio.currentTrack as Track}
-					isPlaying={audio.isPlaying}
+					isPlaying={isPlaying}
 					onPlayPause={audio.setIsPlaying}
+					onTimeUpdate={audio.setCurrentTime}
+					onDurationChange={audio.setDuration}
 				/>
 			</div>
 		</div>

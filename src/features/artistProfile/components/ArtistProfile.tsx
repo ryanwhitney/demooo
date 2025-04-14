@@ -2,7 +2,7 @@ import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import type { Track } from "@/types/track";
-import TrackChip from "@/features/tracks/components/trackChip/TrackChip";
+import TrackChip from "@/features/tracks/trackChip/TrackChip";
 import { artistTrackViewInfo, artistViewWrapper } from "./ArtistProfile.css";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 

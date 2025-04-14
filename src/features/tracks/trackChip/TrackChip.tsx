@@ -12,12 +12,14 @@ import {
 } from "./TrackChip.css";
 import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
 import { useAudio } from "@/providers/AudioProvider";
+import { memo, useCallback, useMemo } from "react";
 
 type WaveformProps = HTMLAttributes<SVGSVGElement> & {
 	width?: number;
 };
 
-const Waveform = ({ width = 60, ...rest }: WaveformProps) => {
+// Memoize the Waveform component since it doesn't need to re-render
+const Waveform = memo(({ width = 60, ...rest }: WaveformProps) => {
 	const waveformBars = [
 		{ width: 1, height: 8, y: 10 },
 		{ width: 1, height: 13, y: 8 },
@@ -26,6 +28,25 @@ const Waveform = ({ width = 60, ...rest }: WaveformProps) => {
 	];
 
 	const count = Math.floor(width / 5);
+
+	// Pre-generate bars to avoid re-calculation
+	const bars = useMemo(() => {
+		return Array.from({ length: count }).map((_, index) => {
+			const waveform =
+				waveformBars[Math.floor(Math.random() * waveformBars.length)];
+			const uniqueKey = `${index}-${waveform.height}-${waveform.y}`;
+			return (
+				<rect
+					key={uniqueKey}
+					x={index * 5}
+					y={waveform.y}
+					width={waveform.width}
+					height={waveform.height}
+					fill="#D9D9D9"
+				/>
+			);
+		});
+	}, [count]);
 
 	return (
 		<svg
@@ -37,40 +58,36 @@ const Waveform = ({ width = 60, ...rest }: WaveformProps) => {
 			xmlns="http://www.w3.org/2000/svg"
 			{...rest}
 		>
-			{Array.from({ length: count }).map((_, index) => {
-				const waveform =
-					waveformBars[Math.floor(Math.random() * waveformBars.length)];
-				return (
-					// biome-ignore lint/correctness/useJsxKeyInIterable: <explanation>
-					<rect
-						x={index * 5} // Space by 5
-						y={waveform.y}
-						width={waveform.width}
-						height={waveform.height}
-						fill="#D9D9D9"
-					/>
-				);
-			})}
+			{bars}
 		</svg>
 	);
-};
+});
 
-function TrackChip({ track }: { track: Track }) {
-	const globalAudio = useAudio();
-	const isCurrentTrack = globalAudio.currentTrack?.id === track.id;
-	const isPlaying = isCurrentTrack && globalAudio.isPlaying;
+Waveform.displayName = "Waveform";
 
-	const handleClick = () => {
+const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
+	const audio = useAudio();
+
+	// Only subscribe to the state we need
+	const isCurrentTrack = useMemo(() => {
+		return (
+			audio.currentTrack?.id === track.id && audio.activeSource === "global"
+		);
+	}, [audio.currentTrack?.id, audio.activeSource, track.id]);
+
+	const isPlaying = isCurrentTrack && audio.isPlaying;
+
+	const handleClick = useCallback(() => {
 		if (isCurrentTrack) {
 			if (isPlaying) {
-				globalAudio.pauseTrack();
+				audio.pauseTrack();
 			} else {
-				globalAudio.resumeTrack();
+				audio.resumeTrack();
 			}
 		} else {
-			globalAudio.playTrack(track);
+			audio.playTrack(track, "global");
 		}
-	};
+	}, [audio, isCurrentTrack, isPlaying, track]);
 
 	return (
 		<div className={trackChipWrapper}>
@@ -101,6 +118,6 @@ function TrackChip({ track }: { track: Track }) {
 			</div>
 		</div>
 	);
-}
+});
 
 export default TrackChip;

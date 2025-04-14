@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
-import NavBar from "../features/nav/components/NavBar";
-import TrackView from "../features/tracks/components/trackView/TrackView";
+import NavBar from "@/features/nav/NavBar";
+import TrackView from "@/features/tracks/trackView/TrackView";
 import { GET_TRACK_BY_SLUG } from "@/apollo/queries/trackQueries";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";

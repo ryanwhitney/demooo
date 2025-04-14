@@ -10,9 +10,7 @@ import { AudioProvider } from "./providers/AudioProvider";
 import ArtistPage from "./routes/ArtistPage";
 import Home from "./routes/Home";
 import TrackPage from "./routes/TrackPage";
-import GlobalPlayer from "./features/globalPlayer/components/GlobalPlayer";
-import { mockData } from "./apollo/mockData";
-import { tokens } from "./styles/tokens";
+import GlobalPlayer from "./features/audio/globalPlayer/GlobalPlayer";
 
 // Get the root element
 const rootElement = document.getElementById("root");
