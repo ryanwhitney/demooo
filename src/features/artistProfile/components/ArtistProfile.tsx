@@ -4,6 +4,7 @@ import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import type { Track } from "@/types/track";
 import TrackChip from "@/features/tracks/components/trackChip/TrackChip";
 import { artistTrackViewInfo, artistViewWrapper } from "./ArtistProfile.css";
+import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const [tracks, setTracks] = useState<[Track] | null>(null);
@@ -19,12 +20,13 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 		refetch();
 	}, [refetch]);
 
-	if (loading) return <p>Loading...</p>;
-	if (error) return <p>Error: {error.message}</p>;
-
 	return (
 		<>
-			{data.user === null ? (
+			{loading ? (
+				<ProgressIndicator />
+			) : error ? (
+				error.message
+			) : data.user === null ? (
 				<p>Artist not found</p>
 			) : (
 				<div className={artistViewWrapper}>

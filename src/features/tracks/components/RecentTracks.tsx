@@ -12,9 +12,6 @@ const RecentTracks = () => {
 		refetch();
 	}, [refetch]);
 
-	// if (error) return `${error.message}`;
-	// if (loading) return "! error";
-
 	return (
 		<div
 			style={{

@@ -4,6 +4,7 @@ import TrackView from "../features/tracks/components/trackView/TrackView";
 import { GET_TRACK_BY_SLUG } from "@/apollo/queries/trackQueries";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
+import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 
 function TrackPage() {
 	const { artistName, titleSlug } = useParams();
@@ -16,13 +17,19 @@ function TrackPage() {
 		refetch();
 	}, [refetch]);
 
-	if (loading) return <p>Loading...</p>;
-	if (error) return <p>Error: {error.message}</p>;
-
 	return (
 		<>
 			<NavBar />
-			<TrackView track={data.trackBySlug} />
+
+			{loading ? (
+				<ProgressIndicator />
+			) : error ? (
+				error.message
+			) : data.trackBySlug === null ? (
+				<p>track not found</p>
+			) : (
+				<TrackView track={data.trackBySlug} />
+			)}
 		</>
 	);
 }
