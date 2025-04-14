@@ -73,10 +73,7 @@ function TrackChip({ track }: { track: Track }) {
 	};
 
 	return (
-		<div
-			// to={`/${track.artist.username}/track/${track.titleSlug}`}
-			className={trackChipWrapper}
-		>
+		<div className={trackChipWrapper}>
 			<button
 				type="button"
 				style={{ border: "none" }}
@@ -92,7 +89,12 @@ function TrackChip({ track }: { track: Track }) {
 				<Waveform className={waveformElement} width={55} />
 			</button>
 			<div className={trackText}>
-				<p className={trackTitle}>{track.title}</p>
+				<Link
+					to={`/${track.artist.username}/track/${track.titleSlug}`}
+					className={trackTitle}
+				>
+					{track.title}
+				</Link>
 				<Link to={`/${track.artist.username}`} className={trackArtist}>
 					{track.artist.username}
 				</Link>
