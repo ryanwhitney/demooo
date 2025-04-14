@@ -63,7 +63,7 @@ export const GET_ARTIST = gql`
         title
         titleSlug
         description
-        audioUrl
+        audioFile
         artist {
           id
           username

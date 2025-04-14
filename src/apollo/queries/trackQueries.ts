@@ -9,7 +9,7 @@ export const UPLOAD_TRACK = gql`
         id
         title
         description
-        audioUrl
+        audioFile
       }
     }
   }
@@ -24,7 +24,7 @@ export const GET_TRACK = gql`
       title
       description
       titleSLug
-      audioUrl
+      audioFile
       audioWaveformData
       audioWaveformResolution
       createdAt
@@ -44,7 +44,7 @@ export const GET_ALL_TRACKS = gql`
       title
       titleSlug
       description
-      audioUrl
+      audioFile
       audioWaveformData
       audioWaveformResolution
       createdAt
@@ -67,7 +67,7 @@ export const GET_USER_TRACKS = gql`
         username
       }
       description
-      audioUrl
+      audioFile
       audioWaveformData
       audioWaveformResolution
       createdAt
@@ -83,7 +83,8 @@ export const GET_TRACK_BY_SLUG = gql`
       title
       titleSlug
       description
-      audioUrl
+      audioFile
+      audioWaveformData
       createdAt
       updatedAt
       artist {

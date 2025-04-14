@@ -1,11 +1,11 @@
 export interface Track {
-	audioUrl: string | undefined
+	audioFile: string | undefined
 	id: string;
 	title: string; // A Great Song 
 	titleSlug: string; // a-great-song
 	description: string; // this is a song i made
-	waveformData: number[];
-	waveformResolution: number;
+	audioWaveformData: string;
+	audioWaveformResolution: number;
 	artist: TrackUser; // foreignKey, user.id
 	duration: number;
 	createdAt: string;
