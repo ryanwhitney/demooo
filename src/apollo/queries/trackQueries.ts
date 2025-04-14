@@ -25,6 +25,8 @@ export const GET_TRACK = gql`
       description
       titleSLug
       audioUrl
+      audioWaveformData
+      audioWaveformResolution
       createdAt
       updatedAt
       artist {
@@ -43,6 +45,8 @@ export const GET_ALL_TRACKS = gql`
       titleSlug
       description
       audioUrl
+      audioWaveformData
+      audioWaveformResolution
       createdAt
       artist {
         username
@@ -64,6 +68,8 @@ export const GET_USER_TRACKS = gql`
       }
       description
       audioUrl
+      audioWaveformData
+      audioWaveformResolution
       createdAt
       updatedAt
     }

@@ -62,10 +62,10 @@ export const trackViewTagsWrapper = style({
 // });
 
 export const trackViewWaveformWrapper = style({
-	maxWidth: 240,
 	backgroundColor: tokens.colors.tertiaryDark,
 	borderRadius: tokens.radii.lg,
 	display: "flex",
+	gap: tokens.space.lg,
 	justifyContent: "center",
 	padding: "16px 8px",
 });

@@ -40,3 +40,4 @@ venv.bak/
 
 # Other
 *storybook.log
+/backend/media/audio

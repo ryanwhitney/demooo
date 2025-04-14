@@ -1,0 +1,40 @@
+import type { StoryObj } from "@storybook/react";
+import AudioPlayer from "./AudioPlayer";
+
+const meta = {
+	title: "Components/AudioPlayer",
+	component: AudioPlayer,
+	tags: ["autodocs"],
+};
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+	args: {
+		id: "666",
+		title: "side_a.aif",
+		artist: {
+			id: "111",
+			username: "ryanwhitney",
+		},
+		titleSlug: "side-a-aig",
+		audioUrl:
+			"http://localhost:8000/media/audio/1f2b65b4-32cc-4b88-af56-71b492d19e73/57566347-823d-44d6-827f-2069bb9b0b8b/57566347-823d-44d6-827f-2069bb9b0b8b.aif",
+		description: "recorded drunk in a hotel room in new orleans.",
+		duration: 120,
+		createdAt: "2025-04-04",
+		recordedAt: "2025-04-04",
+		waveformData: [
+			0.32, 0.45, 1.0, 0.54, 0.42, 0.47, 0.43, 0.26, 0.35, 0.54, 0.26, 0.37,
+			0.3, 0.98, 0.64, 0.43, 0.45, 0.48, 0.26, 0.26, 0.47, 0.44, 0.37, 0.27,
+			0.88, 0.76, 0.43, 0.42, 0.44, 0.39, 0.24, 0.45, 0.45, 0.36, 0.26, 0.5,
+			0.99, 0.53, 0.41, 0.45, 0.42, 0.26, 0.39, 0.51, 0.26, 0.37, 0.36, 0.96,
+			0.63, 0.44, 0.46, 0.46, 0.25, 0.31, 0.55, 0.27, 0.28, 0.14, 0.23, 0.12,
+			0.09, 0.07, 0.07, 0.05, 0.04, 0.04, 0.04, 0.05, 0.04, 0.07, 0.08, 0.07,
+			0.07, 0.07, 0.06, 0.05, 0.07, 0.07, 0.05, 0.03,
+		],
+		waveformResolution: 80,
+	},
+};

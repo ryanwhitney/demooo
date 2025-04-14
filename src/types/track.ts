@@ -4,6 +4,8 @@ export interface Track {
 	title: string; // A Great Song 
 	titleSlug: string; // a-great-song
 	description: string; // this is a song i made
+	waveformData: number[];
+	waveformResolution: number;
 	artist: TrackUser; // foreignKey, user.id
 	duration: number;
 	createdAt: string;

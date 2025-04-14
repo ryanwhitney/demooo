@@ -33,7 +33,9 @@ const TrackUpload = () => {
 		try {
 			const { data } = await uploadTrack({
 				variables: {
-					formData,
+					title: formData.title,
+					description: formData.description,
+					file: formData.file,
 				},
 			});
 
