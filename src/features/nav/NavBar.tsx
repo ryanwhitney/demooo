@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router";
 import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
 import TrackUpload from "@/features/tracks/trackUpload/TrackUpload";
+import DemoooLogo from "../artistProfile/DemoooLogo/DemoooLogo";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
@@ -20,9 +21,11 @@ function NavBar() {
 	return (
 		<>
 			<nav className={navBar}>
-				<Link to="/" className={logo}>
+				<DemoooLogo text="demoooooooo" />
+
+				{/* <Link to="/" className={logo}>
 					<img src={demoSvg} alt="Demo" />
-				</Link>
+				</Link> */}
 				<ul className={navItemsList}>
 					{me.isAuthenticated ? (
 						<>
