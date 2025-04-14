@@ -6,6 +6,16 @@ import PlayButton from "./playButton/PlayButton";
 import { parseWaveformData } from "./utilities/parseWaveformData";
 import { calculateProgressFromPointer } from "./utilities/calculateProgressFromPointer";
 import { arraySample } from "@/utils/arraySample";
+import {
+	audioPlayerWrapper,
+	controlsWrapper,
+	playButtonWrapper,
+	timeDisplay,
+	waveformContainer,
+	waveformProgress,
+	waveformProgressIndicator,
+	waveformSlider,
+} from "./AudioPlayer.css";
 
 const Waveform = ({
 	currentTime,
@@ -203,38 +213,23 @@ const Waveform = ({
 			aria-valuemin={0}
 			aria-valuemax={100}
 			aria-valuenow={Math.round(displayProgress * 100)}
+			className={waveformSlider}
 			style={{
-				position: "relative",
-				height: height,
-				width: width,
 				cursor: isDragging ? "grabbing" : "pointer",
-				touchAction: "none", // Prevent browser handling of touch events
 			}}
 		>
 			<div
+				className={waveformProgressIndicator}
 				style={{
-					width: 2.5,
-					position: "absolute",
 					left: `${progressWidth}%`,
-					top: -4,
-					bottom: -4,
-					transition: "opacity 3.5s ease-in",
-					background: tokens.colors.focusRing,
-					borderRadius: 2,
-					zIndex: 2,
 					opacity: currentTime === 0 ? 0 : 100,
 				}}
 			/>
 			<div
+				className={waveformProgress}
 				style={{
 					width: `${progressWidth}%`,
-					position: "absolute",
-					left: 0,
-					top: 0,
-					bottom: 0,
 					transition: `width ${isDragging ? "0ms" : "200ms"} ease-out`,
-					background: `linear-gradient(90deg, ${tokens.colors.backgroundSecondary}, rgba(0,0,0,0.2))`,
-					color: "white",
 					opacity: progressWidth,
 				}}
 			/>
@@ -370,21 +365,8 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 	const waveformData = parseWaveformData(track.audioWaveformData);
 
 	return (
-		<div
-			style={{
-				width: "fit-content",
-				display: "flex",
-				flexDirection: "column",
-			}}
-		>
-			<div
-				style={{
-					display: "flex",
-					gap: tokens.space.md,
-					alignItems: "center",
-				}}
-			>
-				{/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
+		<div className={audioPlayerWrapper}>
+			<div className={controlsWrapper}>
 				<audio
 					ref={audioRef}
 					onTimeUpdate={handleTimeUpdate}
@@ -402,18 +384,12 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 				/>
 				<div>
 					<PlayButton
-						style={{ width: 44, height: 44, padding: 12 }}
+						className={playButtonWrapper}
 						isPlaying={isPlaying}
 						onClick={togglePlayPause}
 					/>
 				</div>
-				<div
-					style={{
-						background: tokens.colors.backgroundSecondary,
-						padding: "6px 14px",
-						borderRadius: tokens.radii.lg,
-					}}
-				>
+				<div className={waveformContainer}>
 					<Waveform
 						currentTime={currentTime}
 						data={waveformData}
@@ -423,14 +399,7 @@ const AudioPlayer = ({ track }: { track: Track }) => {
 					/>
 				</div>
 			</div>
-			<span
-				style={{
-					color: tokens.colors.secondary,
-					fontSize: tokens.fontSizes.xs,
-					alignSelf: "flex-end",
-					paddingTop: tokens.space.sm,
-				}}
-			>
+			<span className={timeDisplay}>
 				{formatTime(currentTime)} / {formatTime(duration)}
 			</span>
 		</div>
