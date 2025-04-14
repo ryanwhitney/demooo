@@ -1,7 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
-import NavBar from "@/features/nav/components/NavBar";
 import type { Track } from "@/types/track";
 import TrackChip from "@/features/tracks/components/trackChip/TrackChip";
 import { artistTrackViewInfo, artistViewWrapper } from "./ArtistProfile.css";

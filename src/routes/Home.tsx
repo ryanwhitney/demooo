@@ -1,8 +1,5 @@
-import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import NavBar from "../features/nav/components/NavBar";
 import RecentTracks from "../features/tracks/components/RecentTracks";
-import TrackUpload from "../features/tracks/components/trackUpload/TrackUpload";
-import { useAuth } from "../hooks/useAuth";
 import { tokens } from "../styles/tokens";
 
 const homeBanner: React.CSSProperties = {
@@ -26,8 +23,6 @@ const homeBannerText: React.CSSProperties = {
 };
 
 function Home() {
-	const auth = useAuth();
-
 	return (
 		<>
 			<NavBar />

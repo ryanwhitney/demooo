@@ -1,4 +1,5 @@
 import { GET_ALL_TRACKS } from "@/apollo/queries/trackQueries";
+import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import TrackChip from "@/features/tracks/components/trackChip/TrackChip";
 import type { Track } from "@/types/track";
 import { useQuery } from "@apollo/client";
@@ -34,10 +35,24 @@ const RecentTracks = () => {
 			>
 				Latest
 			</p>
-			<div style={{ display: "flex", gap: 20, padding: 20, flexWrap: "wrap" }}>
-				{data?.tracks?.map((track: Track) => (
-					<TrackChip key={`${track.id}`} track={track} />
-				))}
+			<div
+				style={{
+					display: "flex",
+					gap: 20,
+					justifyContent: "center",
+					padding: 20,
+					flexWrap: "wrap",
+				}}
+			>
+				{loading ? (
+					<ProgressIndicator />
+				) : error ? (
+					error.message
+				) : (
+					data?.tracks?.map((track: Track) => (
+						<TrackChip key={`${track.id}`} track={track} />
+					))
+				)}
 			</div>
 		</div>
 	);
