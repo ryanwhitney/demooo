@@ -11,6 +11,8 @@ import {
 	waveformWrapper,
 } from "./TrackChip.css";
 import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
+import { useAudio } from "@/providers/AudioProvider";
+import { handleError } from "@apollo/client/link/http/parseAndCheckHttpResponse";
 
 type WaveformProps = HTMLAttributes<SVGSVGElement> & {
 	width?: number;
@@ -55,27 +57,39 @@ const Waveform = ({ width = 60, ...rest }: WaveformProps) => {
 };
 
 function TrackChip({ track }: { track: Track }) {
+	const globalAudio = useAudio();
+
+	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.stopPropagation();
+		globalAudio.playTrack(track);
+	};
+
 	return (
-		<Link
-			to={`/${track.artist.username}/track/${track.titleSlug}`}
+		<div
+			// to={`/${track.artist.username}/track/${track.titleSlug}`}
 			className={trackChipWrapper}
 		>
-			<div className={waveformWrapper}>
+			<button
+				type="button"
+				style={{ border: "none" }}
+				className={waveformWrapper}
+				onClick={handleClick}
+			>
 				<PlayButton
 					className={trackChipPlayButton}
 					isPlaying={false}
-					onClick={() => {}}
+					onClick={() => handleClick}
 					color="white"
 				/>
 				<Waveform className={waveformElement} width={55} />
-			</div>
+			</button>
 			<div className={trackText}>
 				<p className={trackTitle}>{track.title}</p>
 				<Link to={`/${track.artist.username}`} className={trackArtist}>
 					{track.artist.username}
 				</Link>
 			</div>
-		</Link>
+		</div>
 	);
 }
 

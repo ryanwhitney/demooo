@@ -11,6 +11,7 @@ import Home from "./routes/Home";
 import TrackPage from "./routes/TrackPage";
 import AudioPlayer from "./components/audioPlayer/components/AudioPlayer";
 import { mockData } from "./apollo/mockData";
+import { tokens } from "./styles/tokens";
 
 // Get the root element
 const rootElement = document.getElementById("root");
@@ -22,7 +23,6 @@ if (rootElement) {
 			<ApolloProvider client={client}>
 				<AuthProvider>
 					<BrowserRouter>
-						<AudioPlayer track={mockData.tracks[0]} />
 						<Routes>
 							<Route path="/" element={<Home />} />
 							<Route path="/:artistName" element={<ArtistPage />} />
