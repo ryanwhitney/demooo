@@ -1,26 +1,35 @@
 import { tokens } from "@/styles/tokens";
+import type { HTMLAttributes } from "react";
+
+export type PlayButtonProps = HTMLAttributes<HTMLButtonElement> & {
+	isPlaying: boolean;
+	onClick: () => void;
+	color?: string;
+};
 
 const PlayButton = ({
 	isPlaying,
 	onClick,
 	color,
-}: { isPlaying: boolean; onClick: () => void; color?: string }) => (
+	style,
+	...rest
+}: PlayButtonProps) => (
 	<button
 		type="button"
 		onClick={onClick}
 		aria-label={isPlaying ? "Pause" : "Play"}
 		style={{
 			background: tokens.colors.backgroundSecondary,
-			width: 44,
-			height: 44,
-			padding: 12,
 			borderRadius: 999,
 			display: "flex",
 			justifyContent: "center",
 			alignContent: "center",
+			cursor: "pointer",
 			color: color || "white",
 			border: "none",
+			...style, // Merge with any styles passed in props
 		}}
+		{...rest}
 	>
 		{isPlaying ? (
 			<svg
