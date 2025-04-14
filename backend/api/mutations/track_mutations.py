@@ -54,8 +54,14 @@ class UploadTrack(graphene.Mutation):
 
     @login_required
     def mutate(self, info, title, file, description=None):
+        
+        user = info.context.user
+        title_slug = slugify(title)
+        if user.tracks.filter(title_slug=title_slug):
+            raise Exception("You already have a track with that title. Please choose a different one.")
+
         track = Track(
-            artist=info.context.user,
+            artist=user,
             title=title,
             title_slug=slugify(title),
             description=description or "",
@@ -63,7 +69,7 @@ class UploadTrack(graphene.Mutation):
         track.save()
 
         _, ext = os.path.splitext(file.name)
-        artist_id = str(info.context.user.id)
+        artist_id = str(user.id)
         track_id = str(track.id)
         filename = f"{track_id}{ext}"
         path = f'audio/{artist_id}/{track_id}/{filename}'
