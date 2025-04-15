@@ -32,20 +32,35 @@ const Waveform = ({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
 	const [displayProgress, setDisplayProgress] = useState(0);
+	const [isInteracting, setIsInteracting] = useState(false);
 
 	// Calculate current progress and update display when component props change
 	useEffect(() => {
-		if (!isDragging && duration > 0) {
+		// Only update display progress from props if we're not currently interacting
+		if (!isDragging && !isInteracting && duration > 0) {
 			setDisplayProgress(currentTime / duration);
 		}
-	}, [currentTime, duration, isDragging]);
+	}, [currentTime, duration, isDragging, isInteracting]);
 
 	// Calculate and set time based on progress value
 	const updateTimeFromProgress = useCallback(
 		(progress: number) => {
 			if (duration <= 0) return;
-			const newTime = progress * duration;
+
+			// Clamp progress between 0 and 1
+			const clampedProgress = Math.max(0, Math.min(1, progress));
+			const newTime = clampedProgress * duration;
+
+			// Set interacting flag to prevent visual flickering during interaction
+			setIsInteracting(true);
+
+			// Update audio position
 			onTimeChange(newTime);
+
+			// Clear interacting flag after a short delay
+			setTimeout(() => {
+				setIsInteracting(false);
+			}, 200);
 		},
 		[duration, onTimeChange],
 	);
@@ -64,6 +79,9 @@ const Waveform = ({
 
 			// If we have a scrubbing callback, handle playback properly
 			if (onScrubbing) {
+				// Set interacting flag to prevent visual flickering
+				setIsInteracting(true);
+
 				// Tell parent component we're starting a scrub operation
 				onScrubbing(true, newTime);
 
@@ -74,14 +92,21 @@ const Waveform = ({
 				onTimeChange(newTime);
 
 				// Immediately end the scrub operation, which will trigger playback resume if needed
-				onScrubbing(false, newTime);
+				setTimeout(() => {
+					onScrubbing(false, newTime);
+
+					// Clear interacting flag after a short delay
+					setTimeout(() => {
+						setIsInteracting(false);
+					}, 200);
+				}, 50);
 			} else {
 				// Simple mode - just update time
 				setDisplayProgress(progress);
-				onTimeChange(newTime);
+				updateTimeFromProgress(progress);
 			}
 		},
-		[duration, isDragging, onScrubbing, onTimeChange],
+		[duration, isDragging, onScrubbing, onTimeChange, updateTimeFromProgress],
 	);
 
 	// Set up pointer down handler - this handles both clicks and the start of drags
@@ -93,6 +118,9 @@ const Waveform = ({
 			// Prevent default to avoid text selection and other browser behaviors
 			e.preventDefault();
 			e.stopPropagation();
+
+			// Set interacting flag to prevent visual flickering
+			setIsInteracting(true);
 
 			// Get initial position and update time immediately for responsive feedback
 			const initialProgress = calculateProgressFromPointer(e, element);
@@ -115,6 +143,8 @@ const Waveform = ({
 			// Set up document-level handlers
 			const handleDocMove = (e: PointerEvent) => {
 				e.preventDefault();
+				e.stopPropagation();
+
 				if (!element) return;
 
 				const progress = calculateProgressFromPointer(e, element);
@@ -135,6 +165,8 @@ const Waveform = ({
 
 			const handleDocUp = (e: PointerEvent) => {
 				e.preventDefault();
+				e.stopPropagation();
+
 				if (!element) return;
 
 				const finalProgress = calculateProgressFromPointer(e, element);
@@ -154,8 +186,13 @@ const Waveform = ({
 					// Small delay to make sure everything else is processed first
 					setTimeout(() => {
 						onScrubbing(false, finalTime);
-					}, 0);
+					}, 50);
 				}
+
+				// Clear interacting flag after a short delay
+				setTimeout(() => {
+					setIsInteracting(false);
+				}, 200);
 
 				// Clean up event listeners
 				document.removeEventListener("pointermove", handleDocMove);
@@ -284,40 +321,63 @@ const AudioPlayer = ({
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
 	const [isScrubbing, setIsScrubbing] = useState(false);
+	const [isLoaded, setIsLoaded] = useState(false);
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const wasPlayingRef = useRef(false);
 	const previousTrackId = useRef<string | null>(null);
+	const pendingSeekTimeRef = useRef<number | null>(null);
 
 	// Reset state when track changes
 	useEffect(() => {
 		if (previousTrackId.current !== track.id) {
 			setCurrentTime(0);
 			setDuration(0);
+			setIsLoaded(false);
+
+			// Reset all internal state on track change
+			pendingSeekTimeRef.current = null;
+			setIsScrubbing(false);
+			wasPlayingRef.current = false;
+
 			if (audioRef.current) {
+				// Ensure we reset the audio element completely
+				audioRef.current.pause();
 				audioRef.current.currentTime = 0;
-				if (externalIsPlaying) {
-					audioRef.current.play().catch(console.error);
-				}
+
+				// Chrome sometimes needs a small delay before trying to play a new track
+				setTimeout(() => {
+					if (externalIsPlaying && audioRef.current) {
+						audioRef.current.play().catch((error) => {
+							console.error("Error playing new track:", error);
+							setIsPlaying(false);
+							onPlayPause?.(false);
+						});
+					}
+				}, 50);
 			}
 			previousTrackId.current = track.id;
 		}
-	}, [track.id, externalIsPlaying]);
+	}, [track.id, externalIsPlaying, onPlayPause]);
 
 	// Sync with external play state if provided
 	useEffect(() => {
 		if (externalIsPlaying !== undefined && externalIsPlaying !== isPlaying) {
 			if (externalIsPlaying) {
-				audioRef.current?.play().catch((error: Error) => {
-					console.error("Error playing audio:", error);
-					setIsPlaying(false);
-					onPlayPause?.(false);
-				});
+				if (audioRef.current && isLoaded) {
+					audioRef.current.play().catch((error: Error) => {
+						console.error("Error playing audio:", error);
+						setIsPlaying(false);
+						onPlayPause?.(false);
+					});
+				}
 			} else {
-				audioRef.current?.pause();
+				if (audioRef.current) {
+					audioRef.current.pause();
+				}
 			}
 			setIsPlaying(externalIsPlaying);
 		}
-	}, [externalIsPlaying, isPlaying, onPlayPause]);
+	}, [externalIsPlaying, isPlaying, onPlayPause, isLoaded]);
 
 	// Toggle play/pause state
 	const togglePlayPause = useCallback(() => {
@@ -355,23 +415,61 @@ const AudioPlayer = ({
 		if (audioRef.current) {
 			const newDuration = audioRef.current.duration;
 			setDuration(newDuration);
+			setIsLoaded(true);
 			onDurationChange?.(newDuration);
-		}
-	}, [onDurationChange]);
 
-	const jumpToPosition = useCallback(
-		(time: number) => {
-			if (audioRef.current) {
+			// If there's a pending seek time from before metadata was loaded, apply it now
+			if (pendingSeekTimeRef.current !== null) {
+				const pendingTime = pendingSeekTimeRef.current;
+				pendingSeekTimeRef.current = null;
+
 				const boundedTime = Math.max(
 					0,
-					Math.min(time, audioRef.current.duration || 0),
+					Math.min(pendingTime, audioRef.current.duration || 0),
 				);
 				audioRef.current.currentTime = boundedTime;
 				setCurrentTime(boundedTime);
 				onTimeUpdate?.(boundedTime);
 			}
+		}
+	}, [onDurationChange, onTimeUpdate]);
+
+	const jumpToPosition = useCallback(
+		(time: number) => {
+			if (!audioRef.current) return;
+
+			// HTML5 audio readyState:
+			// 0 = HAVE_NOTHING
+			// 1 = HAVE_METADATA
+			// 2 = HAVE_CURRENT_DATA
+			// 3 = HAVE_FUTURE_DATA
+			// 4 = HAVE_ENOUGH_DATA
+
+			// Check if the audio element is ready for seeking
+			if (!isLoaded || audioRef.current.readyState < 1) {
+				// Save the requested time to apply once loaded
+				pendingSeekTimeRef.current = time;
+				return;
+			}
+
+			// Proceed with seeking now that we know the audio is ready
+			const boundedTime = Math.max(
+				0,
+				Math.min(time, audioRef.current.duration || 0),
+			);
+
+			try {
+				// Chrome sometimes fails silently if seeking isn't possible yet
+				audioRef.current.currentTime = boundedTime;
+				setCurrentTime(boundedTime);
+				onTimeUpdate?.(boundedTime);
+			} catch (error) {
+				console.error("Error seeking audio:", error);
+				// Store for later if seeking fails
+				pendingSeekTimeRef.current = time;
+			}
 		},
-		[onTimeUpdate],
+		[isLoaded, onTimeUpdate],
 	);
 
 	const handleScrubbing = useCallback(
@@ -414,7 +512,14 @@ const AudioPlayer = ({
 					ref={audioRef}
 					onTimeUpdate={handleTimeUpdate}
 					onLoadedMetadata={handleLoadedMetadata}
+					onLoadedData={() => setIsLoaded(true)}
+					onCanPlay={() => setIsLoaded(true)}
 					onEnded={handleAudioEnded}
+					onError={(e) => {
+						console.error("Audio error:", e);
+						setIsPlaying(false);
+						onPlayPause?.(false);
+					}}
 					onPlay={() => {
 						setIsPlaying(true);
 						onPlayPause?.(true);
@@ -425,6 +530,7 @@ const AudioPlayer = ({
 							onPlayPause?.(false);
 						}
 					}}
+					preload="auto"
 					src={audioFileUrl}
 				/>
 				<div>
