@@ -1,20 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import {
-	characterSpan,
-	holder,
-	mainContainer,
-	shakeAnimation,
-	sizes,
-	waveAnimation,
-} from "./DemoooLogo.css";
-
-// Define animation types
-enum AnimationType {
-	// JIGGLE = "jiggle",
-	// WAVE = "wave",
-	EQUALIZER = "equalizer",
-	// SHAKE = "shake",
-}
+import { useEffect, useRef } from "react";
+import { characterSpan, holder, mainContainer, sizes } from "./DemoooLogo.css";
 
 const DemoooLogo = ({ text }: { text: string }) => {
 	// Reference to all character spans
@@ -25,10 +10,6 @@ const DemoooLogo = ({ text }: { text: string }) => {
 	const animationFrameIdRef = useRef<number | null>(null);
 	// Animation timeout ID for cleanup
 	const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-	// Current animation type
-	const [animationType, setAnimationType] = useState<AnimationType | null>(
-		null,
-	);
 
 	// Setup reference arrays when component mounts
 	useEffect(() => {
@@ -43,51 +24,15 @@ const DemoooLogo = ({ text }: { text: string }) => {
 					computedStyle.fontSize,
 				);
 			}
+			return () => {};
 		});
 	}, [text]);
 
-	const chooseRandomAnimation = () => {
-		const animations = Object.values(AnimationType);
-		const randomIndex = Math.floor(Math.random() * animations.length);
-		return animations[randomIndex];
-	};
-
-	const jiggleText = () => {
-		spansRef.current.forEach((span, index) => {
-			if (span) {
-				const originalSize = originalSizesRef.current[index];
-				// Random size between 40% and 100% of original
-				const randomFactor = 0.4 + (Math.random() * (0.6 - 0.4) + 0.4);
-				const newSize = originalSize * randomFactor;
-				span.style.fontSize = `${newSize}px`;
-			}
-		});
-
-		timeoutIdRef.current = setTimeout(() => {
-			animationFrameIdRef.current = requestAnimationFrame(jiggleText);
-		}, 300);
-	};
-
-	// Wave animation - grows and shrinks font sizes in a wave pattern
-	const waveText = () => {
-		const time = Date.now() / 1000;
-
-		spansRef.current.forEach((span, index) => {
-			if (span) {
-				const originalSize = originalSizesRef.current[index];
-				// Create a wave pattern
-				const phase = index / 2; // Controls wave spacing
-				const amplitude = 1; // Controls size variation
-				const frequency = 5; // Controls wave speed
-
-				const factor = 1 + amplitude * Math.sin(frequency * time + phase);
-				const newSize = originalSize * factor;
-
-				span.style.fontSize = `${newSize}px`;
-			}
-		});
-
-		animationFrameIdRef.current = requestAnimationFrame(waveText);
+	// Create ref callback function
+	const setSpanRef = (index: number) => (el: HTMLSpanElement | null) => {
+		if (spansRef.current) {
+			spansRef.current[index] = el;
+		}
 	};
 
 	// Equalizer animation
@@ -113,24 +58,7 @@ const DemoooLogo = ({ text }: { text: string }) => {
 
 	// Handle mouse enter
 	const handleMouseEnter = () => {
-		const animation = chooseRandomAnimation();
-		setAnimationType(animation);
-
-		// Start the appropriate animation
-		switch (animation) {
-			case AnimationType.JIGGLE:
-				jiggleText();
-				break;
-			case AnimationType.WAVE:
-				waveText();
-				break;
-			case AnimationType.EQUALIZER:
-				equalizerText();
-				break;
-			case AnimationType.SHAKE:
-				// For shake, we'll use CSS animation class
-				break;
-		}
+		equalizerText();
 	};
 
 	// Handle mouse leave
@@ -146,9 +74,6 @@ const DemoooLogo = ({ text }: { text: string }) => {
 			timeoutIdRef.current = null;
 		}
 
-		// Reset animation type
-		setAnimationType(null);
-
 		// Reset to original sizes
 		spansRef.current.forEach((span, index) => {
 			if (span) {
@@ -156,19 +81,6 @@ const DemoooLogo = ({ text }: { text: string }) => {
 			}
 		});
 	};
-
-	// Clean up animations on unmount
-	useEffect(() => {
-		return () => {
-			if (animationFrameIdRef.current) {
-				cancelAnimationFrame(animationFrameIdRef.current);
-			}
-
-			if (timeoutIdRef.current) {
-				clearTimeout(timeoutIdRef.current);
-			}
-		};
-	}, []);
 
 	// Get character size class
 	const getCharacterSizeClass = (index: number): string => {
@@ -178,17 +90,6 @@ const DemoooLogo = ({ text }: { text: string }) => {
 		}
 		// Default to first size if out of range
 		return sizes.a;
-	};
-
-	// Get animation class if needed
-	const getAnimationClass = (): string => {
-		if (animationType === AnimationType.SHAKE) {
-			return shakeAnimation;
-		}
-		if (animationType === AnimationType.WAVE) {
-			return waveAnimation;
-		}
-		return "";
 	};
 
 	return (
@@ -201,9 +102,9 @@ const DemoooLogo = ({ text }: { text: string }) => {
 			<div className={holder}>
 				{text.split("").map((char, index) => (
 					<span
-						key={index}
-						ref={(el) => (spansRef.current[index] = el)}
-						className={`${characterSpan} ${getCharacterSizeClass(index)} ${getAnimationClass()}`}
+						key={char}
+						ref={setSpanRef(index)}
+						className={`${characterSpan} ${getCharacterSizeClass(index)}`}
 					>
 						{char}
 					</span>
@@ -214,14 +115,3 @@ const DemoooLogo = ({ text }: { text: string }) => {
 };
 
 export default DemoooLogo;
-
-// Usage example:
-// import AnimatedText from './AnimatedText';
-//
-// function App() {
-//   return (
-//     <div style={{ background: 'black', padding: '20px' }}>
-//       <AnimatedText text="demoooooooo" />
-//     </div>
-//   );
-// }

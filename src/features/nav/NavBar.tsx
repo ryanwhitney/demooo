@@ -5,11 +5,10 @@ import Login from "@/features/auth/Login";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, NavLink } from "react-router";
+import { NavLink } from "react-router";
 import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
 import TrackUpload from "@/features/tracks/trackUpload/TrackUpload";
 import DemoooLogo from "../artistProfile/DemoooLogo/DemoooLogo";
-import Home from "@/routes/Home";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
