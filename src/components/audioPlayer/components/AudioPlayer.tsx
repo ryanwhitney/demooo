@@ -188,7 +188,6 @@ const Waveform = ({
 		array: data,
 		sampleCount: Math.floor(bars),
 	});
-	console.log("BARSLENGTH", sampledWavelengthData.length);
 
 	return (
 		<div
@@ -245,9 +244,10 @@ const Waveform = ({
 
 					const yPosition = (height - barHeight) / 2;
 					xPosition = xPosition + barWidth + spacing;
+					const uniqueKey = crypto.randomUUID();
 					return (
 						<rect
-							key={index * amplitude}
+							key={`${index}=${amplitude}-${uniqueKey}`}
 							x={xPosition}
 							y={yPosition}
 							width={barWidth}

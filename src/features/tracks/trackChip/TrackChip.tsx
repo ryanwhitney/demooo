@@ -91,8 +91,8 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 
 	return (
 		<div className={trackChipWrapper}>
-			<button
-				type="button"
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: <there's an actual button present within> */}
+			<div
 				style={{ border: "none" }}
 				className={waveformWrapper}
 				onClick={handleClick}
@@ -104,7 +104,7 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 					color="white"
 				/>
 				<Waveform className={waveformElement} width={55} />
-			</button>
+			</div>
 			<div className={trackText}>
 				<Link
 					to={`/${track.artist.username}/track/${track.titleSlug}`}

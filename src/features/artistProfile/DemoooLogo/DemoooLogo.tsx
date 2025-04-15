@@ -102,7 +102,7 @@ const DemoooLogo = ({ text }: { text: string }) => {
 			<div className={holder}>
 				{text.split("").map((char, index) => (
 					<span
-						key={char}
+						key={`${char}-${index}`}
 						ref={setSpanRef(index)}
 						className={`${characterSpan} ${getCharacterSizeClass(index)}`}
 					>
