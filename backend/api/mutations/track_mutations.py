@@ -58,7 +58,10 @@ class UploadTrack(graphene.Mutation):
         user = info.context.user
         title_slug = slugify(title)
         if user.tracks.filter(title_slug=title_slug):
-            raise Exception("You already have a track with that title. Please choose a different one.")
+            raise Exception(
+                "You already have a track with that title. "
+                "Please choose a different one."
+            )
 
         track = Track(
             artist=user,
@@ -78,7 +81,6 @@ class UploadTrack(graphene.Mutation):
         track.audio_file = file_path
         track.save()
         print("TRACK SAVED")
-
 
         # Process audio to generate waveform data
         try:
@@ -123,7 +125,7 @@ class UpdateTrack(graphene.Mutation):
         except Track.DoesNotExist:
             raise Exception("Track not found")
 
-        if track.user != info.context.user:
+        if track.artist != info.context.user:
             raise Exception("You do not have permission to update this track")
 
         if title is not None:
@@ -150,7 +152,7 @@ class DeleteTrack(graphene.Mutation):
         except Track.DoesNotExist:
             raise Exception("Track not found")
 
-        if track.user != info.context.user:
+        if track.artist != info.context.user:
             raise Exception("You do not have permission to delete this track")
 
         if track.audio_file:
