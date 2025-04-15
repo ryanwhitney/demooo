@@ -1,4 +1,3 @@
-import demoSvg from "@/assets/demoooooooooooooooo.svg";
 import Button from "@/components/button/Button";
 import Modal from "@/components/modal/Modal";
 import CreateAccount from "@/features/auth/CreateAccount";
@@ -6,10 +5,11 @@ import Login from "@/features/auth/Login";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
 import TrackUpload from "@/features/tracks/trackUpload/TrackUpload";
 import DemoooLogo from "../artistProfile/DemoooLogo/DemoooLogo";
+import Home from "@/routes/Home";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
@@ -21,11 +21,9 @@ function NavBar() {
 	return (
 		<>
 			<nav className={navBar}>
-				<DemoooLogo text="demoooooooo" />
-
-				{/* <Link to="/" className={logo}>
-					<img src={demoSvg} alt="Demo" />
-				</Link> */}
+				<NavLink to={"/"} className={logo}>
+					<DemoooLogo text="demoooooooo" />
+				</NavLink>
 				<ul className={navItemsList}>
 					{me.isAuthenticated ? (
 						<>

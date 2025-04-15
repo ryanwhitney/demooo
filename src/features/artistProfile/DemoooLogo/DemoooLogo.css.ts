@@ -7,25 +7,25 @@ export const baseSize = createVar();
 // Common styles
 export const mainContainer = style({
   display: "inline-block",
-  padding: "20px",
+  // padding: "20px",
+  height: "50px",
   cursor: "pointer",
-  lineHeight: 0,
   position: "relative",
   width: "200px",
 });
 
 export const holder = style({
-  position: "absolute",
-  bottom: 0,
+  // position: "absolute",
+  // bottom: 0,
 });
 
 export const characterSpan = style({
   fontFamily: "JetBrains Mono",
-  padding: 0,
-  margin: 0,
+  lineHeight: 0,
+  height: "50px",
   letterSpacing: "0",
   color: "white",
-  transition: "font-size 0.15s ease-in-out",
+  transition: "font-size 0.3s ease-in-out",
   display: "inline-block",
   verticalAlign: "baseline",
   transformOrigin: "bottom center",
@@ -55,7 +55,7 @@ export const waveAnimation = style({
 });
 
 export const shakeAnimation = style({
-  animation: `${shakeKeyframes} 0.15s ease-in-out infinite`,
+  animation: `${shakeKeyframes} 0.3s ease-in-out infinite`,
 });
 
 // Size classes (similar to the original)

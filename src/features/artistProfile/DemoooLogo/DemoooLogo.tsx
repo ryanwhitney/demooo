@@ -10,10 +10,10 @@ import {
 
 // Define animation types
 enum AnimationType {
-	JIGGLE = "jiggle",
-	WAVE = "wave",
+	// JIGGLE = "jiggle",
+	// WAVE = "wave",
 	EQUALIZER = "equalizer",
-	SHAKE = "shake",
+	// SHAKE = "shake",
 }
 
 const DemoooLogo = ({ text }: { text: string }) => {
@@ -57,7 +57,7 @@ const DemoooLogo = ({ text }: { text: string }) => {
 			if (span) {
 				const originalSize = originalSizesRef.current[index];
 				// Random size between 40% and 100% of original
-				const randomFactor = 0.4 + Math.random() * 0.6;
+				const randomFactor = 0.4 + (Math.random() * (0.6 - 0.4) + 0.4);
 				const newSize = originalSize * randomFactor;
 				span.style.fontSize = `${newSize}px`;
 			}
@@ -77,7 +77,7 @@ const DemoooLogo = ({ text }: { text: string }) => {
 				const originalSize = originalSizesRef.current[index];
 				// Create a wave pattern
 				const phase = index / 2; // Controls wave spacing
-				const amplitude = 0.5; // Controls size variation
+				const amplitude = 1; // Controls size variation
 				const frequency = 5; // Controls wave speed
 
 				const factor = 1 + amplitude * Math.sin(frequency * time + phase);
@@ -96,7 +96,7 @@ const DemoooLogo = ({ text }: { text: string }) => {
 			if (span) {
 				const originalSize = originalSizesRef.current[index];
 				// Randomize heights like an equalizer
-				const minFactor = 0.3;
+				const minFactor = 0.8;
 				const maxFactor = 1.5;
 				const randomFactor =
 					minFactor + Math.random() * (maxFactor - minFactor);
@@ -108,7 +108,7 @@ const DemoooLogo = ({ text }: { text: string }) => {
 
 		timeoutIdRef.current = setTimeout(() => {
 			animationFrameIdRef.current = requestAnimationFrame(equalizerText);
-		}, 100); // Faster updates for equalizer effect
+		}, 300); // Faster updates for equalizer effect
 	};
 
 	// Handle mouse enter
@@ -194,6 +194,7 @@ const DemoooLogo = ({ text }: { text: string }) => {
 	return (
 		<div
 			className={mainContainer}
+			title="Demooo Logo"
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
