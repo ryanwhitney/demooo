@@ -9,7 +9,7 @@ import {
 	trackViewWaveformWrapper,
 	trackViewWrapper,
 } from "./TrackView.css";
-import SinglePlayer from "@/features/audio/globalPlayer/SinglePlayer";
+import SinglePlayer from "@/features/audio/singlePlayer/SinglePlayer";
 
 function TrackView({ track }: { track: Track }) {
 	return (
