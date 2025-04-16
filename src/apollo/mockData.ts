@@ -11,7 +11,7 @@ export const mockData = {
 			audioFile:
 				"http://localhost:8000/media/audio/1f2b65b4-32cc-4b88-af56-71b492d19e73/57566347-823d-44d6-827f-2069bb9b0b8b/57566347-823d-44d6-827f-2069bb9b0b8b.aif",
 			description: "recorded drunk in a hotel room in new orleans.",
-			duration: 120,
+			audioLength: 120,
 			createdAt: "2025-04-04",
 			recordedAt: "2025-04-04",
 			audioWaveformData:

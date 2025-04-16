@@ -1,9 +1,8 @@
 import { style, createVar, globalStyle } from '@vanilla-extract/css';
 
-// Create CSS variables for customization
+// Passes down transition duration var 
 export const transitionDurationVar = createVar();
 
-// Base button styles
 export const buttonBase = style({
   border: 'none',
   background: 'none',
@@ -18,7 +17,7 @@ export const buttonBase = style({
 	overflow: 'visible'
 });
 
-// Visually hidden class for screen readers
+// Screen reader class
 export const srOnly = style({
   position: 'absolute',
   width: '1px',
@@ -78,7 +77,6 @@ export const placeholder = style({
   display: 'inline-block',
 });
 
-// Media query for users who prefer reduced motion
 globalStyle('@media (prefers-reduced-motion: reduce)', {
   vars: {
     [transitionDurationVar]: '0ms',

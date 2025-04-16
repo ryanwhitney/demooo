@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import NavBar from "@/features/nav/NavBar";
+import NavBar from "@/features/nav/navBar/NavBar";
 import ArtistProfile from "@/features/artistProfile/ArtistProfile";
 
 const ArtistPage = () => {

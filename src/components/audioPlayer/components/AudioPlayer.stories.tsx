@@ -12,8 +12,4 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-	args: {
-		track: mockData.tracks[0],
-	},
-};
+export const Default: Story = {};

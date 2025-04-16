@@ -8,7 +8,7 @@ import { createPortal } from "react-dom";
 import { NavLink } from "react-router";
 import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
 import TrackUpload from "@/features/tracks/trackUpload/TrackUpload";
-import DemoooLogo from "../artistProfile/DemoooLogo/DemoooLogo";
+import DemoooLogo from "../AnimatedLogo/DemoooLogo";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);

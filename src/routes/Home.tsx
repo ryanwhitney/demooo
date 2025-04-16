@@ -1,4 +1,4 @@
-import NavBar from "@/features/nav/NavBar";
+import NavBar from "@/features/nav/navBar/NavBar";
 import RecentTracks from "@/features/tracks/RecentTracks";
 import { tokens } from "@/styles/tokens";
 
