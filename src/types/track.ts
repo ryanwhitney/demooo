@@ -7,7 +7,7 @@ export interface Track {
 	audioWaveformData: string;
 	audioWaveformResolution: number;
 	artist: TrackUser; // foreignKey, user.id
-	duration: number;
+	audioLength: number;
 	createdAt: string;
 	recordedAt: string;
 }

@@ -25,6 +25,7 @@ export const GET_TRACK = gql`
       description
       titleSLug
       audioFile
+      audioLength
       audioWaveformData
       audioWaveformResolution
       createdAt
@@ -45,6 +46,7 @@ export const GET_ALL_TRACKS = gql`
       titleSlug
       description
       audioFile
+      audioLength
       audioWaveformData
       audioWaveformResolution
       createdAt
@@ -68,6 +70,7 @@ export const GET_USER_TRACKS = gql`
       }
       description
       audioFile
+      audioLength
       audioWaveformData
       audioWaveformResolution
       createdAt
@@ -84,6 +87,7 @@ export const GET_TRACK_BY_SLUG = gql`
       titleSlug
       description
       audioFile
+      audioLength
       audioWaveformData
       createdAt
       updatedAt

@@ -62,8 +62,12 @@ export const GET_ARTIST = gql`
         id
         title
         titleSlug
+        createdAt
+        updatedAt
         description
         audioFile
+        audioLength
+        audioWaveformData
         artist {
           id
           username

@@ -8,6 +8,7 @@ export const artistViewWrapper = style({
   alignItems: 'center',
 	gap: tokens.space.xl,
 	paddingTop: tokens.space.xl,
+	paddingBottom: tokens.space.xl,
 });
 
 export const artistTrackViewInfo = style({
