@@ -16,6 +16,8 @@ globalStyle("html, body", {
 	display: "flex",
 	flexDirection: "column",
 	alignItems: "stretch",
+	width: "100vw",
+	overflowX: "hidden",
 });
 
 globalStyle("main", {
