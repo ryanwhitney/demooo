@@ -7,6 +7,7 @@ import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator"
 import { tokens } from "@/styles/tokens";
 import { formatTime } from "@/utils/formatTime";
 import { useAudio } from "@/providers/AudioProvider";
+import IconToggleButton from "@/components/IconToggleButton/IconToggleButton";
 
 const HeartSVG = () => (
 	<svg width="12" height="11" viewBox="0 0 12 11" fill="none">
@@ -28,14 +29,15 @@ const PlaySVG = () => (
 	</svg>
 );
 const PauseSVG = () => (
-	<svg width="9" height="11" viewBox="0 0 9 11" fill="none">
-		<title>pause</title>
-
-		<path
-			d="M1.46289 10.6665C1.18359 10.6665 0.972005 10.5946 0.828125 10.4507C0.688477 10.3068 0.618652 10.0952 0.618652 9.81592V1.01172C0.618652 0.732422 0.688477 0.522949 0.828125 0.383301C0.972005 0.239421 1.18359 0.16748 1.46289 0.16748H2.91016C3.18522 0.16748 3.39469 0.235189 3.53857 0.370605C3.68245 0.506022 3.75439 0.719727 3.75439 1.01172V9.81592C3.75439 10.0952 3.68245 10.3068 3.53857 10.4507C3.39469 10.5946 3.18522 10.6665 2.91016 10.6665H1.46289ZM6.07764 10.6665C5.79834 10.6665 5.58675 10.5946 5.44287 10.4507C5.29899 10.3068 5.22705 10.0952 5.22705 9.81592V1.01172C5.22705 0.732422 5.29899 0.522949 5.44287 0.383301C5.58675 0.239421 5.79834 0.16748 6.07764 0.16748H7.51855C7.79785 0.16748 8.00732 0.235189 8.14697 0.370605C8.29085 0.506022 8.36279 0.719727 8.36279 1.01172V9.81592C8.36279 10.0952 8.29085 10.3068 8.14697 10.4507C8.00732 10.5946 7.79785 10.6665 7.51855 10.6665H6.07764Z"
-			fill="currentColor"
-		/>
-	</svg>
+	<div style={{ marginLeft: -2 }}>
+		<svg width="9" height="11" viewBox="0 0 9 11" fill="none">
+			<title>pause</title>
+			<path
+				d="M1.46289 10.6665C1.18359 10.6665 0.972005 10.5946 0.828125 10.4507C0.688477 10.3068 0.618652 10.0952 0.618652 9.81592V1.01172C0.618652 0.732422 0.688477 0.522949 0.828125 0.383301C0.972005 0.239421 1.18359 0.16748 1.46289 0.16748H2.91016C3.18522 0.16748 3.39469 0.235189 3.53857 0.370605C3.68245 0.506022 3.75439 0.719727 3.75439 1.01172V9.81592C3.75439 10.0952 3.68245 10.3068 3.53857 10.4507C3.39469 10.5946 3.18522 10.6665 2.91016 10.6665H1.46289ZM6.07764 10.6665C5.79834 10.6665 5.58675 10.5946 5.44287 10.4507C5.29899 10.3068 5.22705 10.0952 5.22705 9.81592V1.01172C5.22705 0.732422 5.29899 0.522949 5.44287 0.383301C5.58675 0.239421 5.79834 0.16748 6.07764 0.16748H7.51855C7.79785 0.16748 8.00732 0.235189 8.14697 0.370605C8.29085 0.506022 8.36279 0.719727 8.36279 1.01172V9.81592C8.36279 10.0952 8.29085 10.3068 8.14697 10.4507C8.00732 10.5946 7.79785 10.6665 7.51855 10.6665H6.07764Z"
+				fill="currentColor"
+			/>
+		</svg>
+	</div>
 );
 
 const TrackRow = ({ track }: { track: Track }) => {
@@ -69,7 +71,7 @@ const TrackRow = ({ track }: { track: Track }) => {
 				display: "flex",
 				padding: "10px 0",
 				justifyContent: "space-between",
-				fontSize: 10,
+				fontSize: 11,
 			}}
 		>
 			<div
@@ -83,40 +85,46 @@ const TrackRow = ({ track }: { track: Track }) => {
 				<p style={{ color: "white" }}>{track.title}</p>
 				<p>{formatTime(track.audioLength)}</p>
 			</div>
-			<div style={{ display: "flex", gap: 5, paddingRight: 16 }}>
-				<button
-					type="button"
-					onClick={() => setIsFavorite(!isFavorite)}
-					aria-label="heart"
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					gap: 16,
+					paddingRight: 16,
+				}}
+			>
+				<IconToggleButton
+					iconOne={<HeartSVG />}
+					iconOneTitle="Add to favorites"
+					iconTwo={<HeartSVG />}
+					iconTwoTitle="Remove from favorites"
+					onToggle={() => setIsFavorite(!isFavorite)}
 					style={{
-						height: 0,
-						border: "none",
-						cursor: "pointer",
-						background: "none",
-						transition: "color 0.2s ease-in-out",
-						color: isFavorite ? "#FF3B30" : tokens.colors.quaternary,
+						color: isFavorite
+							? tokens.colors.heartRed
+							: tokens.colors.quaternary,
+						padding: 10,
+						width: 16,
+						height: 16,
+						filter: isFavorite
+							? `drop-shadow(0px 0px 10px ${tokens.colors.heartRed})`
+							: "",
+						transition: "filter 400ms ease-in-out",
 					}}
-				>
-					<HeartSVG />
-				</button>
-				<button
-					type="button"
-					onClick={handleClick}
-					aria-label="Play"
+				/>
+				<IconToggleButton
+					iconOne={<PlaySVG />}
+					iconOneTitle="Play"
+					iconTwo={<PauseSVG />}
+					iconTwoTitle="Pause"
+					defaultToggled={isPlaying && isCurrentTrack}
+					onToggle={handleClick}
 					style={{
-						// height: 0,
-						display: "flex",
-						justifyContent: "center",
-						alignItems: "center",
-						width: 20,
-						cursor: "pointer",
-						border: "none",
-						background: "none",
-						color: tokens.colors.primary,
+						padding: 10,
+						width: 16,
+						height: 16,
 					}}
-				>
-					{isPlaying && isCurrentTrack ? <PauseSVG /> : <PlaySVG />}
-				</button>
+				/>
 			</div>
 		</div>
 	);
@@ -180,7 +188,7 @@ const TracksGroupedByDate = ({ tracks }: { tracks: Track[] }) => {
 						<h2
 							key={`${year}_h2`}
 							style={{
-								fontSize: 9,
+								fontSize: 10,
 								color: tokens.colors.tertiary,
 								fontWeight: 300,
 								width: "fit-content",
@@ -199,7 +207,7 @@ const TracksGroupedByDate = ({ tracks }: { tracks: Track[] }) => {
 								<div key={`${year}-${month}`}>
 									<h3
 										style={{
-											fontSize: 9,
+											fontSize: 10,
 											color: tokens.colors.secondary,
 											fontWeight: 300,
 											paddingLeft: 16,

@@ -11,7 +11,7 @@ export const colors = createGlobalTheme(root, {
 
 	indigo500: "#636CFF",
 	blackOpacity50: "rgba(0, 0, 0, 0.5)",
-	red500: "#ff3b30",
+	red500: "#FF3B30",
 	redOpacity10: "rgba(255,59,48,.1)",
 	green500: "#34c759",
 
@@ -43,6 +43,7 @@ export const colorTokens = createGlobalTheme(root, {
 	backdrop: colors.blackOpacity50,
 	focusRing: colors.indigo500,
 	error: colors.red500,
+	heartRed: colors.red500,
 	errorBackground: colors.redOpacity10,
 	success: colors.green500,
 });

@@ -14,6 +14,7 @@
     "@apollo/client": "^3.13.6",
     "@phosphor-icons/react": "^2.1.7",
     "@types/apollo-upload-client": "^18.0.0",
+    "@vanilla-extract/dynamic": "^2.1.2",
     "@vanilla-extract/recipes": "^0.5.5",
     "apollo-upload-client": "^18.0.1",
     "arktype": "^2.1.19",
