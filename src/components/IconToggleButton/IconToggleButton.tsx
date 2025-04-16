@@ -89,7 +89,6 @@ const IconToggleButton = forwardRef<HTMLButtonElement, IconToggleButtonProps>(
 				<span className={srOnly}>
 					{isToggled ? iconTwoTitle : iconOneTitle}
 				</span>
-
 				<div
 					aria-hidden
 					className={iconOneContainer}
@@ -97,7 +96,6 @@ const IconToggleButton = forwardRef<HTMLButtonElement, IconToggleButtonProps>(
 				>
 					{iconOne}
 				</div>
-
 				<div
 					aria-hidden
 					className={iconTwoContainer}
@@ -105,7 +103,6 @@ const IconToggleButton = forwardRef<HTMLButtonElement, IconToggleButtonProps>(
 				>
 					{iconTwo}
 				</div>
-
 				{/* Placeholder to ensure button has proper dimensions */}
 				<div aria-hidden className={placeholder}>
 					{isToggled ? iconTwo : iconOne}

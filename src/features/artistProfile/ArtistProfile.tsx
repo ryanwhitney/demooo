@@ -1,16 +1,11 @@
 import { useQuery } from "@apollo/client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import type { Track } from "@/types/track";
 import { artistTrackViewInfo, artistViewWrapper } from "./ArtistProfile.css";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import { tokens } from "@/styles/tokens";
-import { formatTime, monthOrder } from "@/utils/timeAndDate";
-import { useAudio } from "@/providers/AudioProvider";
-import IconToggleButton from "@/components/IconToggleButton/IconToggleButton";
-import HeartSVG from "@/components/svg/HeartSVG";
-import PlaySVG from "@/components/svg/PlaySVG";
-import PauseSVG from "@/components/svg/PauseSVG";
+
 import TrackList from "./artistTrackList/TrackList";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {

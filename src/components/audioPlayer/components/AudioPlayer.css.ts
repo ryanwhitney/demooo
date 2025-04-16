@@ -14,9 +14,20 @@ export const controlsWrapper = style({
 });
 
 export const playButtonWrapper = style({
+ 
+});
+
+export const playButton = style({
   width: 44,
   height: 44,
-  padding: 12,
+  padding: 0,
+  background: tokens.colors.backgroundSecondary,
+  borderRadius: tokens.radii.full,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  cursor: "pointer",
+  color: tokens.colors.primary,
 });
 
 export const waveformContainer = style({

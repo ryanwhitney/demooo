@@ -42,7 +42,7 @@ const GlobalPlayer = () => {
 					marginTop: -12,
 				}}
 			>
-				{shouldShow ? (
+				{shouldShow && (
 					<AudioPlayer
 						track={audio.currentTrack as Track}
 						isPlaying={isPlaying}
@@ -50,8 +50,6 @@ const GlobalPlayer = () => {
 						onTimeUpdate={audio.setCurrentTime}
 						onDurationChange={audio.setDuration}
 					/>
-				) : (
-					<div>emptu</div>
 				)}
 			</div>
 		</div>

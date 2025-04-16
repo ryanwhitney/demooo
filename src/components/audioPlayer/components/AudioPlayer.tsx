@@ -5,16 +5,7 @@ import PlayButton from "./playButton/PlayButton";
 import { parseWaveformData } from "./utilities/parseWaveformData";
 import { calculateProgressFromPointer } from "./utilities/calculateProgressFromPointer";
 import { arraySample } from "@/utils/arraySample";
-import {
-	audioPlayerWrapper,
-	controlsWrapper,
-	playButtonWrapper,
-	timeDisplay,
-	waveformContainer,
-	waveformProgress,
-	waveformProgressIndicator,
-	waveformSlider,
-} from "./AudioPlayer.css";
+import * as style from "./AudioPlayer.css";
 
 const Waveform = ({
 	currentTime,
@@ -248,20 +239,20 @@ const Waveform = ({
 			aria-valuemin={0}
 			aria-valuemax={100}
 			aria-valuenow={Math.round(displayProgress * 100)}
-			className={waveformSlider}
+			className={style.waveformSlider}
 			style={{
 				cursor: isDragging ? "grabbing" : "pointer",
 			}}
 		>
 			<div
-				className={waveformProgressIndicator}
+				className={style.waveformProgressIndicator}
 				style={{
 					left: `${progressWidth}%`,
 					opacity: currentTime === 0 ? 0 : 100,
 				}}
 			/>
 			<div
-				className={waveformProgress}
+				className={style.waveformProgress}
 				style={{
 					width: `${progressWidth}%`,
 					transition: `width ${isDragging ? "0ms" : "200ms"} ease-out`,
@@ -505,8 +496,8 @@ const AudioPlayer = ({
 	const waveformData = parseWaveformData(track.audioWaveformData);
 
 	return (
-		<div className={audioPlayerWrapper}>
-			<div className={controlsWrapper}>
+		<div className={style.audioPlayerWrapper}>
+			<div className={style.controlsWrapper}>
 				{/* biome-ignore lint/a11y/useMediaCaption: Audio captions not required for music player */}
 				<audio
 					ref={audioRef}
@@ -533,14 +524,14 @@ const AudioPlayer = ({
 					preload="auto"
 					src={audioFileUrl}
 				/>
-				<div>
+				<div className={style.playButtonWrapper}>
 					<PlayButton
-						className={playButtonWrapper}
+						className={style.playButton}
 						isPlaying={isPlaying}
-						onClick={togglePlayPause}
+						onToggle={togglePlayPause}
 					/>
 				</div>
-				<div className={waveformContainer}>
+				<div className={style.waveformContainer}>
 					<Waveform
 						currentTime={currentTime}
 						data={waveformData}
@@ -550,7 +541,7 @@ const AudioPlayer = ({
 					/>
 				</div>
 			</div>
-			<span className={timeDisplay}>
+			<span className={style.timeDisplay}>
 				{formatTime(currentTime)} / {formatTime(duration)}
 			</span>
 		</div>
