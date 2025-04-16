@@ -595,7 +595,7 @@ const AudioPlayer = ({
 			audio.removeEventListener("durationchange", updateDuration);
 			return undefined;
 		};
-	}, [onDurationChange, track.id]);
+	}, [onDurationChange]);
 
 	const jumpToPosition = useCallback(
 		(time: number) => {
@@ -621,13 +621,20 @@ const AudioPlayer = ({
 				// Update state
 				setCurrentTime(boundedTime);
 				onTimeUpdate?.(boundedTime);
+
+				// For recovering from potential silent playback
+				if (isPlaying && audioRef.current.paused) {
+					audioRef.current.play().catch((error) => {
+						console.error("Error resuming after seek:", error);
+					});
+				}
 			} catch (error) {
 				console.error("Error seeking audio:", error);
 				// Store for later if seeking fails
 				pendingSeekTimeRef.current = time;
 			}
 		},
-		[isLoaded, onTimeUpdate],
+		[isLoaded, isPlaying, onTimeUpdate],
 	);
 
 	const handleScrubbing = useCallback(
@@ -641,6 +648,8 @@ const AudioPlayer = ({
 				if (wasPlayingRef.current && audioRef.current) {
 					setIsPlaying(true);
 					onPlayPause?.(true);
+
+					// Resume playback with simple error handling
 					audioRef.current.play().catch((err) => {
 						console.error("Error resuming playback:", err);
 						setIsPlaying(false);
@@ -648,7 +657,9 @@ const AudioPlayer = ({
 					});
 				}
 			}
+
 			setIsScrubbing(scrubbing);
+
 			if (scrubbing) {
 				setCurrentTime(previewTime);
 				onTimeUpdate?.(previewTime);
@@ -673,6 +684,21 @@ const AudioPlayer = ({
 					onLoadedData={() => setIsLoaded(true)}
 					onCanPlay={() => setIsLoaded(true)}
 					onEnded={handleAudioEnded}
+					onDurationChange={() => {
+						if (audioRef.current) {
+							setDuration(audioRef.current.duration || 0);
+							onDurationChange?.(audioRef.current.duration || 0);
+						}
+					}}
+					onStalled={() => {
+						// If we're supposed to be playing but stalled
+						if (isPlaying && audioRef.current && audioRef.current.paused) {
+							// Simple recovery - just try to play again
+							audioRef.current.play().catch((e) => {
+								// If it fails again, we won't retry further
+							});
+						}
+					}}
 					onError={(e) => {
 						console.error("Audio error:", e);
 						setIsPlaying(false);
