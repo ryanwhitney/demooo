@@ -14,7 +14,9 @@ export const controlsWrapper = style({
 });
 
 export const playButtonWrapper = style({
- 
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 });
 
 export const playButton = style({
@@ -34,6 +36,22 @@ export const waveformContainer = style({
   background: tokens.colors.backgroundSecondary,
   padding: "6px 14px",
   borderRadius: tokens.radii.lg,
+  position: "relative",
+  overflow: "hidden",
+  width: 240,
+  height: 30,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+});
+
+export const waveformVisualization = style({
+  position: "relative",
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 });
 
 export const timeDisplay = style({
@@ -47,12 +65,12 @@ export const waveformProgressIndicator = style({
   width: 2.5,
   position: "absolute",
   left: "0%", // Will be controlled dynamically
-  top: -4,
-  bottom: -4,
-  transition: "opacity 3.5s ease-in",
+  top: 0,
+  bottom: 0,
   background: tokens.colors.focusRing,
   borderRadius: 2,
-  zIndex: 2,
+  zIndex: 3,
+  pointerEvents: "none",
 });
 
 export const waveformProgress = style({
@@ -60,8 +78,9 @@ export const waveformProgress = style({
   left: 0,
   top: 0,
   bottom: 0,
-  background: `linear-gradient(90deg, ${tokens.colors.backgroundSecondary}, rgba(0,0,0,0.2))`,
-  color: "white",
+  background: "linear-gradient(90deg, rgba(80, 80, 255, 0.2), transparent)",
+  pointerEvents: "none",
+  zIndex: 1,
 });
 
 export const waveformSlider = style({
@@ -70,4 +89,37 @@ export const waveformSlider = style({
   width: 240,
   cursor: "pointer",
   touchAction: "none",
+});
+
+export const timelineSlider = style({
+  position: "relative",
+  width: "100%",
+  height: "100%",
+  cursor: "pointer",
+  touchAction: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+});
+
+export const audioElement = style({
+  display: "none",
+});
+
+export const timelineWrapper = style({
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+  width: "100%",
+});
+
+export const progressIndicator = style({
+  position: "absolute",
+  width: 2,
+  top: -2,
+  bottom: -2,
+  background: tokens.colors.primary,
+  borderRadius: 2,
+  zIndex: 3,
+  pointerEvents: "none",
 });
