@@ -62,15 +62,7 @@ export const timeDisplay = style({
 });
 
 export const waveformProgressIndicator = style({
-  width: 2.5,
-  position: "absolute",
-  left: "0%", // Will be controlled dynamically
-  top: 0,
-  bottom: 0,
-  background: tokens.colors.focusRing,
-  borderRadius: 2,
-  zIndex: 3,
-  pointerEvents: "none",
+  display: 'none',
 });
 
 export const waveformProgress = style({

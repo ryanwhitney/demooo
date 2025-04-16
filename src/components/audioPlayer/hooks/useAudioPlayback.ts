@@ -47,7 +47,7 @@ export function useAudioPlayback({
   // Add direct listeners to the audio element to ensure we catch all updates
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return undefined;
+    if (!audio) return;
 
     const handleLoadedMetadata = () => {
       console.log(`DIRECT: LoadedMetadata - duration=${audio.duration}`);
@@ -122,7 +122,7 @@ export function useAudioPlayback({
       audio.removeEventListener('waiting', handleWaiting);
       audio.removeEventListener('playing', handlePlaying);
     };
-  }, [isScrubbing, onDurationChange, onTimeUpdate]);
+  }, [isScrubbing, onDurationChange, onTimeUpdate, onEnded, onPlayPause]);
 
   // Reset state when track changes
   useEffect(() => {
@@ -220,9 +220,9 @@ export function useAudioPlayback({
       );
 
       try {
-        // For Chrome specifically, store the state if we're playing
-        const wasPlaying = isPlaying && !audioRef.current.paused;
-
+        // Remember play state before seeking
+        const wasPlaying = isPlaying;
+        
         // Set the audio element time
         audioRef.current.currentTime = boundedTime;
         console.log(`Set audio currentTime to ${boundedTime}`);
@@ -231,17 +231,19 @@ export function useAudioPlayback({
         setCurrentTime(boundedTime);
         onTimeUpdate?.(boundedTime);
 
-        // In Chrome, seek operations can be lost when playing
-        // If we're currently playing, we quickly pause and resume to ensure
-        // the seek operation is properly processed
+        // Resume playback if we were playing before
         if (wasPlaying) {
-          requestAnimationFrame(() => {
-            if (audioRef.current && isPlaying && audioRef.current.paused) {
-              audioRef.current.play().catch((error) => {
-                console.error("Error resuming after seek:", error);
-              });
-            }
-          });
+          // Ensure the audio gets played after seeking
+          const playPromise = audioRef.current.play();
+          
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.error("Error resuming after seek:", error);
+              // Only update state if playback actually fails
+              setIsPlaying(false);
+              onPlayPause?.(false);
+            });
+          }
         }
       } catch (error) {
         console.error("Error seeking audio:", error);
@@ -249,7 +251,7 @@ export function useAudioPlayback({
         pendingSeekTimeRef.current = time;
       }
     },
-    [isLoaded, isPlaying, onTimeUpdate],
+    [isLoaded, isPlaying, onTimeUpdate, onPlayPause],
   );
 
   // Apply pending seek time when audio becomes ready
@@ -283,6 +285,7 @@ export function useAudioPlayback({
       if (scrubbing && !isScrubbing) {
         // Remember if we were playing
         wasPlayingRef.current = isPlaying;
+        console.log(`Starting scrub - wasPlaying: ${wasPlayingRef.current}`);
         
         // Pause if currently playing
         if (isPlaying && audioRef.current) {
@@ -291,17 +294,31 @@ export function useAudioPlayback({
       } 
       // When ending a scrub
       else if (!scrubbing && isScrubbing) {
+        console.log(`Ending scrub - wasPlaying: ${wasPlayingRef.current}`);
+        
         // Resume playback if we were playing before
         if (wasPlayingRef.current && audioRef.current) {
+          console.log("Resuming playback after scrub");
+          
+          // Update state first
           setIsPlaying(true);
           onPlayPause?.(true);
 
-          // Resume playback with error handling
-          audioRef.current.play().catch((err) => {
-            console.error("Error resuming playback:", err);
-            setIsPlaying(false);
-            onPlayPause?.(false);
-          });
+          // Resume playback with proper promise handling
+          const playPromise = audioRef.current.play();
+          
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+              console.error("Error resuming playback:", err);
+              setIsPlaying(false);
+              onPlayPause?.(false);
+            });
+          }
+        } else {
+          // Make sure we maintain paused state if we were paused before
+          console.log("Keeping paused state after scrub");
+          setIsPlaying(false);
+          onPlayPause?.(false);
         }
       }
 

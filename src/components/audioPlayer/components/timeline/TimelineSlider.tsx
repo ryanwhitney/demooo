@@ -120,6 +120,10 @@ const TimelineSlider = ({
 			const element = containerRef.current;
 			if (!element || duration <= 0) return;
 
+			// Remember if we were playing
+			wasPlayingRef.current = isPlaying;
+			console.log(`Click on timeline - wasPlaying=${wasPlayingRef.current}`);
+
 			// Calculate progression based on pointer position
 			const rect = element.getBoundingClientRect();
 			const relativeX = Math.max(
@@ -142,28 +146,31 @@ const TimelineSlider = ({
 				// Update audio position
 				onTimeChange(newTime);
 
-				// End scrubbing operation with a small delay
+				// End scrubbing operation with a small delay to ensure seeking completes
 				setTimeout(() => {
+					console.log(
+						`Ending scrub via handleClick, wasPlaying=${wasPlayingRef.current}`,
+					);
 					onScrubbing(false, newTime);
 
-					// Clear interaction flag
+					// Clear interaction flag with additional delay
 					setTimeout(() => {
 						setIsInteracting(false);
-					}, 10);
-				}, 50);
+					}, 50);
+				}, 100);
 			} else {
 				// Simple mode - just update time
 				onTimeChange(newTime);
 
-				// Clear interaction flag after a delay
+				// Clear interaction flag after a longer delay
 				setTimeout(() => {
 					setIsInteracting(false);
-				}, 50);
+				}, 150);
 			}
 
 			console.log(`Timeline clicked: progress=${progress}, newTime=${newTime}`);
 		},
-		[duration, isDragging, onScrubbing, onTimeChange],
+		[duration, isDragging, onScrubbing, onTimeChange, isPlaying],
 	);
 
 	// Pointer down handler for drag operations
@@ -260,20 +267,29 @@ const TimelineSlider = ({
 				setIsDragging(false);
 
 				console.log(
-					`Drag end: progress=${finalProgress}, finalTime=${finalTime}`,
+					`Drag end: progress=${finalProgress}, finalTime=${finalTime}, wasPlaying=${wasPlayingRef.current}`,
 				);
 
 				// End scrubbing, which will resume playback if needed
 				if (onScrubbing) {
+					// Small delay to ensure the time has updated before we end scrubbing
 					setTimeout(() => {
+						console.log(
+							`Ending scrub via handleDocUp, wasPlaying=${wasPlayingRef.current}`,
+						);
 						onScrubbing(false, finalTime);
+
+						// Clear interaction flag with additional delay
+						setTimeout(() => {
+							setIsInteracting(false);
+						}, 50);
+					}, 50);
+				} else {
+					// Clear interaction flag after delay
+					setTimeout(() => {
+						setIsInteracting(false);
 					}, 50);
 				}
-
-				// Clear interaction flag after delay
-				setTimeout(() => {
-					setIsInteracting(false);
-				}, 50);
 
 				// Clean up event listeners
 				document.removeEventListener("pointermove", handleDocMove);

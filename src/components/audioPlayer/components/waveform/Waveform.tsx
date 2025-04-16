@@ -45,15 +45,6 @@ const Waveform = ({
 				}}
 			/>
 
-			{/* Progress indicator (playhead) */}
-			<div
-				className={style.waveformProgressIndicator}
-				style={{
-					left: `${progressWidth}%`,
-					display: progressWidth > 0 ? "block" : "none",
-				}}
-			/>
-
 			{/* Waveform visualization */}
 			<svg
 				width={width}
