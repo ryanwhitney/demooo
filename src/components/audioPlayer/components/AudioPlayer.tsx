@@ -32,6 +32,7 @@ const Waveform = ({
 	const isAnimatingRef = useRef(false);
 	const lastFrameTimeRef = useRef(0);
 	const animationTimeRef = useRef(currentTime);
+	const prevDurationRef = useRef(duration);
 
 	// Function to update visual playhead position
 	const updatePlayhead = useCallback(() => {
@@ -79,6 +80,38 @@ const Waveform = ({
 		// Schedule next animation frame
 		rafIdRef.current = requestAnimationFrame(animate);
 	}, [duration, updatePlayhead]);
+
+	// Reset animation state when duration changes (track changes)
+	useEffect(() => {
+		// Always reset state immediately when duration updates
+		// Stop any running animation
+		if (rafIdRef.current !== null) {
+			cancelAnimationFrame(rafIdRef.current);
+			rafIdRef.current = null;
+		}
+
+		// Reset animation state
+		isAnimatingRef.current = false;
+		lastFrameTimeRef.current = 0;
+		animationTimeRef.current = currentTime;
+
+		// Update the display progress immediately
+		if (duration > 0) {
+			const progress = Math.min(Math.max(currentTime / duration, 0), 1);
+			setDisplayProgress(progress);
+		} else {
+			setDisplayProgress(0);
+		}
+
+		// If we should be playing, restart the animation with the new duration
+		if (isPlaying && !isDragging && !isInteracting && duration > 0) {
+			lastFrameTimeRef.current = performance.now();
+			isAnimatingRef.current = true;
+			rafIdRef.current = requestAnimationFrame(animate);
+		}
+
+		prevDurationRef.current = duration;
+	}, [duration, isPlaying, isDragging, isInteracting, animate, currentTime]);
 
 	// Start animation function
 	const startAnimation = useCallback(() => {
@@ -539,6 +572,31 @@ const AudioPlayer = ({
 		}
 	}, [onDurationChange, onTimeUpdate]);
 
+	// Monitor duration changes directly from the audio element
+	useEffect(() => {
+		const audio = audioRef.current;
+		if (!audio) return;
+
+		const updateDuration = () => {
+			if (audio.duration && !Number.isNaN(audio.duration)) {
+				setDuration(audio.duration);
+				onDurationChange?.(audio.duration);
+			}
+		};
+
+		audio.addEventListener("durationchange", updateDuration);
+
+		// If we already have a valid duration in the audio element, use it immediately
+		if (audio.duration && !Number.isNaN(audio.duration) && audio.duration > 0) {
+			updateDuration();
+		}
+
+		return () => {
+			audio.removeEventListener("durationchange", updateDuration);
+			return undefined;
+		};
+	}, [onDurationChange, track.id]);
+
 	const jumpToPosition = useCallback(
 		(time: number) => {
 			if (!audioRef.current) return;
@@ -642,6 +700,7 @@ const AudioPlayer = ({
 				</div>
 				<div className={style.waveformContainer}>
 					<Waveform
+						key={`waveform-${track.id}`}
 						currentTime={currentTime}
 						data={waveformData}
 						duration={duration}
