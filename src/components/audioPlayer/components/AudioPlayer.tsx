@@ -27,87 +27,122 @@ const Waveform = ({
 	const [displayProgress, setDisplayProgress] = useState(0);
 	const [isInteracting, setIsInteracting] = useState(false);
 
-	// Animation frame implementation details
-	const rafRef = useRef<number | null>(null);
-	const lastFrameTimeRef = useRef<number>(0);
-	const audioTimeRef = useRef<number>(currentTime);
+	// Animation state
+	const rafIdRef = useRef<number | null>(null);
+	const isAnimatingRef = useRef(false);
+	const lastFrameTimeRef = useRef(0);
+	const animationTimeRef = useRef(currentTime);
 
-	// Always keep audioTimeRef updated with latest currentTime
-	useEffect(() => {
-		audioTimeRef.current = currentTime;
-	}, [currentTime]);
+	// Function to update visual playhead position
+	const updatePlayhead = useCallback(() => {
+		// Only update when not interacting
+		if (isDragging || isInteracting) return;
 
-	// Simpler animation approach:
-	// 1. We use a single effect to manage animation
-	// 2. Animation is based on the real time elapsed since last frame
-	// 3. We always show the most accurate position possible
-
-	useEffect(() => {
-		// Function to update display based on current state
-		const updateDisplay = () => {
-			// If dragging or interacting, don't update from animation
-			if (isDragging || isInteracting) return;
-
-			if (duration <= 0) {
-				setDisplayProgress(0);
-				return;
-			}
-
-			// Calculate progress (0-1)
-			const progress = Math.min(
-				Math.max(audioTimeRef.current / duration, 0),
-				1,
-			);
-			setDisplayProgress(progress);
-		};
-
-		// Call once immediately to update display
-		updateDisplay();
-
-		// Set up animation loop if playing
-		if (isPlaying && !isDragging && !isInteracting && duration > 0) {
-			const animate = (timestamp: number) => {
-				// First frame or after pause, initialize lastFrameTime
-				if (lastFrameTimeRef.current === 0) {
-					lastFrameTimeRef.current = timestamp;
-				}
-
-				// Calculate time elapsed since last frame in seconds
-				const elapsed = (timestamp - lastFrameTimeRef.current) / 1000;
-				lastFrameTimeRef.current = timestamp;
-
-				// Add elapsed time to our internal audio position counter
-				// This gives us a smooth position between real audio updates
-				if (elapsed > 0 && elapsed < 0.1) {
-					// Ignore large jumps (tab switches, etc)
-					audioTimeRef.current = Math.min(
-						audioTimeRef.current + elapsed,
-						duration,
-					);
-				}
-
-				// Update display based on calculated position
-				updateDisplay();
-
-				// Continue animation loop
-				rafRef.current = requestAnimationFrame(animate);
-			};
-
-			// Start animation
-			rafRef.current = requestAnimationFrame(animate);
-		} else {
-			// If not playing, reset animation state
-			lastFrameTimeRef.current = 0;
+		// Make sure we have valid parameters
+		if (duration <= 0) {
+			setDisplayProgress(0);
+			return;
 		}
 
-		// Cleanup function
+		// Set display progress based on current animate time
+		const progress = Math.min(
+			Math.max(animationTimeRef.current / duration, 0),
+			1,
+		);
+		setDisplayProgress(progress);
+	}, [duration, isDragging, isInteracting]);
+
+	// Animation loop - main function that animates the playhead
+	const animate = useCallback(() => {
+		// Only animate if we're supposed to be animating
+		if (!isAnimatingRef.current) return;
+
+		// Calculate time elapsed since last frame
+		const now = performance.now();
+		const elapsed = (now - lastFrameTimeRef.current) / 1000;
+
+		// Update time if reasonable (avoid huge jumps)
+		if (elapsed > 0 && elapsed < 0.1) {
+			// Advance animation time and make sure we don't exceed duration
+			animationTimeRef.current = Math.min(
+				animationTimeRef.current + elapsed,
+				duration,
+			);
+
+			// Update visible playhead position
+			updatePlayhead();
+		}
+
+		// Save current timestamp for next frame
+		lastFrameTimeRef.current = now;
+
+		// Schedule next animation frame
+		rafIdRef.current = requestAnimationFrame(animate);
+	}, [duration, updatePlayhead]);
+
+	// Start animation function
+	const startAnimation = useCallback(() => {
+		// Skip if already animating or not playing
+		if (isAnimatingRef.current || !isPlaying || duration <= 0) return;
+
+		// Reset animation state
+		lastFrameTimeRef.current = performance.now();
+		animationTimeRef.current = currentTime;
+		isAnimatingRef.current = true;
+
+		// Start animation
+		rafIdRef.current = requestAnimationFrame(animate);
+	}, [animate, currentTime, duration, isPlaying]);
+
+	// Stop animation function
+	const stopAnimation = useCallback(() => {
+		// Cancel any active animation frame
+		if (rafIdRef.current !== null) {
+			cancelAnimationFrame(rafIdRef.current);
+			rafIdRef.current = null;
+		}
+
+		// Mark as not animating
+		isAnimatingRef.current = false;
+
+		// Make sure display matches actual audio position
+		if (duration > 0) {
+			animationTimeRef.current = currentTime;
+			updatePlayhead();
+		}
+	}, [currentTime, duration, updatePlayhead]);
+
+	// Handle animation state changes
+	useEffect(() => {
+		if (isPlaying && !isDragging && !isInteracting) {
+			startAnimation();
+		} else {
+			stopAnimation();
+		}
+	}, [isPlaying, isDragging, isInteracting, startAnimation, stopAnimation]);
+
+	// Update animation time when current time changes
+	useEffect(() => {
+		// Always keep animation time in sync with audio
+		animationTimeRef.current = currentTime;
+
+		// If not currently animating, update display immediately
+		if (!isAnimatingRef.current || isDragging || isInteracting) {
+			updatePlayhead();
+		}
+	}, [currentTime, isDragging, isInteracting, updatePlayhead]);
+
+	// Cleanup on unmount
+	useEffect(() => {
+		// Return cleanup function directly
 		return () => {
-			if (rafRef.current !== null) {
-				cancelAnimationFrame(rafRef.current);
-				rafRef.current = null;
+			if (rafIdRef.current !== null) {
+				cancelAnimationFrame(rafIdRef.current);
+				rafIdRef.current = null;
 			}
+			return undefined;
 		};
-	}, [isPlaying, isDragging, isInteracting, duration]);
+	}, []);
 
 	// Calculate and set time based on progress value
 	const updateTimeFromProgress = useCallback(
@@ -118,8 +153,11 @@ const Waveform = ({
 			const clampedProgress = Math.max(0, Math.min(1, progress));
 			const newTime = clampedProgress * duration;
 
-			// Set interacting flag to prevent visual flickering during interaction
+			// Set interacting flag to prevent flickering during interaction
 			setIsInteracting(true);
+
+			// Update display immediately for responsive feedback
+			setDisplayProgress(clampedProgress);
 
 			// Update audio position
 			onTimeChange(newTime);
@@ -146,7 +184,7 @@ const Waveform = ({
 
 			// If we have a scrubbing callback, handle playback properly
 			if (onScrubbing) {
-				// Set interacting flag to prevent visual flickering
+				// Set interacting flag to prevent flickering
 				setIsInteracting(true);
 
 				// Tell parent component we're starting a scrub operation
@@ -165,8 +203,8 @@ const Waveform = ({
 					// Clear interacting flag after a short delay
 					setTimeout(() => {
 						setIsInteracting(false);
-					}, 50);
-				}, 10);
+					}, 10);
+				}, 50);
 			} else {
 				// Simple mode - just update time
 				setDisplayProgress(progress);
@@ -186,7 +224,7 @@ const Waveform = ({
 			e.preventDefault();
 			e.stopPropagation();
 
-			// Set interacting flag to prevent visual flickering
+			// Set interacting flag to prevent flickering
 			setIsInteracting(true);
 
 			// Get initial position and update time immediately for responsive feedback
@@ -259,7 +297,7 @@ const Waveform = ({
 				// Clear interacting flag after a short delay
 				setTimeout(() => {
 					setIsInteracting(false);
-				}, 200);
+				}, 50);
 
 				// Clean up event listeners
 				document.removeEventListener("pointermove", handleDocMove);
