@@ -7,6 +7,7 @@ import HeartSVG from "@/components/svg/HeartSVG";
 import PlaySVG from "@/components/svg/PlaySVG";
 import PauseSVG from "@/components/svg/PauseSVG";
 import * as style from "./TrackList.css";
+import { Link } from "react-router";
 
 const TrackRow = ({ track }: { track: Track }) => {
 	const [isFavorite, setIsFavorite] = useState(false);
@@ -37,11 +38,16 @@ const TrackRow = ({ track }: { track: Track }) => {
 	return (
 		<div key={track.id} className={style.trackRowWrapper}>
 			<div className={style.trackLeftContent}>
-				<h4
-					className={`${style.trackRowTitle({ isActive: isPlaying && isCurrentTrack })}`}
+				<Link
+					className={style.trackRowTitleLinkWrapper}
+					to={`/${track.artist.username}/track/${track.titleSlug}`}
 				>
-					{track.title}
-				</h4>
+					<h4
+						className={`${style.trackRowTitle({ isActive: isPlaying && isCurrentTrack })}`}
+					>
+						{track.title}
+					</h4>
+				</Link>
 				<p>{formatTime(track.audioLength)}</p>
 			</div>
 			<div className={style.trackRightContent}>

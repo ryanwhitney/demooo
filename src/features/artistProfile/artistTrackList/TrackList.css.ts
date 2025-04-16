@@ -73,12 +73,16 @@ export const trackRightContent = style({
 					gap: 16,
 					paddingRight: 16,
 })
+export const trackRowTitleLinkWrapper = style({
+  textDecoration: "none",
+})
 
 export const trackRowTitle = recipe({
   base:{
     color: tokens.colors.primary,
     transition: "font 150ms ease-in-out",
-    fontWeight: 200
+    textDecoration: "none",
+    fontWeight: 200,
   },
   variants: {
     isActive: {
