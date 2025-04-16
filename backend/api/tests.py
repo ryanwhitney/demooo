@@ -30,11 +30,11 @@ class AudioAppTestCase(JSONWebTokenTestCase):
         self.client.authenticate(self.user)
         
         # Load test audio file
-        test_dir = os.path.join(os.path.dirname(__file__), 'test_files')
-        test_file_path = os.path.join(test_dir, 'sample.mp3')
+        test_dir = os.path.join(os.path.dirname(__file__), '../media/audio/test_files')
+        test_file_path = os.path.join(test_dir, 'strum.m4a')
         with open(test_file_path, 'rb') as audio_file:
             self.audio_file = SimpleUploadedFile(
-                "sample.mp3",
+                "strum.m4a",
                 audio_file.read(),
                 content_type="audio/mpeg"
             )
@@ -170,8 +170,8 @@ class AudioAppTestCase(JSONWebTokenTestCase):
         from .mutations.track_mutations import generate_waveform
         
         # Use the actual test audio file
-        test_dir = os.path.join(os.path.dirname(__file__), 'test_files')
-        test_file_path = os.path.join(test_dir, 'sample.mp3')
+        test_dir = os.path.join(os.path.dirname(__file__), '../media/audio/test_files')
+        test_file_path = os.path.join(test_dir, 'strum.m4a')
         
         # Test waveform generation with real audio file
         waveform_data = generate_waveform(test_file_path)
