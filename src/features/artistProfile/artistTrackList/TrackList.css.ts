@@ -111,7 +111,9 @@ export const favoriteIconToggle = recipe({
 export const playIconToggle = recipe({
   base:{
   color: tokens.colors.secondary,
-  transition: "color 150ms ease-in-out",
+  padding: 10,
+  width: 10,
+  height: 16,
   },
   variants:{
     isActive: {

@@ -37,7 +37,9 @@ const TrackRow = ({ track }: { track: Track }) => {
 	return (
 		<div key={track.id} className={style.trackRowWrapper}>
 			<div className={style.trackLeftContent}>
-				<h4 className={`${style.trackRowTitle({ isActive: isFavorite })}`}>
+				<h4
+					className={`${style.trackRowTitle({ isActive: isPlaying && isCurrentTrack })}`}
+				>
 					{track.title}
 				</h4>
 				<p>{formatTime(track.audioLength)}</p>
@@ -58,7 +60,7 @@ const TrackRow = ({ track }: { track: Track }) => {
 					iconTwoTitle="Pause"
 					defaultToggled={isPlaying && isCurrentTrack}
 					onToggle={handlePlayToggle}
-					className={`${style.playIconToggle({ isActive: isFavorite })}`}
+					className={`${style.playIconToggle({ isActive: isPlaying && isCurrentTrack })}`}
 				/>
 			</div>
 		</div>
