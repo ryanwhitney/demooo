@@ -13,25 +13,101 @@ const Waveform = ({
 	duration,
 	onTimeChange,
 	onScrubbing,
+	isPlaying,
 }: {
 	currentTime: number;
 	data: number[];
 	duration: number;
 	onTimeChange: (newTime: number) => void;
 	onScrubbing?: (isScrubbing: boolean, previewTime: number) => void;
+	isPlaying: boolean;
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
 	const [displayProgress, setDisplayProgress] = useState(0);
 	const [isInteracting, setIsInteracting] = useState(false);
 
-	// Calculate current progress and update display when component props change
+	// Animation frame implementation details
+	const rafRef = useRef<number | null>(null);
+	const lastFrameTimeRef = useRef<number>(0);
+	const audioTimeRef = useRef<number>(currentTime);
+
+	// Always keep audioTimeRef updated with latest currentTime
 	useEffect(() => {
-		// Only update display progress from props if we're not currently interacting
-		if (!isDragging && !isInteracting && duration > 0) {
-			setDisplayProgress(currentTime / duration);
+		audioTimeRef.current = currentTime;
+	}, [currentTime]);
+
+	// Simpler animation approach:
+	// 1. We use a single effect to manage animation
+	// 2. Animation is based on the real time elapsed since last frame
+	// 3. We always show the most accurate position possible
+
+	useEffect(() => {
+		// Function to update display based on current state
+		const updateDisplay = () => {
+			// If dragging or interacting, don't update from animation
+			if (isDragging || isInteracting) return;
+
+			if (duration <= 0) {
+				setDisplayProgress(0);
+				return;
+			}
+
+			// Calculate progress (0-1)
+			const progress = Math.min(
+				Math.max(audioTimeRef.current / duration, 0),
+				1,
+			);
+			setDisplayProgress(progress);
+		};
+
+		// Call once immediately to update display
+		updateDisplay();
+
+		// Set up animation loop if playing
+		if (isPlaying && !isDragging && !isInteracting && duration > 0) {
+			const animate = (timestamp: number) => {
+				// First frame or after pause, initialize lastFrameTime
+				if (lastFrameTimeRef.current === 0) {
+					lastFrameTimeRef.current = timestamp;
+				}
+
+				// Calculate time elapsed since last frame in seconds
+				const elapsed = (timestamp - lastFrameTimeRef.current) / 1000;
+				lastFrameTimeRef.current = timestamp;
+
+				// Add elapsed time to our internal audio position counter
+				// This gives us a smooth position between real audio updates
+				if (elapsed > 0 && elapsed < 0.1) {
+					// Ignore large jumps (tab switches, etc)
+					audioTimeRef.current = Math.min(
+						audioTimeRef.current + elapsed,
+						duration,
+					);
+				}
+
+				// Update display based on calculated position
+				updateDisplay();
+
+				// Continue animation loop
+				rafRef.current = requestAnimationFrame(animate);
+			};
+
+			// Start animation
+			rafRef.current = requestAnimationFrame(animate);
+		} else {
+			// If not playing, reset animation state
+			lastFrameTimeRef.current = 0;
 		}
-	}, [currentTime, duration, isDragging, isInteracting]);
+
+		// Cleanup function
+		return () => {
+			if (rafRef.current !== null) {
+				cancelAnimationFrame(rafRef.current);
+				rafRef.current = null;
+			}
+		};
+	}, [isPlaying, isDragging, isInteracting, duration]);
 
 	// Calculate and set time based on progress value
 	const updateTimeFromProgress = useCallback(
@@ -51,7 +127,7 @@ const Waveform = ({
 			// Clear interacting flag after a short delay
 			setTimeout(() => {
 				setIsInteracting(false);
-			}, 200);
+			}, 50);
 		},
 		[duration, onTimeChange],
 	);
@@ -89,8 +165,8 @@ const Waveform = ({
 					// Clear interacting flag after a short delay
 					setTimeout(() => {
 						setIsInteracting(false);
-					}, 200);
-				}, 50);
+					}, 50);
+				}, 10);
 			} else {
 				// Simple mode - just update time
 				setDisplayProgress(progress);
@@ -248,15 +324,14 @@ const Waveform = ({
 				className={style.waveformProgressIndicator}
 				style={{
 					left: `${progressWidth}%`,
-					opacity: currentTime === 0 ? 0 : 100,
+					opacity: currentTime === 0 ? 0 : 1,
+					transition: "opacity 0ms linear",
 				}}
 			/>
 			<div
 				className={style.waveformProgress}
 				style={{
 					width: `${progressWidth}%`,
-					transition: `width ${isDragging ? "0ms" : "200ms"} ease-out`,
-					opacity: progressWidth,
 				}}
 			/>
 			<svg
@@ -395,6 +470,7 @@ const AudioPlayer = ({
 	}, [onPlayPause, onEnded]);
 
 	const handleTimeUpdate = useCallback(() => {
+		// Update time from audio element
 		if (audioRef.current && !isScrubbing) {
 			const newTime = audioRef.current.currentTime;
 			setCurrentTime(newTime);
@@ -429,13 +505,6 @@ const AudioPlayer = ({
 		(time: number) => {
 			if (!audioRef.current) return;
 
-			// HTML5 audio readyState:
-			// 0 = HAVE_NOTHING
-			// 1 = HAVE_METADATA
-			// 2 = HAVE_CURRENT_DATA
-			// 3 = HAVE_FUTURE_DATA
-			// 4 = HAVE_ENOUGH_DATA
-
 			// Check if the audio element is ready for seeking
 			if (!isLoaded || audioRef.current.readyState < 1) {
 				// Save the requested time to apply once loaded
@@ -450,8 +519,10 @@ const AudioPlayer = ({
 			);
 
 			try {
-				// Chrome sometimes fails silently if seeking isn't possible yet
+				// Set the audio element time
 				audioRef.current.currentTime = boundedTime;
+
+				// Update state
 				setCurrentTime(boundedTime);
 				onTimeUpdate?.(boundedTime);
 			} catch (error) {
@@ -538,6 +609,7 @@ const AudioPlayer = ({
 						duration={duration}
 						onTimeChange={jumpToPosition}
 						onScrubbing={handleScrubbing}
+						isPlaying={isPlaying}
 					/>
 				</div>
 			</div>
