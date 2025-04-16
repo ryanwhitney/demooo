@@ -597,6 +597,31 @@ const AudioPlayer = ({
 		};
 	}, [onDurationChange]);
 
+	// Chrome-specific fix for seeking issues
+	useEffect(() => {
+		const audio = audioRef.current;
+		if (!audio) return;
+
+		// This handler helps Chrome maintain the correct position after seeking
+		const handleSeeked = () => {
+			// When seek completes, verify position matches state
+			if (Math.abs(audio.currentTime - currentTime) > 0.5) {
+				// Force position if it's significantly different
+				audio.currentTime = currentTime;
+			}
+		};
+
+		// Only add listener when we have a track loaded
+		if (isLoaded) {
+			audio.addEventListener("seeked", handleSeeked);
+		}
+
+		return () => {
+			audio.removeEventListener("seeked", handleSeeked);
+			return undefined;
+		};
+	}, [isLoaded, currentTime]);
+
 	const jumpToPosition = useCallback(
 		(time: number) => {
 			if (!audioRef.current) return;
@@ -615,6 +640,10 @@ const AudioPlayer = ({
 			);
 
 			try {
+				// For Chrome specifically, store the state if we're playing
+				// This addresses a Chrome bug where the position can revert
+				const wasPlaying = isPlaying && !audioRef.current.paused;
+
 				// Set the audio element time
 				audioRef.current.currentTime = boundedTime;
 
@@ -622,10 +651,17 @@ const AudioPlayer = ({
 				setCurrentTime(boundedTime);
 				onTimeUpdate?.(boundedTime);
 
-				// For recovering from potential silent playback
-				if (isPlaying && audioRef.current.paused) {
-					audioRef.current.play().catch((error) => {
-						console.error("Error resuming after seek:", error);
+				// In Chrome, seek operations are sometimes lost when playing
+				// If we're currently playing, we quickly pause and resume to ensure
+				// the seek operation is properly processed
+				if (wasPlaying) {
+					// For browser compatibility especially Chrome
+					requestAnimationFrame(() => {
+						if (audioRef.current && isPlaying && audioRef.current.paused) {
+							audioRef.current.play().catch((error) => {
+								console.error("Error resuming after seek:", error);
+							});
+						}
 					});
 				}
 			} catch (error) {
