@@ -4,6 +4,9 @@ import { tokens } from "./tokens";
 globalStyle("html, body", {
 	fontFamily: tokens.fonts.monospace,
 	fontSize: tokens.fontSizes.md,
+  fontOpticalSizing: 'auto',
+  fontWeight: 400,
+  fontStyle: 'normal',
 	lineHeight: tokens.lineHeights.normal,
 	color: tokens.colors.primary,
 	backgroundColor: tokens.colors.background,

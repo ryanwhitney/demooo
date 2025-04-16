@@ -1,0 +1,129 @@
+import { tokens } from "@/styles/tokens"
+import { style } from "@vanilla-extract/css";
+import { recipe } from "@vanilla-extract/recipes";
+
+export const allYearsWrapper = style({
+  display: "flex", 
+  flexDirection: "column", 
+  gap: tokens.space.xl
+});
+
+export const yearHeading = style({
+  fontSize: 10,
+  color: tokens.colors.tertiary,
+  fontWeight: tokens.fontWeights.light,
+  width: "fit-content",
+});
+
+export const yearWrapper = style({
+  width: 0,
+  overflow: "visible",
+  float: "left",
+  position: "relative",
+  left: "-50px",
+});
+
+export const allMonthsWrapper = style({
+  display: "flex", 
+  gap: tokens.space.lg, 
+  flexDirection: "column"
+});
+
+export const monthHeading = style({
+  fontSize: 10,
+  color: tokens.colors.secondary,
+  fontWeight: tokens.fontWeights.light,
+  paddingLeft: tokens.space.lg,
+  paddingBottom: tokens.space.md,
+});
+
+export const monthWrapper = style({
+  background: tokens.colors.tertiaryDark,
+											borderRadius: tokens.radii.lg,
+											width: 400,
+											padding: "2px 0",
+});
+
+export const trackDivider = style({
+  height: 1,
+  border: 'none',
+  background: tokens.colors.quaternaryDark,
+  marginLeft: 16,
+  ':last-child':{
+    display: 'none'
+  }
+});
+
+export const trackRowWrapper = style({
+  display: "flex",
+  padding: "10px 0",
+  justifyContent: "space-between",
+  fontSize: 11,
+})
+
+export const trackLeftContent = style({
+  display: "flex",
+					gap: 8,
+					paddingLeft: 16,
+})
+
+export const trackRightContent = style({
+  display: "flex",
+					justifyContent: "center",
+					gap: 16,
+					paddingRight: 16,
+})
+
+export const trackRowTitle = recipe({
+  base:{
+    color: tokens.colors.primary,
+    transition: "font 150ms ease-in-out",
+    fontWeight: 200
+  },
+  variants: {
+    isActive: {
+      true:{
+        fontWeight: 600,
+      }
+    }
+  }
+})
+
+export const favoriteIconToggle = recipe({
+  base:{
+  color: tokens.colors.quaternary,
+  padding: 10,
+  width: 16,
+  height: 16,
+  transition: "filter 400ms ease-in-out",
+  },
+  variants:{
+    isActive: {
+      true: {
+      color: tokens.colors.heartRed,
+      filter: `drop-shadow(0px 0px 10px ${tokens.colors.heartRed})`  
+      }
+    }
+  }
+})
+
+
+export const playIconToggle = recipe({
+  base:{
+  color: tokens.colors.secondary,
+  transition: "color 150ms ease-in-out",
+  },
+  variants:{
+    isActive: {
+      true: {
+        color: tokens.colors.primary,
+      }
+    }
+  }
+})
+
+  
+  
+
+
+

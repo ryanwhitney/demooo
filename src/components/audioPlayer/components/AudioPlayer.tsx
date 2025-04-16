@@ -1,5 +1,5 @@
 import type { Track } from "@/types/track";
-import { formatTime } from "@/utils/formatTime";
+import { formatTime } from "@/utils/timeAndDate";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PlayButton from "./playButton/PlayButton";
 import { parseWaveformData } from "./utilities/parseWaveformData";

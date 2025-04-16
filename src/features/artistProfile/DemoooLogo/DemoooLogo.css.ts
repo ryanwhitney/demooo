@@ -1,4 +1,3 @@
-// AnimatedText.css.ts
 import { style, keyframes, createVar } from "@vanilla-extract/css";
 
 // Variables

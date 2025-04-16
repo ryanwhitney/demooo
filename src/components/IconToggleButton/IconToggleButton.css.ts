@@ -15,6 +15,7 @@ export const buttonBase = style({
   cursor: 'pointer',
   padding: 0,
 	width: 'fit-content',
+	overflow: 'visible'
 });
 
 // Visually hidden class for screen readers
@@ -36,7 +37,7 @@ export const iconOneContainer = style({
   opacity: 1,
   transform: 'scale(1)',
   transition: `all ${transitionDurationVar} ease-in-out`,
-
+	overflow: 'visible',
   selectors: {
     '.toggled &': {
       opacity: 0,
@@ -56,6 +57,7 @@ export const iconTwoContainer = style({
   opacity: 0,
   transform: 'scale(0)',
   transition: `all ${transitionDurationVar} ease-in-out`,
+  overflow: 'visible',
 
   selectors: {
     '.toggled &': {
