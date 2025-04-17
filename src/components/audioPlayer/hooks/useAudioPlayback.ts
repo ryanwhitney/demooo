@@ -211,13 +211,14 @@ export function useAudioPlayback({
       );
 
       try {
+        // Store the current play state
         const wasPlaying = isPlaying;
         
         audioRef.current.currentTime = boundedTime;
         setCurrentTime(boundedTime);
         onTimeUpdate?.(boundedTime);
 
-        // Resume playback if we were playing before - but only if not currently scrubbing
+        // Resume playback only if we were already playing and not scrubbing
         if (wasPlaying && !isScrubbing) {
           const playPromise = audioRef.current.play();
           
@@ -253,7 +254,7 @@ export function useAudioPlayback({
       } 
       // When ending a scrub
       else if (!scrubbing && isScrubbing) {
-        // Resume playback if we were playing before
+        // Only resume playback if we were playing before scrubbing
         if (wasPlayingRef.current && audioRef.current) {
           // Only update UI state if it's different from what it was before scrubbing
           if (!isPlaying) {
@@ -270,10 +271,17 @@ export function useAudioPlayback({
               onPlayPause?.(false);
             });
           }
-        } else if (wasPlayingRef.current === false && isPlaying) {
-          // Only update the state if we were paused before and now showing as playing
-          setIsPlaying(false);
-          onPlayPause?.(false);
+        } else if (!wasPlayingRef.current) {
+          // Make sure we stay paused if we were paused before scrubbing
+          if (isPlaying) {
+            setIsPlaying(false);
+            onPlayPause?.(false);
+          }
+          
+          // Ensure audio element is actually paused
+          if (audioRef.current) {
+            audioRef.current.pause();
+          }
         }
       }
 
