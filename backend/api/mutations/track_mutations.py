@@ -30,7 +30,7 @@ def generate_waveform(file_path, resolution=200):
             if len(waveform_data) >= resolution:
                 break  # Ensure we don't generate more than resolution
 
-            chunk = y[i:i + hop_length]
+            chunk = y[i : i + hop_length]
             if len(chunk) > 0:
                 rms = np.sqrt(np.mean(chunk**2))
                 waveform_data.append(float(rms))
@@ -40,8 +40,7 @@ def generate_waveform(file_path, resolution=200):
             if max_val > 0:  # Avoid division by zero
                 # clamp to 2 decimal points
                 waveform_data = [
-                    float(f"{(val / max_val):.2f}")
-                    for val in waveform_data
+                    float(f"{(val / max_val):.2f}") for val in waveform_data
                 ]
 
         return waveform_data
@@ -53,22 +52,22 @@ def generate_waveform(file_path, resolution=200):
 def convert_audio_to_mp3(input_file_path, output_dir):
     """
     Convert audio file to MP3 format for cross-browser compatibility.
-    
+
     Args:
         input_file_path: Path to the input audio file
         output_dir: Directory to save the converted file
-        
+
     Returns:
         Path to the converted MP3 file, or None if conversion failed
     """
     try:
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
-        
+
         # Generate output file path with .mp3 extension
         output_filename = f"{Path(input_file_path).stem}.mp3"
         output_file_path = os.path.join(output_dir, output_filename)
-        
+
         # Run ffmpeg to convert audio to MP3
         # -y: Overwrite output file if it exists
         # -i: Input file
@@ -77,27 +76,30 @@ def convert_audio_to_mp3(input_file_path, output_dir):
         # -ac 2: Set number of audio channels to 2 (stereo)
         # -b:a 192k: Set audio bitrate to 192 kbps
         command = [
-            "ffmpeg", "-y", "-i", input_file_path, 
-            "-vn", "-ar", "44100", "-ac", "2", "-b:a", "192k",
-            output_file_path
+            "ffmpeg",
+            "-y",
+            "-i",
+            input_file_path,
+            "-vn",
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "-b:a",
+            "192k",
+            output_file_path,
         ]
-        
+
         # Run the command without storing the unused result
-        subprocess.run(
-            command, 
-            check=True, 
-            capture_output=True,
-            text=True
-        )
-        
+        subprocess.run(command, check=True, capture_output=True, text=True)
+
         # Verify the file was created and has content
-        if (os.path.exists(output_file_path) and 
-                os.path.getsize(output_file_path) > 0):
+        if os.path.exists(output_file_path) and os.path.getsize(output_file_path) > 0:
             return output_file_path
         else:
             print("FFmpeg completed but output file is missing or empty")
             return None
-            
+
     except subprocess.CalledProcessError as e:
         print(f"Error converting audio with ffmpeg (exit code {e.returncode}):")
         print(f"Command: {' '.join(command)}")
@@ -108,6 +110,7 @@ def convert_audio_to_mp3(input_file_path, output_dir):
     except Exception as e:
         print(f"Unexpected error converting audio: {str(e)}")
         import traceback
+
         traceback.print_exc()
         return None
 
@@ -122,7 +125,6 @@ class UploadTrack(graphene.Mutation):
 
     @login_required
     def mutate(self, info, title, file, description=None):
-        
         user = info.context.user
         title_slug = slugify(title)
         if user.tracks.filter(title_slug=title_slug):
@@ -142,71 +144,84 @@ class UploadTrack(graphene.Mutation):
         # Create a temporary directory to process the audio
         with tempfile.TemporaryDirectory() as temp_dir:
             # Save the uploaded file to a temporary file
-            _, ext = os.path.splitext(file.name)
+            original_filename = file.name
+            _, original_ext = os.path.splitext(original_filename)
             artist_id = str(user.id)
             track_id = str(track.id)
-            temp_file_path = os.path.join(temp_dir, f"original{ext}")
-            
-            with open(temp_file_path, 'wb') as f:
+            temp_file_path = os.path.join(temp_dir, f"original{original_ext}")
+
+            with open(temp_file_path, "wb") as f:
                 for chunk in file.chunks():
                     f.write(chunk)
-            
-            # Check if we need to convert the audio
-            # Convert to MP3 if not already in that format
-            if ext.lower() not in ['.mp3']:
-                print(f"Converting {ext} file to MP3...")
-                converted_file_path = convert_audio_to_mp3(
-                    temp_file_path, temp_dir
-                )
-                
-                if converted_file_path:
-                    # Use the converted file
-                    final_file_path = converted_file_path
-                    final_ext = '.mp3'
-                else:
-                    # Throw an error instead of falling back to the original
-                    raise Exception(
-                        f"Failed to convert {ext} file to MP3. "
-                        "Please upload an MP3 file or contact support."
-                    )
-            else:
-                # No conversion needed
-                final_file_path = temp_file_path
-                final_ext = ext
-            
-            # Save the final file to storage
-            filename = f"{track_id}{final_ext}"
-            path = f'audio/{artist_id}/{track_id}/{filename}'
-            
-            with open(final_file_path, 'rb') as f:
-                file_content = f.read()
-                file_path = default_storage.save(
-                    path, ContentFile(file_content)
-                )
-            
-            track.audio_file = file_path
-            track.save()
-            print("TRACK SAVED")
 
-            # Process audio to generate waveform data
-            try:
-                # Generate waveform data with resolution data points
-                waveform_data = generate_waveform(
-                    final_file_path, resolution=200
+            # Save the original file first
+            orig_dir_path = f"{artist_id}/audio/{track_id}/orig"
+            orig_filename = f"{track_id}{original_ext}"
+            orig_full_path = f"{orig_dir_path}/{orig_filename}"
+
+            with open(temp_file_path, "rb") as f:
+                file_content = f.read()
+                orig_storage_path = default_storage.save(
+                    orig_full_path, ContentFile(file_content)
                 )
-                
-                # Store the waveform data
-                track.audio_waveform_data = json.dumps(waveform_data)
-                track.audio_waveform_resolution = len(waveform_data)
+
+            print(f"Original file saved: {orig_storage_path}")
+
+            # Always convert to MP3 with 320kbps bitrate
+            print(f"Converting audio file to MP3 with 320kbps bitrate...")
+            converted_file_path = convert_audio_to_mp3(temp_file_path, temp_dir)
+
+            if converted_file_path:
+                # Save the converted MP3 file
+                mp3_dir_path = f"{artist_id}/audio/{track_id}/320"
+                mp3_filename = f"{track_id}.mp3"
+                mp3_full_path = f"{mp3_dir_path}/{mp3_filename}"
+
+                with open(converted_file_path, "rb") as f:
+                    file_content = f.read()
+                    mp3_storage_path = default_storage.save(
+                        mp3_full_path, ContentFile(file_content)
+                    )
+
+                # Store the base directory path (we'll construct specific paths in the frontend)
+                base_path = f"{artist_id}/audio/{track_id}"
+                track.audio_file = base_path
                 track.save()
-                
-            except Exception as e:
-                print(f"Error processing audio: {str(e)}")
-                # Set default empty waveform data
-                track.audio_waveform_data = json.dumps([])
-                track.audio_waveform_resolution = 0
-                track.save()
-        
+                print(f"MP3 file saved: {mp3_storage_path}")
+                print(f"TRACK SAVED: {track.title} (ID: {track_id})")
+
+                # Process MP3 for waveform generation
+                try:
+                    # Generate waveform data with resolution data points
+                    waveform_data = generate_waveform(
+                        converted_file_path, resolution=200
+                    )
+
+                    # Store the waveform data
+                    track.audio_waveform_data = json.dumps(waveform_data)
+                    track.audio_waveform_resolution = len(waveform_data)
+                    track.save()
+                    print(f"Generated waveform with {len(waveform_data)} data points")
+
+                except Exception as e:
+                    print(f"Error processing audio: {str(e)}")
+                    # Set default empty waveform data
+                    track.audio_waveform_data = json.dumps([])
+                    track.audio_waveform_resolution = 0
+                    track.save()
+            else:
+                # Clean up the original file since conversion failed
+                try:
+                    default_storage.delete(orig_storage_path)
+                except Exception as e:
+                    print(f"Error cleaning up original file: {str(e)}")
+
+                # Throw an error for failed conversion
+                raise Exception(
+                    f"Failed to convert audio file to MP3. "
+                    "Please try again or contact support."
+                )
+
         return UploadTrack(track=track)
 
 
@@ -257,7 +272,50 @@ class DeleteTrack(graphene.Mutation):
             raise Exception("You do not have permission to delete this track")
 
         if track.audio_file:
-            default_storage.delete(track.audio_file.name)
+            try:
+                # Get the base directory path
+                base_path = str(track.audio_file)
+
+                # Delete files in subdirectories first
+                for subdir in ["orig", "320"]:
+                    try:
+                        subdir_path = f"{base_path}/{subdir}"
+
+                        # List all files in the subdirectory
+                        try:
+                            _, files = default_storage.listdir(subdir_path)
+
+                            # Delete each file in the subdirectory
+                            for file in files:
+                                file_path = f"{subdir_path}/{file}"
+                                default_storage.delete(file_path)
+                                print(f"Deleted file: {file_path}")
+
+                        except Exception as e:
+                            print(f"Error listing files in {subdir_path}: {e}")
+
+                    except Exception as e:
+                        print(f"Error processing subdirectory {subdir}: {e}")
+
+                # Try to delete the subdirectories and base directory
+                # Note: Some backends may not support directory deletion
+                try:
+                    for subdir in ["orig", "320"]:
+                        try:
+                            default_storage.delete(f"{base_path}/{subdir}")
+                        except Exception as e:
+                            print(f"Error deleting subdirectory {subdir}: {e}")
+
+                    # Try to delete the base directory last
+                    default_storage.delete(base_path)
+
+                except Exception as e:
+                    print(f"Error during directory deletion: {e}")
+
+                print(f"Deleted track directory structure: {base_path}")
+
+            except Exception as e:
+                print(f"Error deleting track files: {e}")
 
         track.delete()
-        return DeleteTrack(success=True) 
+        return DeleteTrack(success=True)
