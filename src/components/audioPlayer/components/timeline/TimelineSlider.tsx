@@ -288,7 +288,7 @@ const TimelineSlider = ({
 		(e: React.KeyboardEvent) => {
 			if (e.key === "Enter" || e.key === " ") {
 				e.preventDefault();
-				
+
 				if (e.key === " ") {
 					// Space now toggles play/pause
 					// We don't actually change playback state here, we just notify the parent component
@@ -365,8 +365,8 @@ const TimelineSlider = ({
 			}}
 		>
 			{/* Visually hidden instructions for screen reader users */}
-			<div 
-				id="timeline-instructions" 
+			<div
+				id="timeline-instructions"
 				style={{
 					position: "absolute",
 					width: "1px",
@@ -379,8 +379,9 @@ const TimelineSlider = ({
 					borderWidth: "0",
 				}}
 			>
-				Press Space to play or pause. Use Left and Right arrows to skip backward or forward by 5 seconds. 
-				Home and End keys jump to the beginning or end of the track.
+				Press Space to play or pause. Use Left and Right arrows to skip backward
+				or forward by 5 seconds. Home and End keys jump to the beginning or end
+				of the track.
 			</div>
 
 			{/* Progress indicator line */}

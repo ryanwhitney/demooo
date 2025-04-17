@@ -41,7 +41,6 @@ const Waveform = ({
 				className={style.waveformProgress}
 				style={{
 					width: `${progressWidth}%`,
-					// display: progressWidth > 0 ? "block" : "none",
 					zIndex: 10,
 				}}
 			/>
