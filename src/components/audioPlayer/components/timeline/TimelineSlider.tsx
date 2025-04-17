@@ -358,7 +358,7 @@ const TimelineSlider = ({
 		>
 			{/* Progress indicator line */}
 			<div
-				className={style.progressIndicator}
+				className={style.playheadIndicator}
 				style={{
 					left: `${progressWidth}%`,
 					display: currentTime > 0 ? "block" : "none",

@@ -10,6 +10,7 @@ interface WaveformProps {
 	spacing?: number;
 	progressColor?: string;
 	barColor?: string;
+	isInteractive?: boolean;
 }
 
 const Waveform = ({
@@ -19,10 +20,11 @@ const Waveform = ({
 	height = 30,
 	barWidth = 1.2,
 	spacing = 3,
+	isInteractive = false,
 }: WaveformProps) => {
 	const progressWidth = progress * 100;
 	let xPosition = (barWidth + spacing) * -1;
-
+	console.log("progressWidth", progressWidth);
 	const bars = width / (spacing + barWidth);
 	const sampledWavelengthData = arraySample({
 		array: data,
@@ -30,12 +32,17 @@ const Waveform = ({
 	});
 
 	return (
-		<div className={style.waveformVisualization}>
+		<div
+			className={style.waveformVisualization}
+			role={isInteractive ? "progressbar" : undefined}
+			aria-hidden={!isInteractive}
+		>
 			<div
 				className={style.waveformProgress}
 				style={{
 					width: `${progressWidth}%`,
-					display: progressWidth > 0 ? "block" : "none",
+					// display: progressWidth > 0 ? "block" : "none",
+					zIndex: 10,
 				}}
 			/>
 			<svg

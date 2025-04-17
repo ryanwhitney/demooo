@@ -169,7 +169,11 @@ const AudioPlayer = ({
 						onScrubbing={handleScrubbing}
 						className={style.timelineSlider}
 					>
-						<Waveform data={waveformData} progress={normalizedProgress} />
+						<Waveform
+							data={waveformData}
+							progress={normalizedProgress}
+							isInteractive={true}
+						/>
 					</TimelineSlider>
 				</div>
 			</div>

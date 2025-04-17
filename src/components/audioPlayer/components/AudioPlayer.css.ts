@@ -39,7 +39,7 @@ export const waveformContainer = style({
   position: "relative",
   overflow: "hidden",
   width: 240,
-  height: 30,
+  height: 44,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -70,8 +70,9 @@ export const waveformProgress = style({
   left: 0,
   top: 0,
   bottom: 0,
-  background: `linear-gradient(90deg, 'red', 'blue')`,
+  backgroundImage: `linear-gradient(90deg, #131313 50%, #131313cc)`,
   pointerEvents: "none",
+  opacity: 0.7,
   zIndex: 1,
 });
 
@@ -105,12 +106,12 @@ export const timelineWrapper = style({
   width: "100%",
 });
 
-export const progressIndicator = style({
+export const playheadIndicator = style({
   position: "absolute",
   width: 2,
-  top: -2,
-  bottom: -2,
-  background: tokens.colors.primary,
+  top:-3,
+  bottom: -3,
+  background: tokens.colors.tintColor,
   borderRadius: 2,
   zIndex: 3,
   pointerEvents: "none",
