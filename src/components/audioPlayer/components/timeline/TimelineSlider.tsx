@@ -286,24 +286,31 @@ const TimelineSlider = ({
 	// Handle keyboard controls for accessibility
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
-			if ((e.key === "Enter" || e.key === " ") && containerRef.current) {
+			if (e.key === "Enter" || e.key === " ") {
 				e.preventDefault();
+				
+				if (e.key === " ") {
+					// Space now toggles play/pause
+					// We don't actually change playback state here, we just notify the parent component
+					// which will handle toggling play/pause
+					onTimeChange(currentTime);
+				} else if (e.key === "Enter") {
+					// Default to center on Enter key interaction
+					const centerProgress = 0.5;
+					const newTime = centerProgress * duration;
 
-				// Default to center on keyboard interaction
-				const centerProgress = 0.5;
-				const newTime = centerProgress * duration;
+					setDisplayProgress(centerProgress);
 
-				setDisplayProgress(centerProgress);
+					if (onScrubbing) {
+						onScrubbing(true, newTime);
+						onTimeChange(newTime);
 
-				if (onScrubbing) {
-					onScrubbing(true, newTime);
-					onTimeChange(newTime);
-
-					setTimeout(() => {
-						onScrubbing(false, newTime);
-					}, 50);
-				} else {
-					onTimeChange(newTime);
+						setTimeout(() => {
+							onScrubbing(false, newTime);
+						}, 50);
+					} else {
+						onTimeChange(newTime);
+					}
 				}
 			} else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
 				e.preventDefault();
@@ -349,6 +356,7 @@ const TimelineSlider = ({
 			aria-valuemax={100}
 			aria-valuenow={Math.round(displayProgress * 100)}
 			aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
+			aria-describedby="timeline-instructions"
 			style={{
 				cursor: isDragging ? "grabbing" : "pointer",
 				position: "relative",
@@ -356,6 +364,25 @@ const TimelineSlider = ({
 				height: "100%",
 			}}
 		>
+			{/* Visually hidden instructions for screen reader users */}
+			<div 
+				id="timeline-instructions" 
+				style={{
+					position: "absolute",
+					width: "1px",
+					height: "1px",
+					padding: "0",
+					margin: "-1px",
+					overflow: "hidden",
+					clip: "rect(0, 0, 0, 0)",
+					whiteSpace: "nowrap",
+					borderWidth: "0",
+				}}
+			>
+				Press Space to play or pause. Use Left and Right arrows to skip backward or forward by 5 seconds. 
+				Home and End keys jump to the beginning or end of the track.
+			</div>
+
 			{/* Progress indicator line */}
 			<div
 				className={style.playheadIndicator}

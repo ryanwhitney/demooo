@@ -97,13 +97,28 @@ const AudioPlayer = ({
 
 	// Handle timeline click manually to ensure it works
 	const handleTimelineClick = (time: number) => {
-		jumpToPosition(time);
+		// Check if this is likely a play/pause toggle from space key press
+		// We detect this by seeing if the time is exactly the same as currentTime
+		if (time === currentTime) {
+			// Toggle play/pause when receiving identical time (from space key in slider)
+			togglePlayPause();
+		} else {
+			// Normal seek operation
+			jumpToPosition(time);
+		}
 	};
 
 	return (
 		<section
 			className={style.audioPlayerWrapper}
 			aria-label={`Audio player for ${track.title || "track"}`}
+			onKeyDown={(e) => {
+				// Add global keyboard shortcut for play/pause
+				if (e.key === " " && !(e.target as Element).closest('[role="slider"]')) {
+					e.preventDefault();
+					togglePlayPause();
+				}
+			}}
 		>
 			{/* Visually hidden skip link for accessibility */}
 			<button
@@ -129,6 +144,7 @@ const AudioPlayer = ({
 				className={style.controlsWrapper}
 				ref={controlsRef}
 				tabIndex={-1} // Make focusable but not in tab order
+				aria-roledescription="Audio player controls"
 			>
 				{/* biome-ignore lint/a11y/useMediaCaption: Audio captions not required for music player */}
 				<audio
@@ -146,6 +162,7 @@ const AudioPlayer = ({
 					preload="auto"
 					src={audioFileUrl}
 					className={style.audioElement}
+					aria-hidden="true"
 				/>
 
 				<div className={style.playButtonWrapper}>
@@ -153,7 +170,6 @@ const AudioPlayer = ({
 						className={style.playButton}
 						isPlaying={isPlaying}
 						onToggle={togglePlayPause}
-						aria-label={isPlaying ? "Pause" : "Play"}
 					/>
 				</div>
 
@@ -177,7 +193,12 @@ const AudioPlayer = ({
 					</TimelineSlider>
 				</div>
 			</div>
-			<span className={style.timeDisplay} aria-live="polite" aria-atomic="true">
+			<span 
+				className={style.timeDisplay} 
+				aria-live="polite" 
+				aria-atomic="true"
+				aria-label="Current playback time"
+			>
 				{formatTime(currentTime)} / {formatTime(duration || 0)}
 			</span>
 		</section>

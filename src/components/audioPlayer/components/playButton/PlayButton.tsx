@@ -20,10 +20,10 @@ const PlayButton = ({
 		iconTwo={<PauseSVG />}
 		className={className}
 		defaultToggled={isPlaying}
-		onToggle={onToggle} // Fixed: Properly pass the function reference
+		onToggle={onToggle}
 		iconOneTitle="Play"
 		iconTwoTitle="Pause"
-		{...rest} // Simplified spread
+		{...rest}
 	/>
 );
 
