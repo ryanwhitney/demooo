@@ -122,7 +122,6 @@ const TimelineSlider = ({
 
 			// Remember if we were playing
 			wasPlayingRef.current = isPlaying;
-			console.log(`Click on timeline - wasPlaying=${wasPlayingRef.current}`);
 
 			// Calculate progression based on pointer position
 			const rect = element.getBoundingClientRect();
@@ -148,9 +147,6 @@ const TimelineSlider = ({
 
 				// End scrubbing operation with a small delay to ensure seeking completes
 				setTimeout(() => {
-					console.log(
-						`Ending scrub via handleClick, wasPlaying=${wasPlayingRef.current}`,
-					);
 					onScrubbing(false, newTime);
 
 					// Clear interaction flag with additional delay
@@ -167,8 +163,6 @@ const TimelineSlider = ({
 					setIsInteracting(false);
 				}, 150);
 			}
-
-			console.log(`Timeline clicked: progress=${progress}, newTime=${newTime}`);
 		},
 		[duration, isDragging, onScrubbing, onTimeChange, isPlaying],
 	);
@@ -178,8 +172,6 @@ const TimelineSlider = ({
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			const element = containerRef.current;
 			if (!element || duration <= 0) return;
-
-			console.log("Pointer down on timeline");
 
 			// Prevent text selection and other browser behaviors
 			e.preventDefault();
@@ -209,10 +201,6 @@ const TimelineSlider = ({
 				onScrubbing(true, initialTime);
 			}
 
-			console.log(
-				`Drag start: progress=${initialProgress}, initialTime=${initialTime}`,
-			);
-
 			// Set up document-level handlers for drag operation
 			const handleDocMove = (e: PointerEvent) => {
 				e.preventDefault();
@@ -235,8 +223,6 @@ const TimelineSlider = ({
 				if (onScrubbing) {
 					onScrubbing(true, newTime);
 				}
-
-				console.log(`Dragging: progress=${progress}, newTime=${newTime}`);
 			};
 
 			const handleDocUp = (e: PointerEvent) => {
@@ -261,17 +247,10 @@ const TimelineSlider = ({
 				// End drag operation
 				setIsDragging(false);
 
-				console.log(
-					`Drag end: progress=${finalProgress}, finalTime=${finalTime}, wasPlaying=${wasPlayingRef.current}`,
-				);
-
 				// End scrubbing, which will resume playback if needed
 				if (onScrubbing) {
 					// Small delay to ensure the time has updated before we end scrubbing
 					setTimeout(() => {
-						console.log(
-							`Ending scrub via handleDocUp, wasPlaying=${wasPlayingRef.current}`,
-						);
 						onScrubbing(false, finalTime);
 
 						// Clear interaction flag with additional delay

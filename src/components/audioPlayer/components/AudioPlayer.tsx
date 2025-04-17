@@ -7,7 +7,7 @@ import Waveform from "./waveform/Waveform";
 import TimelineSlider from "./timeline/TimelineSlider";
 import { useAudioPlayback } from "../hooks/useAudioPlayback";
 import { useAudioEvents } from "../hooks/useAudioEvents";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface AudioPlayerProps {
 	track: Track;
@@ -52,13 +52,6 @@ const AudioPlayer = ({
 		onEnded,
 	});
 
-	// Debug logs for audio state
-	useEffect(() => {
-		console.log(
-			`Audio state: currentTime=${currentTime}, duration=${duration}, isLoaded=${isLoaded}`,
-		);
-	}, [currentTime, duration, isLoaded]);
-
 	// Define error handler
 	const handleError = () => {
 		console.error("Audio error occurred");
@@ -69,7 +62,6 @@ const AudioPlayer = ({
 
 	// Handle loaded data
 	const handleLoadedData = () => {
-		console.log("Audio data loaded");
 		setLocalIsLoaded(true);
 	};
 
@@ -79,20 +71,16 @@ const AudioPlayer = ({
 		isPlaying,
 		isScrubbing,
 		onTimeUpdate: (time) => {
-			console.log(`Time update: ${time}`);
 			onTimeUpdate?.(time);
 		},
 		onDurationChange: (newDuration) => {
-			console.log(`Duration change: ${newDuration}`);
 			onDurationChange?.(newDuration);
 		},
 		onLoadedData: handleLoadedData,
 		onEnded: () => {
-			console.log("Audio ended");
 			onEnded?.();
 		},
 		onPlaybackStateChange: (state) => {
-			console.log(`Playback state changed: ${state}`);
 			onPlayPause?.(state);
 		},
 		onError: () => handleError(),
@@ -111,7 +99,6 @@ const AudioPlayer = ({
 
 	// Handle timeline click manually to ensure it works
 	const handleTimelineClick = (time: number) => {
-		console.log(`Timeline click: jumping to ${time}`);
 		jumpToPosition(time);
 	};
 

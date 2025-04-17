@@ -50,13 +50,11 @@ export function useAudioPlayback({
     if (!audio) return;
 
     const handleLoadedMetadata = () => {
-      console.log(`DIRECT: LoadedMetadata - duration=${audio.duration}`);
       setDuration(audio.duration || 0);
       setIsLoaded(true);
     };
 
     const handleDurationChange = () => {
-      console.log(`DIRECT: DurationChange - duration=${audio.duration}`);
       if (audio.duration && !Number.isNaN(audio.duration)) {
         setDuration(audio.duration);
         onDurationChange?.(audio.duration);
@@ -71,38 +69,31 @@ export function useAudioPlayback({
     };
 
     const handleEnded = () => {
-      console.log("DIRECT: Audio ended");
       onEnded?.();
     };
 
     const handlePause = () => {
-      console.log("DIRECT: Audio paused");
       // Only update state if we're not scrubbing
       if (!isScrubbing) {
         setIsPlaying(false);
         onPlayPause?.(false);
-      } else {
-        console.log("Ignoring pause event during scrubbing");
       }
     };
 
     const handlePlay = () => {
-      console.log("DIRECT: Audio playing");
       // Only update state if we're not scrubbing
       if (!isScrubbing) {
         setIsPlaying(true);
         onPlayPause?.(true);
-      } else {
-        console.log("Ignoring play event during scrubbing");
       }
     };
 
     const handleWaiting = () => {
-      console.log("DIRECT: Audio waiting");
+      // Audio is waiting for more data
     };
 
     const handlePlaying = () => {
-      console.log("DIRECT: Audio playing");
+      // Audio has started playing
     };
 
     // Add the direct event listeners
@@ -137,22 +128,17 @@ export function useAudioPlayback({
   // Reset state when track changes
   useEffect(() => {
     if (previousTrackId.current !== track.id) {
-      console.log(`Track changed to ${track.id}`);
       setCurrentTime(0);
       setDuration(0);
       setIsLoaded(false);
 
-      // Reset all internal state on track change
       pendingSeekTimeRef.current = null;
       setIsScrubbing(false);
       wasPlayingRef.current = false;
 
       if (audioRef.current) {
-        // Ensure we reset the audio element completely
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
-
-        // Load the new track
         audioRef.current.load();
 
         // Chrome sometimes needs a small delay before trying to play a new track
@@ -213,43 +199,31 @@ export function useAudioPlayback({
     (time: number) => {
       if (!audioRef.current) return;
 
-      console.log(`Jumping to position: ${time} (loaded: ${isLoaded}, readyState: ${audioRef.current.readyState})`);
-
       // Check if the audio element is ready for seeking
       if (!isLoaded || audioRef.current.readyState < 1) {
-        // Save the requested time to apply once loaded
-        console.log(`Audio not ready for seeking, saving pending time: ${time}`);
         pendingSeekTimeRef.current = time;
         return;
       }
 
-      // Proceed with seeking now that we know the audio is ready
       const boundedTime = Math.max(
         0,
         Math.min(time, audioRef.current.duration || 0),
       );
 
       try {
-        // Remember play state before seeking
         const wasPlaying = isPlaying;
         
-        // Set the audio element time
         audioRef.current.currentTime = boundedTime;
-        console.log(`Set audio currentTime to ${boundedTime}`);
-
-        // Update state
         setCurrentTime(boundedTime);
         onTimeUpdate?.(boundedTime);
 
         // Resume playback if we were playing before - but only if not currently scrubbing
         if (wasPlaying && !isScrubbing) {
-          // Ensure the audio gets played after seeking
           const playPromise = audioRef.current.play();
           
           if (playPromise !== undefined) {
             playPromise.catch((error) => {
               console.error("Error resuming after seek:", error);
-              // Only update state if playback actually fails and we're not scrubbing
               if (!isScrubbing) {
                 setIsPlaying(false);
                 onPlayPause?.(false);
@@ -259,7 +233,6 @@ export function useAudioPlayback({
         }
       } catch (error) {
         console.error("Error seeking audio:", error);
-        // Store for later if seeking fails
         pendingSeekTimeRef.current = time;
       }
     },
@@ -269,35 +242,25 @@ export function useAudioPlayback({
   // Handle scrubbing state
   const handleScrubbing = useCallback(
     (scrubbing: boolean, previewTime: number) => {
-      console.log(`Scrubbing: ${scrubbing}, previewTime: ${previewTime}`);
-      
       // When starting to scrub
       if (scrubbing && !isScrubbing) {
-        // Remember if we were playing
         wasPlayingRef.current = isPlaying;
-        console.log(`Starting scrub - wasPlaying: ${wasPlayingRef.current}`);
         
         // Pause if currently playing (but don't update UI state)
         if (isPlaying && audioRef.current) {
           audioRef.current.pause();
-          // Don't call setIsPlaying or onPlayPause here
         }
       } 
       // When ending a scrub
       else if (!scrubbing && isScrubbing) {
-        console.log(`Ending scrub - wasPlaying: ${wasPlayingRef.current}`);
-        
         // Resume playback if we were playing before
         if (wasPlayingRef.current && audioRef.current) {
-          console.log("Resuming playback after scrub");
-          
           // Only update UI state if it's different from what it was before scrubbing
           if (!isPlaying) {
             setIsPlaying(true);
             onPlayPause?.(true);
           }
 
-          // Resume playback with proper promise handling
           const playPromise = audioRef.current.play();
           
           if (playPromise !== undefined) {
@@ -322,7 +285,6 @@ export function useAudioPlayback({
         setCurrentTime(previewTime);
         onTimeUpdate?.(previewTime);
         
-        // Also update the audio position for immediate feedback
         if (audioRef.current && isLoaded) {
           try {
             audioRef.current.currentTime = previewTime;
