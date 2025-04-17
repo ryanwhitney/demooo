@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import TextInput from "@/components/textInput/TextInput";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
+import TextArea from "@/components/textArea/TextArea";
 
 const ProfilePage = () => {
 	const [formData, setFormData] = useState({
@@ -49,6 +50,12 @@ const ProfilePage = () => {
 		refetch();
 	}, [refetch]);
 
+	const validateBio = async (value: string) => {
+		if (value.length > 400) {
+			return "Max 160 chars";
+		}
+	};
+
 	const JsonViewer = ({ data }: { data: string }) => {
 		const formattedJson = JSON.stringify(data, null, 2);
 
@@ -93,10 +100,11 @@ const ProfilePage = () => {
 						value={formData.name}
 						onChange={(e) => setFormData({ ...formData, name: e.target.value })}
 					/>
-					<TextInput
+					<TextArea
 						label="Bio"
 						value={formData.bio}
 						onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+						validate={validateBio}
 					/>
 					<button type="submit">Save</button>
 				</form>
