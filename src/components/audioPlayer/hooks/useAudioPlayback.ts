@@ -77,14 +77,24 @@ export function useAudioPlayback({
 
     const handlePause = () => {
       console.log("DIRECT: Audio paused");
-      setIsPlaying(false);
-      onPlayPause?.(false);
+      // Only update state if we're not scrubbing
+      if (!isScrubbing) {
+        setIsPlaying(false);
+        onPlayPause?.(false);
+      } else {
+        console.log("Ignoring pause event during scrubbing");
+      }
     };
 
     const handlePlay = () => {
       console.log("DIRECT: Audio playing");
-      setIsPlaying(true);
-      onPlayPause?.(true);
+      // Only update state if we're not scrubbing
+      if (!isScrubbing) {
+        setIsPlaying(true);
+        onPlayPause?.(true);
+      } else {
+        console.log("Ignoring play event during scrubbing");
+      }
     };
 
     const handleWaiting = () => {
@@ -231,17 +241,19 @@ export function useAudioPlayback({
         setCurrentTime(boundedTime);
         onTimeUpdate?.(boundedTime);
 
-        // Resume playback if we were playing before
-        if (wasPlaying) {
+        // Resume playback if we were playing before - but only if not currently scrubbing
+        if (wasPlaying && !isScrubbing) {
           // Ensure the audio gets played after seeking
           const playPromise = audioRef.current.play();
           
           if (playPromise !== undefined) {
             playPromise.catch((error) => {
               console.error("Error resuming after seek:", error);
-              // Only update state if playback actually fails
-              setIsPlaying(false);
-              onPlayPause?.(false);
+              // Only update state if playback actually fails and we're not scrubbing
+              if (!isScrubbing) {
+                setIsPlaying(false);
+                onPlayPause?.(false);
+              }
             });
           }
         }
@@ -251,30 +263,8 @@ export function useAudioPlayback({
         pendingSeekTimeRef.current = time;
       }
     },
-    [isLoaded, isPlaying, onTimeUpdate, onPlayPause],
+    [isLoaded, isPlaying, isScrubbing, onTimeUpdate, onPlayPause],
   );
-
-  // Apply pending seek time when audio becomes ready
-  useEffect(() => {
-    if (isLoaded && pendingSeekTimeRef.current !== null && audioRef.current) {
-      const pendingTime = pendingSeekTimeRef.current;
-      console.log(`Applying pending seek time: ${pendingTime}`);
-      pendingSeekTimeRef.current = null;
-
-      const boundedTime = Math.max(
-        0,
-        Math.min(pendingTime, audioRef.current.duration || 0),
-      );
-      
-      try {
-        audioRef.current.currentTime = boundedTime;
-        setCurrentTime(boundedTime);
-        onTimeUpdate?.(boundedTime);
-      } catch (e) {
-        console.error("Failed to apply pending seek time:", e);
-      }
-    }
-  }, [isLoaded, onTimeUpdate]);
 
   // Handle scrubbing state
   const handleScrubbing = useCallback(
@@ -287,9 +277,10 @@ export function useAudioPlayback({
         wasPlayingRef.current = isPlaying;
         console.log(`Starting scrub - wasPlaying: ${wasPlayingRef.current}`);
         
-        // Pause if currently playing
+        // Pause if currently playing (but don't update UI state)
         if (isPlaying && audioRef.current) {
           audioRef.current.pause();
+          // Don't call setIsPlaying or onPlayPause here
         }
       } 
       // When ending a scrub
@@ -300,9 +291,11 @@ export function useAudioPlayback({
         if (wasPlayingRef.current && audioRef.current) {
           console.log("Resuming playback after scrub");
           
-          // Update state first
-          setIsPlaying(true);
-          onPlayPause?.(true);
+          // Only update UI state if it's different from what it was before scrubbing
+          if (!isPlaying) {
+            setIsPlaying(true);
+            onPlayPause?.(true);
+          }
 
           // Resume playback with proper promise handling
           const playPromise = audioRef.current.play();
@@ -314,9 +307,8 @@ export function useAudioPlayback({
               onPlayPause?.(false);
             });
           }
-        } else {
-          // Make sure we maintain paused state if we were paused before
-          console.log("Keeping paused state after scrub");
+        } else if (wasPlayingRef.current === false && isPlaying) {
+          // Only update the state if we were paused before and now showing as playing
           setIsPlaying(false);
           onPlayPause?.(false);
         }
@@ -354,4 +346,4 @@ export function useAudioPlayback({
     jumpToPosition,
     handleScrubbing,
   };
-} 
+}

@@ -209,9 +209,6 @@ const TimelineSlider = ({
 				onScrubbing(true, initialTime);
 			}
 
-			// Update time position
-			onTimeChange(initialTime);
-
 			console.log(
 				`Drag start: progress=${initialProgress}, initialTime=${initialTime}`,
 			);
@@ -234,13 +231,10 @@ const TimelineSlider = ({
 				// Update display
 				setDisplayProgress(progress);
 
-				// Keep scrubbing active
+				// Keep scrubbing active (for visual preview)
 				if (onScrubbing) {
 					onScrubbing(true, newTime);
 				}
-
-				// Update time
-				onTimeChange(newTime);
 
 				console.log(`Dragging: progress=${progress}, newTime=${newTime}`);
 			};
@@ -259,8 +253,9 @@ const TimelineSlider = ({
 				const finalProgress = relativeX / rect.width;
 				const finalTime = finalProgress * duration;
 
-				// Update final position
+				// Update final visual position
 				setDisplayProgress(finalProgress);
+				// Apply the final time change
 				onTimeChange(finalTime);
 
 				// End drag operation
