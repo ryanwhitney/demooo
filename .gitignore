@@ -40,4 +40,7 @@ venv.bak/
 
 # Other
 *storybook.log
-/backend/media/audio
+# Ignore all files in the media directory
+/backend/media/*
+# But don't ignore the test_files directory and its contents
+!/backend/media/test_files/

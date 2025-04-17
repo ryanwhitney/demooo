@@ -1,11 +1,43 @@
 import os
+import shutil
+import tempfile
+
 from django.contrib.auth import get_user_model
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from .base import BaseAPITestCase
 from api.models import Profile
 
 
+# Create a temp media root for testing to avoid polluting the real media directory
+TEMP_MEDIA_ROOT = tempfile.mkdtemp()
+
+
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class UserProfileTests(BaseAPITestCase):
+    def setUp(self):
+        super().setUp()
+        # Make sure test runs with clean temp directory
+        if os.path.exists(TEMP_MEDIA_ROOT):
+            for item in os.listdir(TEMP_MEDIA_ROOT):
+                item_path = os.path.join(TEMP_MEDIA_ROOT, item)
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                else:
+                    os.remove(item_path)
+
+    def tearDown(self):
+        # Clean up temp files after each test
+        if os.path.exists(TEMP_MEDIA_ROOT):
+            for item in os.listdir(TEMP_MEDIA_ROOT):
+                item_path = os.path.join(TEMP_MEDIA_ROOT, item)
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                else:
+                    os.remove(item_path)
+        super().tearDown()
+
     def test_profile_created_with_user(self):
         """Test that creating a user via GraphQL creates a profile automatically"""
         # Create a user via the GraphQL API
@@ -57,15 +89,12 @@ class UserProfileTests(BaseAPITestCase):
         )
         self.client.authenticate(user)
 
-        # Update the profile - adjust based on your schema
-        # Note: If profilePicture is optional in your implementation but required in the schema,
-        # we need to pass null or use a test file
+        # Update the profile without a profile picture
         update_query = """
         mutation {
             updateProfile(
                 name: "Updated Name",
-                bio: "Updated Bio",
-                profilePicture: null
+                bio: "Updated Bio"
             ) {
                 profile {
                     name
