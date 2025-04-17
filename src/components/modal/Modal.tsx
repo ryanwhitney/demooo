@@ -34,6 +34,11 @@ function Modal({ children, onClose, title, description }: ModalProps) {
 	return (
 		<div
 			className={modalBackdropContainer}
+			onKeyDown={(e) => {
+				if (e.key === "Escape") {
+					handleClose();
+				}
+			}}
 			style={{
 				transition: `opacity ${TRANSITION_TIME}ms ease-in`,
 				opacity: opacity,
