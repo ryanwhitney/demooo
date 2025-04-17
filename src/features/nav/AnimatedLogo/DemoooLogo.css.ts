@@ -8,7 +8,6 @@ export const mainContainer = style({
   display: "inline-block",
   cursor: "pointer",
   position: "relative",
-  // width: "200px",
 });
 
 export const characterSpan = style({

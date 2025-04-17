@@ -23,6 +23,18 @@ export const AUTH_USER = gql`
   }
 `;
 
+export const UPDATE_USER_PROFILE = gql`
+  mutation updateProfile($name: String, $bio: String) {
+    updateProfile(name: $name, bio: $bio) {
+      profile {
+        id
+        name
+        bio
+      }
+    }
+  }
+`;
+
 /**** QUERIES ****/
 
 export const GET_ME = gql`
@@ -31,8 +43,11 @@ export const GET_ME = gql`
       id
       username
       email
-      firstName
-      lastName
+      profile {
+        id
+        name
+        bio
+      }
     }
   }
 `;
@@ -51,8 +66,6 @@ export const GET_ARTIST = gql`
     user(username: $username) {
       id
       username
-      firstName
-      lastName
       profile {
         id
         name

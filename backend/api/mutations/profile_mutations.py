@@ -21,4 +21,4 @@ class UpdateProfile(graphene.Mutation):
             profile.bio = bio
 
         profile.save()
-        return UpdateProfile(profile=profile) 
+        return UpdateProfile(profile=profile)
