@@ -10,12 +10,8 @@ interface WaveformProps {
 	spacing?: number;
 	progressColor?: string;
 	barColor?: string;
-	isInteractive?: boolean;
 }
 
-/**
- * Pure visual component that renders a waveform visualization from amplitude data
- */
 const Waveform = ({
 	data,
 	progress = 0,
@@ -23,7 +19,6 @@ const Waveform = ({
 	height = 30,
 	barWidth = 1.2,
 	spacing = 3,
-	isInteractive = false,
 }: WaveformProps) => {
 	const progressWidth = progress * 100;
 	let xPosition = (barWidth + spacing) * -1;
@@ -36,7 +31,6 @@ const Waveform = ({
 
 	return (
 		<div className={style.waveformVisualization}>
-			{/* Progress overlay */}
 			<div
 				className={style.waveformProgress}
 				style={{
@@ -44,8 +38,6 @@ const Waveform = ({
 					display: progressWidth > 0 ? "block" : "none",
 				}}
 			/>
-
-			{/* Waveform visualization */}
 			<svg
 				width={width}
 				height={height}

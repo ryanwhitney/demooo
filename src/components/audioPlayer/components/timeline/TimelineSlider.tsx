@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { calculateProgressFromPointer } from "../utilities/calculateProgressFromPointer";
 import * as style from "../AudioPlayer.css";
+import { formatTime } from "@/utils/timeAndDate";
 
 interface TimelineSliderProps {
 	children: React.ReactNode;
@@ -305,9 +305,31 @@ const TimelineSlider = ({
 				} else {
 					onTimeChange(newTime);
 				}
+			} else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+				e.preventDefault();
+
+				// Calculate jump amount (5% of duration or 5 seconds, whichever is less)
+				const jumpAmount = Math.min(duration * 0.05, 5);
+				const adjustment = e.key === "ArrowLeft" ? -jumpAmount : jumpAmount;
+				const newPosition = Math.max(
+					0,
+					Math.min(1, (currentTime + adjustment) / duration),
+				);
+				const newTime = newPosition * duration;
+
+				setDisplayProgress(newPosition);
+				onTimeChange(newTime);
+			} else if (e.key === "Home") {
+				e.preventDefault();
+				setDisplayProgress(0);
+				onTimeChange(0);
+			} else if (e.key === "End") {
+				e.preventDefault();
+				setDisplayProgress(1);
+				onTimeChange(duration);
 			}
 		},
-		[duration, onScrubbing, onTimeChange],
+		[duration, currentTime, onScrubbing, onTimeChange],
 	);
 
 	// Calculate progress indicator position
@@ -326,6 +348,7 @@ const TimelineSlider = ({
 			aria-valuemin={0}
 			aria-valuemax={100}
 			aria-valuenow={Math.round(displayProgress * 100)}
+			aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
 			style={{
 				cursor: isDragging ? "grabbing" : "pointer",
 				position: "relative",

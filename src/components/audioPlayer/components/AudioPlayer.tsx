@@ -7,7 +7,7 @@ import Waveform from "./waveform/Waveform";
 import TimelineSlider from "./timeline/TimelineSlider";
 import { useAudioPlayback } from "../hooks/useAudioPlayback";
 import { useAudioEvents } from "../hooks/useAudioEvents";
-import { useState } from "react";
+import { useRef } from "react";
 
 interface AudioPlayerProps {
 	track: Track;
@@ -18,9 +18,6 @@ interface AudioPlayerProps {
 	onEnded?: () => void;
 }
 
-/**
- * AudioPlayer component with waveform visualization and playback controls
- */
 const AudioPlayer = ({
 	track,
 	isPlaying: externalIsPlaying,
@@ -29,8 +26,13 @@ const AudioPlayer = ({
 	onDurationChange,
 	onEnded,
 }: AudioPlayerProps) => {
-	// Add local loaded state for the component
-	const [localIsLoaded, setLocalIsLoaded] = useState(false);
+	// Ref for the audio player controls to manage focus
+	const controlsRef = useRef<HTMLDivElement>(null);
+
+	// Function to focus the controls when needed
+	const focusControls = () => {
+		controlsRef.current?.focus();
+	};
 
 	// Use our custom hook to manage audio playback
 	const {
@@ -38,7 +40,6 @@ const AudioPlayer = ({
 		currentTime,
 		duration,
 		isScrubbing,
-		isLoaded,
 		audioRef,
 		togglePlayPause,
 		jumpToPosition,
@@ -60,11 +61,6 @@ const AudioPlayer = ({
 		}
 	};
 
-	// Handle loaded data
-	const handleLoadedData = () => {
-		setLocalIsLoaded(true);
-	};
-
 	// Use our audio events hook to handle audio element events
 	const audioEvents = useAudioEvents({
 		audioRef,
@@ -76,7 +72,9 @@ const AudioPlayer = ({
 		onDurationChange: (newDuration) => {
 			onDurationChange?.(newDuration);
 		},
-		onLoadedData: handleLoadedData,
+		onLoadedData: () => {
+			// Data loaded handling if needed
+		},
 		onEnded: () => {
 			onEnded?.();
 		},
@@ -103,8 +101,35 @@ const AudioPlayer = ({
 	};
 
 	return (
-		<div className={style.audioPlayerWrapper}>
-			<div className={style.controlsWrapper}>
+		<section
+			className={style.audioPlayerWrapper}
+			aria-label={`Audio player for ${track.title || "track"}`}
+		>
+			{/* Visually hidden skip link for accessibility */}
+			<button
+				onClick={focusControls}
+				type="button"
+				style={{
+					position: "absolute",
+					width: "1px",
+					height: "1px",
+					padding: "0",
+					margin: "-1px",
+					overflow: "hidden",
+					clip: "rect(0, 0, 0, 0)",
+					whiteSpace: "nowrap",
+					borderWidth: "0",
+				}}
+				aria-label="Skip to audio controls"
+			>
+				Skip to audio controls
+			</button>
+
+			<div
+				className={style.controlsWrapper}
+				ref={controlsRef}
+				tabIndex={-1} // Make focusable but not in tab order
+			>
 				{/* biome-ignore lint/a11y/useMediaCaption: Audio captions not required for music player */}
 				<audio
 					ref={audioRef}
@@ -123,17 +148,19 @@ const AudioPlayer = ({
 					className={style.audioElement}
 				/>
 
-				{/* Play/Pause button */}
 				<div className={style.playButtonWrapper}>
 					<PlayButton
 						className={style.playButton}
 						isPlaying={isPlaying}
 						onToggle={togglePlayPause}
+						aria-label={isPlaying ? "Pause" : "Play"}
 					/>
 				</div>
 
-				{/* Timeline with waveform display */}
-				<div className={style.waveformContainer}>
+				<div
+					className={style.waveformContainer}
+					aria-hidden="true" // Hide visual container from screen readers
+				>
 					<TimelineSlider
 						currentTime={currentTime}
 						duration={duration}
@@ -142,20 +169,14 @@ const AudioPlayer = ({
 						onScrubbing={handleScrubbing}
 						className={style.timelineSlider}
 					>
-						<Waveform
-							data={waveformData}
-							progress={normalizedProgress}
-							isInteractive={true}
-						/>
+						<Waveform data={waveformData} progress={normalizedProgress} />
 					</TimelineSlider>
 				</div>
 			</div>
-
-			{/* Time display */}
-			<span className={style.timeDisplay}>
+			<span className={style.timeDisplay} aria-live="polite" aria-atomic="true">
 				{formatTime(currentTime)} / {formatTime(duration || 0)}
 			</span>
-		</div>
+		</section>
 	);
 };
 

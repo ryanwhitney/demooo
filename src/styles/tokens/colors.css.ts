@@ -42,6 +42,7 @@ export const colorTokens = createGlobalTheme(root, {
 	backgroundSecondary: colors.gray900,
 	backdrop: colors.blackOpacity50,
 	focusRing: colors.indigo500,
+	tintColor: colors.indigo500,
 	error: colors.red500,
 	heartRed: colors.red500,
 	errorBackground: colors.redOpacity10,
