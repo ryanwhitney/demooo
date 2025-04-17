@@ -1,10 +1,10 @@
 import os
 from django.core.files.storage import default_storage
-from .base import AudioTestCase
-from ..models import Track
+from .base import BaseAudioTestCase
+from api.models import Track
 
 
-class TrackMutationTests(AudioTestCase):
+class TrackMutationTests(BaseAudioTestCase):
     def test_track_mutations(self):
         """Test track mutation operations with new directory structure"""
         # Test upload track mutation

@@ -1,14 +1,14 @@
-from .base import BaseTestCase
+from .base import BaseAPITestCase
 
 
-class AuthTests(BaseTestCase):
+class AuthenticationTests(BaseAPITestCase):
     def test_create_user_mutation(self):
         """Test user creation through GraphQL mutation"""
         query = """
         mutation {
             createUser(
-                username: "newuser",
-                email: "new@example.com",
+                username: "testuser",
+                email: "test@example.com",
                 password: "testpass123"
             ) {
                 user {
@@ -23,12 +23,28 @@ class AuthTests(BaseTestCase):
 
         self.assertIsNotNone(response.data["createUser"]["user"])
         created_user = response.data["createUser"]["user"]
-        self.assertEqual(created_user["username"], "newuser")
-        self.assertEqual(created_user["email"], "new@example.com")
-        self.assertEqual(self.User.objects.count(), 2)  # One from setup + new one
+        self.assertEqual(created_user["username"], "testuser")
+        self.assertEqual(created_user["email"], "test@example.com")
+        self.assertEqual(self.User.objects.count(), 1)
 
     def test_graphql_login_mutation(self):
         """Test the login mutation"""
+        # Create user
+        create_query = """
+        mutation {
+            createUser(
+                username: "testuser",
+                email: "test@example.com",
+                password: "testpass123"
+            ) {
+                user {
+                    username
+                }
+            }
+        }
+        """
+        self.client.execute(create_query)
+
         # Login
         login_query = """
         mutation {
@@ -42,6 +58,22 @@ class AuthTests(BaseTestCase):
 
     def test_login_mutation_wrong_password(self):
         """Test login mutation with wrong password"""
+        # Create user
+        create_query = """
+        mutation {
+            createUser(
+                username: "testuser",
+                email: "test@example.com",
+                password: "testpass123"
+            ) {
+                user {
+                    username
+                }
+            }
+        }
+        """
+        self.client.execute(create_query)
+
         # Login with bad password
         login_query = """
         mutation {
@@ -69,7 +101,11 @@ class AuthTests(BaseTestCase):
 
     def test_authenticated_query(self):
         """Test that authenticated queries work"""
-        self.client.authenticate(self.user)
+        # Create user first
+        user = self.User.objects.create_user(
+            username="testuser", email="test@example.com", password="testpass123"
+        )
+        self.client.authenticate(user)
 
         query = """
         query {

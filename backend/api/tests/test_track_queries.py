@@ -1,12 +1,12 @@
-from .base import AudioTestCase
-from ..models import Track
+from .base import BaseAudioTestCase
+from api.models import Track
 
 
-class TrackQueryTests(AudioTestCase):
-    def setUp(self):
-        super().setUp()
+class TrackQueryTests(BaseAudioTestCase):
+    def test_track_queries(self):
+        """Test track query operations"""
         # Create a test track
-        self.track = Track.objects.create(
+        track = Track.objects.create(
             artist=self.user,
             title="Test Track",
             title_slug="test-track",
@@ -14,8 +14,6 @@ class TrackQueryTests(AudioTestCase):
             audio_file=self.audio_file,
         )
 
-    def test_track_queries(self):
-        """Test track query operations"""
         # Test get all tracks query
         query = """
             query {
@@ -33,7 +31,7 @@ class TrackQueryTests(AudioTestCase):
         # Test get track by ID query
         query = f"""
             query {{
-                track(id: "{self.track.id}") {{
+                track(id: "{track.id}") {{
                     id
                     title
                     titleSlug

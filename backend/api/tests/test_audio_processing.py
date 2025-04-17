@@ -1,9 +1,10 @@
 import os
 from django.core.files.storage import default_storage
-from .base import AudioTestCase
+from .base import BaseAudioTestCase
+from api.models import Track
 
 
-class AudioProcessingTests(AudioTestCase):
+class AudioProcessingTests(BaseAudioTestCase):
     def test_audio_conversion_and_directory_structure(self):
         """Test that audio conversion works and directory structure is created correctly"""
         # Create a track with an M4A file (should be converted to MP3)
@@ -53,18 +54,17 @@ class AudioProcessingTests(AudioTestCase):
         self.assertIsNotNone(response.data["uploadTrack"]["track"]["audioWaveformData"])
 
         # Clean up
-        from ..models import Track
-
         track = Track.objects.get(id=track_id)
         track.delete()
 
     def test_waveform_generation(self):
         """Test waveform data generation for uploaded tracks with new directory structure"""
-        from ..mutations.track_mutations import generate_waveform
+        from api.mutations.track_mutations import generate_waveform
 
         # Use the actual test audio file
-        test_dir = os.path.join(os.path.dirname(__file__), "../../media/test_files")
-        test_file_path = os.path.join(test_dir, "strum.m4a")
+        test_file_path = os.path.join(
+            os.path.dirname(__file__), "fixtures/test_audio.m4a"
+        )
 
         # Test waveform generation with real audio file
         waveform_data = generate_waveform(test_file_path)
@@ -91,6 +91,7 @@ class AudioProcessingTests(AudioTestCase):
         self.assertIsNone(response.errors, f"Unexpected errors: {response.errors}")
 
         track_id = response.data["uploadTrack"]["track"]["id"]
+        audio_file_path = response.data["uploadTrack"]["track"]["audioFile"]
 
         # Ensure waveform data was generated
         self.assertIsNotNone(
@@ -104,7 +105,5 @@ class AudioProcessingTests(AudioTestCase):
         self.assertTrue(default_storage.exists(mp3_path))
 
         # Clean up
-        from ..models import Track
-
         track = Track.objects.get(id=track_id)
         track.delete()
