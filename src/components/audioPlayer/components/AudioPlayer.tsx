@@ -77,9 +77,10 @@ const AudioPlayer = ({
 
 	const waveformData = parseWaveformData(track.audioWaveformData);
 
+	// set this to desired audio file URL based on env and quality
 	const audioFileUrl = track.audioFile?.startsWith("http")
-		? track.audioFile
-		: `http://localhost:8000/media/${track.audioFile}`;
+		? `${track.audioFile}/320.mp3`
+		: `http://localhost:8000/media/${track.audioFile}/320/${track.id}.mp3`;
 
 	const normalizedProgress = duration > 0 ? currentTime / duration : 0;
 
