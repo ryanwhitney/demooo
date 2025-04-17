@@ -61,7 +61,12 @@ const AudioPlayer = ({
 		onDurationChange: (newDuration) => {
 			onDurationChange?.(newDuration);
 		},
+		onLoadedData: () => {
+			// Data loaded handling if needed
+		},
 		onEnded: () => {
+			// When a track ends, call onEnded which will be handled by the calling component
+			// This allows the parent to decide whether to play the next track
 			onEnded?.();
 		},
 		onPlaybackStateChange: (state) => {

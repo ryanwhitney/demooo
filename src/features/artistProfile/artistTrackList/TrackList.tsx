@@ -9,7 +9,7 @@ import PauseSVG from "@/components/svg/PauseSVG";
 import * as style from "./TrackList.css";
 import { Link } from "react-router";
 
-const TrackRow = ({ track }: { track: Track }) => {
+const TrackRow = ({ track, allTracksInList }: { track: Track; allTracksInList: Track[] }) => {
 	const [isFavorite, setIsFavorite] = useState(false);
 
 	const audio = useAudio();
@@ -31,9 +31,10 @@ const TrackRow = ({ track }: { track: Track }) => {
 				audio.resumeTrack();
 			}
 		} else {
-			audio.playTrack(track, "global");
+			// Play track in queue, starting from this track in the list
+			audio.playTrackInQueue(track, allTracksInList, "global");
 		}
-	}, [audio, isCurrentTrack, isPlaying, track]);
+	}, [audio, isCurrentTrack, isPlaying, track, allTracksInList]);
 
 	return (
 		<div key={track.id} className={style.trackRowWrapper}>
@@ -74,6 +75,9 @@ const TrackRow = ({ track }: { track: Track }) => {
 };
 
 const TrackList = ({ tracks }: { tracks: Track[] }) => {
+	// Extract all tracks in a flat list for queueing
+	const allTracks = useMemo(() => tracks || [], [tracks]);
+	
 	const groupedTracks: Record<string, Record<string, Track[]>> = {};
 
 	if (tracks) {
@@ -116,7 +120,11 @@ const TrackList = ({ tracks }: { tracks: Track[] }) => {
 									<section className={style.monthWrapper}>
 										{groupedTracks[year][month].map((track, index) => (
 											<>
-												<TrackRow key={`${track.id}-${index}`} track={track} />
+												<TrackRow 
+													key={`${track.id}-${index}`} 
+													track={track} 
+													allTracksInList={allTracks}
+												/>
 												<hr
 													key={`${track.id}-${index}-divider`}
 													className={style.trackDivider}

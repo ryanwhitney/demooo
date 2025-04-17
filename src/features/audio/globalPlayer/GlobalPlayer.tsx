@@ -2,7 +2,7 @@ import AudioPlayer from "@/components/audioPlayer/components/AudioPlayer";
 import { useAudio } from "@/providers/AudioProvider";
 import { tokens } from "@/styles/tokens";
 import type { Track } from "@/types/track";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const GlobalPlayer = () => {
 	const [isVisible, setIsVisible] = useState(false);
@@ -16,6 +16,11 @@ const GlobalPlayer = () => {
 			setIsVisible(shouldShow);
 		}, 50);
 	}, [shouldShow]);
+
+	// Handle track ending - play the next track in queue if available
+	const handleTrackEnded = useCallback(() => {
+		audio.nextTrack();
+	}, [audio]);
 
 	return (
 		<div
@@ -49,6 +54,7 @@ const GlobalPlayer = () => {
 						onPlayPause={audio.setIsPlaying}
 						onTimeUpdate={audio.setCurrentTime}
 						onDurationChange={audio.setDuration}
+						onEnded={handleTrackEnded}
 					/>
 				)}
 			</div>
