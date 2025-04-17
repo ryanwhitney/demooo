@@ -5,10 +5,11 @@ import Login from "@/features/auth/Login";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
 import TrackUpload from "@/features/tracks/trackUpload/TrackUpload";
 import DemoooLogo from "../AnimatedLogo/DemoooLogo";
+import { buttonStyles } from "@/components/button/Button.css";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
@@ -27,14 +28,13 @@ function NavBar() {
 					{me.isAuthenticated ? (
 						<>
 							<li className={navBarUser}>{me.user?.username}</li>
-							<li>
-								<Button
-									variant="primary"
-									onClick={() => setShowLoginModal(true)}
-								>
-									explore
-								</Button>
-							</li>
+							<Link
+								className={buttonStyles({})}
+								style={{ textDecoration: "none" }}
+								to={"/profile"}
+							>
+								profile
+							</Link>
 							<li>
 								<Button variant="primary">favs</Button>
 							</li>
@@ -54,14 +54,6 @@ function NavBar() {
 						</>
 					) : (
 						<>
-							<li>
-								<Button
-									variant="primary"
-									onClick={() => setShowLoginModal(true)}
-								>
-									explore
-								</Button>
-							</li>
 							<li>
 								<Button
 									variant="primary"

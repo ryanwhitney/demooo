@@ -99,7 +99,7 @@ const DemoooLogo = ({ text }: { text: string }) => {
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
-			<div className={holder}>
+			<div>
 				{text.split("").map((char, index) => (
 					<span
 						key={`${char}-${index}`}

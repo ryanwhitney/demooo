@@ -6,22 +6,14 @@ export const baseSize = createVar();
 // Common styles
 export const mainContainer = style({
   display: "inline-block",
-  // padding: "20px",
-  height: "50px",
   cursor: "pointer",
   position: "relative",
-  width: "200px",
-});
-
-export const holder = style({
-  // position: "absolute",
-  // bottom: 0,
+  // width: "200px",
 });
 
 export const characterSpan = style({
   fontFamily: "JetBrains Mono",
   lineHeight: 0,
-  height: "50px",
   letterSpacing: "0",
   color: "white",
   transition: "font-size 0.3s ease-in-out",
