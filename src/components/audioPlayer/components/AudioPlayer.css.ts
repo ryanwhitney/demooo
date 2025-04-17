@@ -70,7 +70,7 @@ export const waveformProgress = style({
   left: 0,
   top: 0,
   bottom: 0,
-  backgroundImage: `linear-gradient(90deg, #131313 50%, #131313cc)`,
+  backgroundImage: 'linear-gradient(90deg, #131313 50%, #131313cc)',
   pointerEvents: "none",
   opacity: 0.7,
   zIndex: 1,
