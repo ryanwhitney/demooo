@@ -23,4 +23,5 @@ globalStyle("html, body", {
 globalStyle("main", {
 	maxWidth: 960,
 	margin: "0 auto",
+	padding: "0 32px",
 });
