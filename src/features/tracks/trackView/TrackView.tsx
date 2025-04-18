@@ -6,7 +6,6 @@ import {
 	trackViewInfo,
 	trackViewTagsWrapper,
 	trackViewTitle,
-	trackViewWaveformWrapper,
 	trackViewWrapper,
 } from "./TrackView.css";
 import SinglePlayer from "@/features/audio/singlePlayer/SinglePlayer";
@@ -29,9 +28,7 @@ function TrackView({ track }: { track: Track }) {
 							</Link>
 						</p>
 					</div>
-					<div className={trackViewWaveformWrapper}>
-						<SinglePlayer track={track} />
-					</div>
+					<SinglePlayer track={track} />
 					<div className={trackViewDetails}>
 						<p>{track.description || "no notes"}</p>
 					</div>

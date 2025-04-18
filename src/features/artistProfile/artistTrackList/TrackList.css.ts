@@ -9,14 +9,13 @@ export const allYearsWrapper = style({
 });
 
 export const yearHeading = style({
-  fontSize: 10,
+  fontSize: 12,
   color: tokens.colors.tertiary,
   fontWeight: tokens.fontWeights.light,
   width: "fit-content",
 });
 
 export const yearWrapper = style({
-  paddingLeft: tokens.space.lg,
   paddingBottom: tokens.space.md,
   '@media': {
     'screen and (min-width: 768px)': {
@@ -36,7 +35,7 @@ export const allMonthsWrapper = style({
 });
 
 export const monthHeading = style({
-  fontSize: 10,
+  fontSize: 12,
   color: tokens.colors.secondary,
   fontWeight: tokens.fontWeights.light,
   paddingLeft: tokens.space.lg,
@@ -62,9 +61,9 @@ export const trackDivider = style({
 
 export const trackRowWrapper = style({
   display: "flex",
-  padding: "10px 0",
   justifyContent: "space-between",
-  fontSize: 11,
+  fontSize: 12,
+  alignItems: "center",
 })
 
 export const trackLeftContent = style({
@@ -89,7 +88,7 @@ export const trackRowTitle = recipe({
     color: tokens.colors.primary,
     transition: "font 150ms ease-in-out",
     textDecoration: "none",
-    fontWeight: 200,
+    fontWeight: tokens.fontWeights.light,
   },
   variants: {
     isActive: {
@@ -105,7 +104,6 @@ export const favoriteIconToggle = recipe({
   color: tokens.colors.quaternary,
   padding: 10,
   width: 16,
-  height: 16,
   transition: "filter 400ms ease-in-out",
     ':hover':{
       cursor: "pointer",
@@ -133,7 +131,6 @@ export const playIconToggle = recipe({
   color: tokens.colors.secondary,
   padding: 10,
   width: 10,
-  height: 16,
     ':hover':{
       cursor: "pointer",
       color: tokens.colors.primary,

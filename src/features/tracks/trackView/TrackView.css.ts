@@ -24,7 +24,7 @@ export const trackViewArtist = style({
 });
 
 export const trackViewTitle = style({
-	border: `1px solid transparent`,
+	border: '1px solid transparent',
 	borderRadius: tokens.radii.lg,
 	transition: "border-color 0.2s ease-in-out",
 	color: tokens.colors.primary,
@@ -48,20 +48,3 @@ export const trackViewTagsWrapper = style({
 	marginTop: tokens.space.sm,
 });
 
-// export const trackViewTag = style({
-//   cursor: 'pointer',
-//   backgroundColor: tokens.colors.tertiaryDark,
-//   borderRadius: tokens.radii.sm,
-//   padding: `${tokens.space.sm} ${tokens.space.md}`,
-//   color: tokens.colors.primary,
-//   fontSize: tokens.fontSizes.sm,
-//   transition: 'background-color 0.2s ease-in-out',
-//   ':hover': {
-//     backgroundColor: tokens.colors.secondaryDark,
-//   }
-// });
-
-export const trackViewWaveformWrapper = style({
-
-
-});
