@@ -14,7 +14,9 @@ const TrackUpload = () => {
 		file: null,
 	});
 
-	const [uploadTrack, { loading, error }] = useMutation(UPLOAD_TRACK);
+	const [uploadTrack, { loading, error }] = useMutation(UPLOAD_TRACK, {
+		refetchQueries: ["GetAllTracks"],
+	});
 
 	const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files) return;
