@@ -1,3 +1,5 @@
+import { Profile } from "./auth"
+
 export interface Track {
 	audioFile: string | undefined
 	id: string;
@@ -15,6 +17,7 @@ export interface Track {
 export interface TrackUser {
 	username: string;
 	id: string;
+	profile: Profile
 }
 
 export interface UploadTrackFormInput {

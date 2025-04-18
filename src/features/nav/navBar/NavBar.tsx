@@ -12,6 +12,7 @@ import DemoooLogo from "../AnimatedLogo/DemoooLogo";
 import { buttonStyles } from "@/components/button/Button.css";
 import { useQuery } from "@apollo/client";
 import { GET_ME } from "@/apollo/queries/userQueries";
+import TrackMultiUpload from "@/features/tracks/trackMultiUpload/TrackMultiUpload";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
@@ -124,7 +125,7 @@ function NavBar() {
 						title="Upload a Track"
 						onClose={() => setShowUploadModal(false)}
 					>
-						<TrackUpload />
+						<TrackMultiUpload />
 					</Modal>,
 					document.body,
 				)}

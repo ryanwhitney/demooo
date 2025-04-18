@@ -65,6 +65,8 @@ export const trackArtist = style({
 	cursor: "pointer",
 	color: tokens.colors.secondary,
 	textDecoration: "none",
+	display: 'flex',
+	gap: 5,
 	width: 'fit-content',
 	transition: "color 0.1s ease-in-out",
 	':hover':{

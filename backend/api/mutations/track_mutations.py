@@ -272,6 +272,170 @@ class UpdateTrack(graphene.Mutation):
         return UpdateTrack(track=track)
 
 
+class UploadMultipleTracks(graphene.Mutation):
+    tracks = graphene.List(TrackType)
+    failed_uploads = graphene.List(graphene.String)
+
+    class Arguments:
+        files = graphene.List(Upload, required=True)
+        titles = graphene.List(graphene.String, required=True)
+        descriptions = graphene.List(graphene.String)
+
+    @login_required
+    def mutate(self, info, files, titles, descriptions=None):
+        user = info.context.user
+
+        # Validate input lengths match
+        if len(files) != len(titles):
+            raise Exception("Number of files and titles must match")
+
+        # Default descriptions to empty strings if not provided
+        if descriptions is None:
+            descriptions = [""] * len(files)
+        elif len(descriptions) != len(files):
+            raise Exception(
+                "If provided, number of descriptions must match number of files"
+            )
+
+        # Validate all titles before processing any files
+        title_conflicts = []
+        title_slugs = []
+
+        for i, title in enumerate(titles):
+            title_slug = slugify(title)
+            if title_slug in title_slugs:  # Check for conflicts within batch
+                title_conflicts.append(f"Duplicate title in batch: '{title}'")
+                continue
+
+            if user.tracks.filter(title_slug=title_slug).exists():
+                title_conflicts.append(
+                    f"You already have a track with title: '{title}'. Please choose a different one."
+                )
+                continue
+
+            title_slugs.append(title_slug)
+
+        # If any title conflicts, abort the entire batch
+        if title_conflicts:
+            raise Exception("\n".join(title_conflicts))
+
+        # Process all files
+        successful_tracks = []
+        failed_uploads = []
+
+        for i, (file, title, description) in enumerate(
+            zip(files, titles, descriptions)
+        ):
+            try:
+                # Create the track record
+                track = Track(
+                    artist=user,
+                    title=title,
+                    title_slug=slugify(title),
+                    description=description,
+                )
+                track.save()
+
+                # Create a temporary directory to process the audio
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    # Save the uploaded file to a temporary file
+                    original_filename = file.name
+                    _, original_ext = os.path.splitext(original_filename)
+                    artist_id = str(user.id)
+                    track_id = str(track.id)
+                    temp_file_path = os.path.join(temp_dir, f"original{original_ext}")
+
+                    with open(temp_file_path, "wb") as f:
+                        for chunk in file.chunks():
+                            f.write(chunk)
+
+                    # Save the original file first
+                    orig_dir_path = f"{artist_id}/audio/{track_id}/orig"
+                    orig_filename = f"{track_id}{original_ext}"
+                    orig_full_path = f"{orig_dir_path}/{orig_filename}"
+
+                    with open(temp_file_path, "rb") as f:
+                        file_content = f.read()
+                        orig_storage_path = default_storage.save(
+                            orig_full_path, ContentFile(file_content)
+                        )
+
+                    print(f"Original file saved: {orig_storage_path}")
+
+                    # Always convert to MP3 with 320kbps bitrate
+                    print(f"Converting audio file to MP3 with 320kbps bitrate...")
+                    converted_file_path = convert_audio_to_mp3(temp_file_path, temp_dir)
+
+                    if converted_file_path:
+                        # Save the converted MP3 file
+                        mp3_dir_path = f"{artist_id}/audio/{track_id}/320"
+                        mp3_filename = f"{track_id}.mp3"
+                        mp3_full_path = f"{mp3_dir_path}/{mp3_filename}"
+
+                        with open(converted_file_path, "rb") as f:
+                            file_content = f.read()
+                            mp3_storage_path = default_storage.save(
+                                mp3_full_path, ContentFile(file_content)
+                            )
+
+                        base_path = f"{artist_id}/audio/{track_id}"
+                        track.audio_file = base_path
+                        track.save()
+                        print(f"MP3 file saved: {mp3_storage_path}")
+                        print(f"TRACK SAVED: {track.title} (ID: {track_id})")
+
+                        try:
+                            waveform_data, duration = generate_waveform(
+                                converted_file_path, resolution=200
+                            )
+
+                            # Store the waveform and length
+                            track.audio_waveform_data = json.dumps(waveform_data)
+                            track.audio_waveform_resolution = len(waveform_data)
+                            track.audio_length = duration
+                            track.save()
+                            print(
+                                f"Generated waveform with {len(waveform_data)} data points"
+                            )
+                            print(f"Audio duration: {duration} seconds")
+
+                        except Exception as e:
+                            print(f"Error processing audio: {str(e)}")
+                            # Set default empty waveform data
+                            track.audio_waveform_data = json.dumps([])
+                            track.audio_waveform_resolution = 0
+                            track.save()
+
+                        successful_tracks.append(track)
+                    else:
+                        # Clean up the original file since conversion failed
+                        try:
+                            default_storage.delete(orig_storage_path)
+                        except Exception as e:
+                            print(f"Error cleaning up original file: {str(e)}")
+
+                        # Add to failed uploads
+                        track.delete()  # Remove the track entry
+                        failed_uploads.append(f"Failed to convert '{title}' to MP3.")
+
+            except Exception as e:
+                failed_uploads.append(f"Error processing '{title}': {str(e)}")
+                # If the track was created, attempt to delete it
+                if "track" in locals() and track.id:
+                    try:
+                        track.delete()
+                    except Exception:
+                        pass
+
+        # If no successful uploads, raise an exception
+        if not successful_tracks and failed_uploads:
+            raise Exception("All uploads failed: " + "\n".join(failed_uploads))
+
+        return UploadMultipleTracks(
+            tracks=successful_tracks, failed_uploads=failed_uploads
+        )
+
+
 class DeleteTrack(graphene.Mutation):
     success = graphene.Boolean()
 

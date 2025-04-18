@@ -15,6 +15,20 @@ export const UPLOAD_TRACK = gql`
   }
 `;
 
+export const UPLOAD_MULTIPLE_TRACKS = gql`
+  mutation UploadMultipleTracks($files: [Upload!]!, $titles: [String!]!, $descriptions: [String!]) {
+    uploadMultipleTracks(files: $files, titles: $titles, descriptions: $descriptions) {
+      tracks {
+        id
+        title
+        description
+        audioFile
+      }
+      failedUploads
+    }
+  }
+`;
+
 /**** QUERIES ****/
 
 export const GET_TRACK = gql`
@@ -53,6 +67,10 @@ export const GET_ALL_TRACKS = gql`
       artist {
         username
         id
+        profile{
+          name
+          profilePictureOptimizedUrl
+        }
       }
     }
   }

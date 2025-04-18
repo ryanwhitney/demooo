@@ -6,7 +6,12 @@ from .queries.user_queries import UserQueries
 from .queries.track_queries import TrackQueries
 from .mutations.user_mutations import CreateUser
 from .mutations.profile_mutations import UpdateProfile
-from .mutations.track_mutations import UploadTrack, UpdateTrack, DeleteTrack
+from .mutations.track_mutations import (
+    UploadTrack,
+    UploadMultipleTracks,
+    UpdateTrack,
+    DeleteTrack,
+)
 
 
 class Query(UserQueries, TrackQueries, graphene.ObjectType):
@@ -24,6 +29,7 @@ class Mutation(graphene.ObjectType):
     update_profile = UpdateProfile.Field()
 
     # Track mutations
+    upload_multiple_tracks = UploadMultipleTracks.Field()
     upload_track = UploadTrack.Field()
     update_track = UpdateTrack.Field()
     delete_track = DeleteTrack.Field()
