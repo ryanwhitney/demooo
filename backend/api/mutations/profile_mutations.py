@@ -14,6 +14,15 @@ from graphql_jwt.decorators import login_required
 from ..types.profile import ProfileType
 
 
+def generate_short_unique_id():
+    """Generate a short but unique ID based on time and randomness"""
+    # Get seconds since epoch, modulo 10000 (cycles every ~3 hours)
+    t = int(time.time()) % 10000
+    # Get random 2-byte hex string (provides 65536 possibilities)
+    r = uuid.uuid4().hex[:4]
+    return f"{t}{r}"  # e.g. "596583af"
+
+
 def optimize_image(input_file_path, output_dir, max_size=1200):
     """
     Optimize and resize image for profile picture, always converting to JPG.
@@ -22,9 +31,9 @@ def optimize_image(input_file_path, output_dir, max_size=1200):
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
 
-        # Generate a unique filename with timestamp
-        timestamp = int(time.time())
-        output_filename = f"profile_{timestamp}.jpg"
+        # Generate a unique filename with short ID
+        unique_id = generate_short_unique_id()
+        output_filename = f"profile_{unique_id}.jpg"
         output_file_path = os.path.join(output_dir, output_filename)
 
         # Run imagemagick to optimize the image and convert to jpg

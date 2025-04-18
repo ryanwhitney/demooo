@@ -255,11 +255,11 @@ class UserProfileTests(BaseAPITestCase):
         self.assertIsNotNone(profile_data["profilePictureOptimizedUrl"])
 
         # Check that the optimized URL contains the expected path structure
-        # Updated to check for timestamped filename pattern
-        timestamp_pattern = r"/new/profile_\d+\.jpg"
+        # Updated to check for the short unique ID pattern
+        unique_id_pattern = r"/new/profile_\d+[a-f0-9]+\.jpg"
         self.assertTrue(
-            re.search(timestamp_pattern, profile_data["profilePictureOptimizedUrl"]),
-            "Optimized URL does not have the expected timestamped filename pattern",
+            re.search(unique_id_pattern, profile_data["profilePictureOptimizedUrl"]),
+            "Optimized URL does not have the expected unique ID filename pattern",
         )
 
         # Query profile to verify picture data is accessible
