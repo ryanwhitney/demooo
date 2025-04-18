@@ -24,7 +24,6 @@ const Waveform = ({
 }: WaveformProps) => {
 	const progressWidth = progress * 100;
 	let xPosition = (barWidth + spacing) * -1;
-	console.log("progressWidth", progressWidth);
 	const bars = width / (spacing + barWidth);
 	const sampledWavelengthData = arraySample({
 		array: data,

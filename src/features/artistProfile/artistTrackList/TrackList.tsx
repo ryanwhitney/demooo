@@ -9,7 +9,10 @@ import PauseSVG from "@/components/svg/PauseSVG";
 import * as style from "./TrackList.css";
 import { Link } from "react-router";
 
-const TrackRow = ({ track, allTracksInList }: { track: Track; allTracksInList: Track[] }) => {
+const TrackRow = ({
+	track,
+	allTracksInList,
+}: { track: Track; allTracksInList: Track[] }) => {
 	const [isFavorite, setIsFavorite] = useState(false);
 
 	const audio = useAudio();
@@ -17,7 +20,8 @@ const TrackRow = ({ track, allTracksInList }: { track: Track; allTracksInList: T
 	// subscribe to the states we need
 	const isCurrentTrack = useMemo(() => {
 		return (
-			audio.currentTrack?.id === track.id && audio.activeSource === "global"
+			audio.currentTrack?.id === track.id &&
+			(audio.activeSource === "global" || audio.activeSource === "artist-view")
 		);
 	}, [audio.currentTrack?.id, audio.activeSource, track.id]);
 
@@ -77,7 +81,7 @@ const TrackRow = ({ track, allTracksInList }: { track: Track; allTracksInList: T
 const TrackList = ({ tracks }: { tracks: Track[] }) => {
 	// Extract all tracks in a flat list for queueing
 	const allTracks = useMemo(() => tracks || [], [tracks]);
-	
+
 	const groupedTracks: Record<string, Record<string, Track[]>> = {};
 
 	if (tracks) {
@@ -120,9 +124,9 @@ const TrackList = ({ tracks }: { tracks: Track[] }) => {
 									<section className={style.monthWrapper}>
 										{groupedTracks[year][month].map((track, index) => (
 											<>
-												<TrackRow 
-													key={`${track.id}-${index}`} 
-													track={track} 
+												<TrackRow
+													key={`${track.id}-${index}`}
+													track={track}
 													allTracksInList={allTracks}
 												/>
 												<hr

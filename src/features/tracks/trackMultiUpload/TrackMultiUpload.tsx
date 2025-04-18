@@ -12,7 +12,7 @@ const TrackMultiUpload = () => {
 	const [uploadMultipleTracks, { loading, error }] = useMutation(
 		UPLOAD_MULTIPLE_TRACKS,
 		{
-			refetchQueries: ["GetAllTracks"],
+			refetchQueries: ["GetAllTracks", "GetTrack", "GetUserTracks"],
 		},
 	);
 

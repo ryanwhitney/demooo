@@ -16,11 +16,17 @@ export const yearHeading = style({
 });
 
 export const yearWrapper = style({
-  width: 0,
-  overflow: "visible",
-  float: "left",
-  position: "relative",
-  left: "-50px",
+  paddingLeft: tokens.space.lg,
+  paddingBottom: tokens.space.md,
+  '@media': {
+    'screen and (min-width: 768px)': {
+      width: 0,
+      overflow: "visible",
+      float: "left",
+      position: "relative",
+      left: "-50px",
+    },
+  },
 });
 
 export const allMonthsWrapper = style({
@@ -39,9 +45,9 @@ export const monthHeading = style({
 
 export const monthWrapper = style({
   background: tokens.colors.tertiaryDark,
-											borderRadius: tokens.radii.lg,
-											width: 400,
-											padding: "2px 0",
+  borderRadius: tokens.radii.lg,
+  width: '100%',
+  padding: "2px 0",
 });
 
 export const trackDivider = style({
