@@ -7,7 +7,6 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, NavLink } from "react-router";
 import { logo, navBar, navBarUserAvatar, navItemsList } from "./NavBar.css";
-import TrackUpload from "@/features/tracks/trackUpload/TrackUpload";
 import DemoooLogo from "../AnimatedLogo/DemoooLogo";
 import { buttonStyles } from "@/components/button/Button.css";
 import { useQuery } from "@apollo/client";
@@ -63,7 +62,6 @@ function NavBar() {
 							</li>
 							<li>
 								<Link
-									className={buttonStyles({})}
 									style={{
 										textDecoration: "none",
 										display: "flex",
@@ -72,9 +70,10 @@ function NavBar() {
 									}}
 									to={"/profile"}
 								>
-									{me.user?.username}
 									{data?.me?.profile.profilePictureOptimizedUrl && (
 										<img
+											width={40}
+											height={40}
 											src={`http://localhost:8000/media/${data.me?.profile.profilePictureOptimizedUrl}`}
 											alt="user profile"
 											className={navBarUserAvatar}

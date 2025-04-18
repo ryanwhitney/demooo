@@ -5,7 +5,6 @@ export const navBar = style({
 	padding: tokens.space.lg,
 	paddingLeft: tokens.space.xl,
 	paddingRight: tokens.space.xl,
-	backgroundColor: tokens.colors.background,
 	display: "flex",
 	justifyContent: "space-between",
 	alignItems: "center",
@@ -34,8 +33,6 @@ export const navBarUser = style({
 });
 
 export const navBarUserAvatar = style({
-	width: 28,
-	height: 28,
 	borderRadius: tokens.radii.full,
 });
 

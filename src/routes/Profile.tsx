@@ -116,7 +116,6 @@ const ProfilePage = () => {
 	return (
 		<>
 			<main className={styles.main}>
-				{/* Profile Picture Section */}
 				<div
 					className={styles.imageContainer}
 					onClick={triggerFileUpload}

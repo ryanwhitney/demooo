@@ -45,6 +45,17 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 				<p>Artist not found</p>
 			) : (
 				<div className={artistViewWrapper}>
+					<div
+						style={{
+							width: "100%",
+							height: "200px",
+							background: `url(http://localhost:8000/media/${data.user.profile.profilePictureOptimizedUrl})`,
+							position: "absolute",
+							top: 0,
+							zIndex: -1,
+							filter: "blur(50px) saturate(1.1) brightness(0.7)",
+						}}
+					/>
 					<img
 						src={`http://localhost:8000/media/${data.user.profile.profilePictureOptimizedUrl}`}
 						width={200}
