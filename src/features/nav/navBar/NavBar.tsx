@@ -48,12 +48,18 @@ function NavBar() {
 								</Link>
 							</li>
 							<li>
-								<Button
-									variant="primary"
-									onClick={() => setShowUploadModal(true)}
+								<Link
+									className={buttonStyles({})}
+									style={{
+										textDecoration: "none",
+										display: "flex",
+										alignItems: "center",
+										gap: 8,
+									}}
+									to="/upload"
 								>
 									upload
-								</Button>
+								</Link>
 							</li>
 							<li>
 								<Button variant="primary" onClick={me.logout}>
