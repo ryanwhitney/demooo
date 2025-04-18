@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { characterSpan, holder, mainContainer, sizes } from "./DemoooLogo.css";
+import { characterSpan, mainContainer, sizes } from "./DemoooLogo.css";
 
 const DemoooLogo = ({ text }: { text: string }) => {
 	// Reference to all character spans
@@ -102,7 +102,10 @@ const DemoooLogo = ({ text }: { text: string }) => {
 			<div>
 				{text.split("").map((char, index) => (
 					<span
-						key={`${char}-${index}`}
+						key={`${char}-${
+							// biome-ignore lint/suspicious/noArrayIndexKey:
+							index
+						}`}
 						ref={setSpanRef(index)}
 						className={`${characterSpan} ${getCharacterSizeClass(index)}`}
 					>

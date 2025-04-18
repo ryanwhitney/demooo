@@ -1,155 +1,222 @@
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.utils.html import format_html
-from django.urls import reverse
-from .models import User, Profile, Track
 import os
 import shutil
+
+from api.models import Profile, Track, User
+from api.utils import delete_track_files
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.urls import reverse
+from django.utils.html import format_html
+
 
 class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
-    verbose_name_plural = 'Profile'
-    fk_name = 'user'
+    verbose_name_plural = "Profile"
+    fk_name = "user"
+
 
 class TrackInline(admin.TabularInline):
     model = Track
     extra = 0
-    fields = ('title', 'created_at', 'audio_file_player')
-    readonly_fields = ('created_at', 'audio_file_player')
-    fk_name = 'artist'
-    
+    fields = ("title", "created_at", "audio_file_player")
+    readonly_fields = ("created_at", "audio_file_player")
+    fk_name = "artist"
+
     def audio_file_player(self, obj):
         if obj.audio_file:
-            return format_html('<audio controls><source src="{}" type="audio/mpeg"></audio>', obj.audio_file.url)
+            return format_html(
+                '<audio controls><source src="{}" type="audio/mpeg"></audio>',
+                obj.audio_file.url,
+            )
         return "No audio file"
-    audio_file_player.short_description = 'Audio Preview'
+
+    audio_file_player.short_description = "Audio Preview"
+
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'date_joined', 'track_count')
-    search_fields = ('username', 'email', 'first_name', 'last_name')
-    readonly_fields = ('id', 'date_joined', 'last_login')
-    inlines = (ProfileInline, TrackInline)
-    
-    fieldsets = (
-        (None, {'fields': ('id', 'username', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+    list_display = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "is_staff",
+        "date_joined",
+        "track_count",
     )
-    
+    search_fields = ("username", "email", "first_name", "last_name")
+    readonly_fields = ("id", "date_joined", "last_login")
+    inlines = (ProfileInline, TrackInline)
+
+    fieldsets = (
+        (None, {"fields": ("id", "username", "password")}),
+        ("Personal info", {"fields": ("first_name", "last_name", "email")}),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                )
+            },
+        ),
+        ("Important dates", {"fields": ("last_login", "date_joined")}),
+    )
+
     def track_count(self, obj):
         count = obj.tracks.count()
         if count:
-            url = reverse('admin:api_track_changelist') + f'?artist__id__exact={obj.id}'
+            url = reverse("admin:api_track_changelist") + f"?artist__id__exact={obj.id}"
             return format_html('<a href="{}">{} tracks</a>', url, count)
-        return '0 tracks'
-    track_count.short_description = 'Tracks'
-    
+        return "0 tracks"
+
+    track_count.short_description = "Tracks"
+
     def delete_model(self, request, obj):
         """Override to ensure user directory is deleted from storage after cascade"""
         # Store the user ID before deleting the model
         user_id = obj.id
-        
+
         # Django will handle the cascade deletes for tracks
         super().delete_model(request, obj)
-        
-        # After the cascade delete, clean up the user's audio directory
-        from django.conf import settings
-        user_dir = os.path.join(settings.MEDIA_ROOT, 'audio', 'artists', str(user_id))
-        if os.path.exists(user_dir):
-            shutil.rmtree(user_dir)
-    
+
+        # After the cascade delete, try to clean up the user's audio directory
+        try:
+            # Tracks might use a path like "{user_id}/audio/{track_id}/..."
+            # Check if this directory exists in the storage
+            from django.core.files.storage import default_storage
+
+            base_user_path = f"{user_id}/audio"
+
+            if default_storage.exists(base_user_path):
+                # List and delete all subdirectories
+                dirs, _ = default_storage.listdir(base_user_path)
+                for dir_name in dirs:
+                    track_path = f"{base_user_path}/{dir_name}"
+                    delete_track_files(track_path)
+
+                # Delete the base directory itself
+                default_storage.delete(base_user_path)
+                print(f"Deleted user directory: {base_user_path}")
+        except Exception as e:
+            print(f"Error cleaning up user directory: {e}")
+
     def delete_queryset(self, request, queryset):
         """Override to ensure user directories are deleted when batch deleting"""
         # Store user IDs before deleting
         user_ids = [str(obj.id) for obj in queryset]
-        
+
         # Delete the queryset (Django will handle cascade)
         super().delete_queryset(request, queryset)
-        
+
         # Clean up all user directories
-        from django.conf import settings
+        from django.core.files.storage import default_storage
+
         for user_id in user_ids:
-            user_dir = os.path.join(settings.MEDIA_ROOT, 'audio', 'artists', user_id)
-            if os.path.exists(user_dir):
-                shutil.rmtree(user_dir)
+            try:
+                base_user_path = f"{user_id}/audio"
+                if default_storage.exists(base_user_path):
+                    # List and delete all subdirectories
+                    dirs, _ = default_storage.listdir(base_user_path)
+                    for dir_name in dirs:
+                        track_path = f"{base_user_path}/{dir_name}"
+                        delete_track_files(track_path)
+
+                    # Delete the base directory itself
+                    default_storage.delete(base_user_path)
+                    print(f"Deleted user directory: {base_user_path}")
+            except Exception as e:
+                print(f"Error cleaning up user directory: {e}")
+
 
 @admin.register(Track)
 class TrackAdmin(admin.ModelAdmin):
-    list_display = ('title', 'get_artist', 'created_at', 'has_audio', 'audio_player')
-    list_filter = ('created_at', 'artist')
-    search_fields = ('title', 'description', 'artist__username')
-    readonly_fields = ('id', 'created_at', 'updated_at', 'audio_player', 'title_slug')
-    
+    list_display = ("title", "get_artist", "created_at", "has_audio", "audio_player")
+    list_filter = ("created_at", "artist")
+    search_fields = ("title", "description", "artist__username")
+    readonly_fields = ("id", "created_at", "updated_at", "audio_player", "title_slug")
+
     fieldsets = (
-        (None, {
-            'fields': ('id', 'title', 'title_slug', 'artist', 'description')
-        }),
-        ('Audio', {
-            'fields': ('audio_file', 'audio_player', 'audio_length', 'audio_waveform_data', 'audio_waveform_resolution'),
-        }),
-        ('Metadata', {
-            'fields': ('created_at', 'updated_at'),
-        }),
+        (None, {"fields": ("id", "title", "title_slug", "artist", "description")}),
+        (
+            "Audio",
+            {
+                "fields": (
+                    "audio_file",
+                    "audio_player",
+                    "audio_length",
+                    "audio_waveform_data",
+                    "audio_waveform_resolution",
+                ),
+            },
+        ),
+        (
+            "Metadata",
+            {
+                "fields": ("created_at", "updated_at"),
+            },
+        ),
     )
-    
+
     def get_artist(self, obj):
-        url = reverse('admin:api_user_change', args=[obj.artist.id])
+        url = reverse("admin:api_user_change", args=[obj.artist.id])
         return format_html('<a href="{}">{}</a>', url, obj.artist.username)
-    get_artist.short_description = 'Artist'
-    
+
+    get_artist.short_description = "Artist"
+
     def has_audio(self, obj):
         return bool(obj.audio_file)
+
     has_audio.boolean = True
-    has_audio.short_description = 'Has Audio'
-    
+    has_audio.short_description = "Has Audio"
+
     def audio_player(self, obj):
         if obj.audio_file:
-            return format_html('<audio controls><source src="{}" type="audio/mpeg"></audio>', obj.audio_file.url)
+            return format_html(
+                '<audio controls><source src="{}" type="audio/mpeg"></audio>',
+                obj.audio_file.url,
+            )
         return "No audio file"
-    audio_player.short_description = 'Audio Preview'
-    
+
+    audio_player.short_description = "Audio Preview"
+
     def delete_model(self, request, obj):
         """Override to ensure track directory is deleted from storage"""
         if obj.audio_file:
-            # Store track and user IDs before deleting
-            track_id = obj.id
-            user_id = obj.artist.id
-            
+            # Store the path before deletion
+            base_path = str(obj.audio_file)
+
             # Delete the model first
             super().delete_model(request, obj)
-            
-            # Clean up the entire track directory
-            from django.conf import settings
-            track_dir = os.path.join(settings.MEDIA_ROOT, 'audio', 'artists', str(user_id), 'tracks', str(track_id))
-            if os.path.exists(track_dir):
-                shutil.rmtree(track_dir)
+
+            # Delete associated files using the utility function
+            delete_track_files(base_path)
         else:
             super().delete_model(request, obj)
-    
+
     def delete_queryset(self, request, queryset):
         """Override to ensure track directories are deleted when batch deleting"""
-        # Store track directory paths before deleting objects
-        track_dirs = []
+        # Store paths before deletion
+        paths = []
         for obj in queryset:
             if obj.audio_file:
-                from django.conf import settings
-                track_dir = os.path.join(settings.MEDIA_ROOT, 'audio', 'artists', str(obj.artist.id), 'tracks', str(obj.id))
-                track_dirs.append(track_dir)
-        
+                paths.append(str(obj.audio_file))
+
         # Delete the queryset
         super().delete_queryset(request, queryset)
-        
-        # Then delete the track directories
-        for dir_path in track_dirs:
-            if os.path.exists(dir_path):
-                shutil.rmtree(dir_path)
+
+        # Delete files for each track using the utility function
+        for path in paths:
+            delete_track_files(path)
+
 
 # Register Profile model directly
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'name', 'created_at', 'updated_at')
-    search_fields = ('user__username', 'name', 'bio')
-    readonly_fields = ('id', 'created_at', 'updated_at')
+    list_display = ("user", "name", "created_at", "updated_at")
+    search_fields = ("user__username", "name", "bio")
+    readonly_fields = ("id", "created_at", "updated_at")

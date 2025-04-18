@@ -1,20 +1,20 @@
 import json
 import os
-import tempfile
 import subprocess
+import tempfile
 from pathlib import Path
 
 import graphene
 import librosa
 import numpy as np
-from django.core.files.storage import default_storage
+from api.models import Track
+from api.types.track import TrackType
+from api.utils import delete_track_files
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.utils.text import slugify
 from graphene_file_upload.scalars import Upload
 from graphql_jwt.decorators import login_required
-
-from ..models import Track
-from ..types.track import TrackType
 
 
 def generate_waveform(file_path, resolution=200):
@@ -453,50 +453,8 @@ class DeleteTrack(graphene.Mutation):
             raise Exception("You do not have permission to delete this track")
 
         if track.audio_file:
-            try:
-                # Get the base directory path
-                base_path = str(track.audio_file)
-
-                # Delete files in subdirectories first
-                for subdir in ["orig", "320"]:
-                    try:
-                        subdir_path = f"{base_path}/{subdir}"
-
-                        # List all files in the subdirectory
-                        try:
-                            _, files = default_storage.listdir(subdir_path)
-
-                            # Delete each file in the subdirectory
-                            for file in files:
-                                file_path = f"{subdir_path}/{file}"
-                                default_storage.delete(file_path)
-                                print(f"Deleted file: {file_path}")
-
-                        except Exception as e:
-                            print(f"Error listing files in {subdir_path}: {e}")
-
-                    except Exception as e:
-                        print(f"Error processing subdirectory {subdir}: {e}")
-
-                # Try to delete the subdirectories and base directory
-                # Note: Some backends may not support directory deletion
-                try:
-                    for subdir in ["orig", "320"]:
-                        try:
-                            default_storage.delete(f"{base_path}/{subdir}")
-                        except Exception as e:
-                            print(f"Error deleting subdirectory {subdir}: {e}")
-
-                    # Try to delete the base directory last
-                    default_storage.delete(base_path)
-
-                except Exception as e:
-                    print(f"Error during directory deletion: {e}")
-
-                print(f"Deleted track directory structure: {base_path}")
-
-            except Exception as e:
-                print(f"Error deleting track files: {e}")
+            # Use the utility function
+            delete_track_files(track)
 
         track.delete()
         return DeleteTrack(success=True)
