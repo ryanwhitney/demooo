@@ -33,14 +33,40 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 			) : (
 				<div className={artistViewWrapper}>
 					<img
-						src="https://f4.bcbits.com/img/0035425273_10.jpg"
+						src={`http://localhost:8000/media/${data.user.profile.profilePictureOptimizedUrl}`}
 						width={200}
 						height={200}
 						style={{ borderRadius: tokens.radii.md }}
 						alt="buga"
 					/>
 					<title>Music | {data.user.username}</title>
-					<h2>{data.user.username}</h2>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
+						<h2>{data.user.profile.name || data.user.username}</h2>
+						<p
+							style={{
+								color: tokens.colors.secondary,
+								fontSize: tokens.fontSizes.sm,
+								marginBottom: tokens.space.md,
+							}}
+						>
+							{data.user.profile.location}
+						</p>
+						<p
+							style={{
+								color: tokens.colors.primary,
+								fontSize: tokens.fontSizes.sm,
+							}}
+						>
+							{data.user.profile.bio}
+						</p>
+					</div>
 					<div className={artistTrackViewInfo}>
 						{tracks && <TrackList tracks={tracks} />}
 					</div>

@@ -24,12 +24,14 @@ export const AUTH_USER = gql`
 `;
 
 export const UPDATE_USER_PROFILE = gql`
-  mutation updateProfile($name: String, $bio: String) {
-    updateProfile(name: $name, bio: $bio) {
+  mutation updateProfile($name: String, $bio: String, $location: String, $profilePicture: Upload) {
+    updateProfile(name: $name, bio: $bio, location: $location, profilePicture: $profilePicture,) {
       profile {
         id
         name
         bio
+        location
+        profilePicture
       }
     }
   }
@@ -47,6 +49,9 @@ export const GET_ME = gql`
         id
         name
         bio
+        location
+        profilePicture
+        profilePictureOptimizedUrl
       }
     }
   }
@@ -70,6 +75,9 @@ export const GET_ARTIST = gql`
         id
         name
         bio
+        location
+        profilePicture
+        profilePictureOptimizedUrl
       }
       tracks {
         id

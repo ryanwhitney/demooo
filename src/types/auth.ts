@@ -4,6 +4,15 @@ export interface User {
 	email: string;
 	firstName: string;
 	lastName: string;
+	profile: Profile;
+}
+
+export interface Profile {
+	id: string;
+	name?: string;
+	location?: string;
+	bio?: string;
+	profilePictureOptimizedUrl?: string;
 }
 
 export interface AuthContextType {
