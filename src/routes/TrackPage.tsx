@@ -1,5 +1,4 @@
 import { useParams } from "react-router";
-import NavBar from "@/features/nav/navBar/NavBar";
 import TrackView from "@/features/tracks/trackView/TrackView";
 import { GET_TRACK_BY_SLUG } from "@/apollo/queries/trackQueries";
 import { useQuery } from "@apollo/client";
@@ -19,8 +18,6 @@ function TrackPage() {
 
 	return (
 		<>
-			<NavBar />
-
 			{loading ? (
 				<ProgressIndicator />
 			) : error ? (

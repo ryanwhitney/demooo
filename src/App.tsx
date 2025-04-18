@@ -12,6 +12,7 @@ import Home from "./routes/Home";
 import TrackPage from "./routes/TrackPage";
 import GlobalPlayer from "./features/audio/globalPlayer/GlobalPlayer";
 import ProfilePage from "./routes/Profile";
+import NavBar from "./features/nav/navBar/NavBar";
 
 // Get the root element
 const rootElement = document.getElementById("root");
@@ -24,6 +25,7 @@ if (rootElement) {
 				<AuthProvider>
 					<AudioProvider>
 						<BrowserRouter>
+							<NavBar />
 							<Routes>
 								<Route path="/" element={<Home />} />
 								<Route path="/:artistName" element={<ArtistPage />} />

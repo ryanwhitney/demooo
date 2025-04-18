@@ -7,7 +7,6 @@ import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import TextArea from "@/components/textArea/TextArea";
 import TextInput from "@/components/textInput/TextInput";
-import NavBar from "@/features/nav/navBar/NavBar";
 import * as styles from "./profile.css";
 
 interface FormData {
@@ -116,7 +115,6 @@ const ProfilePage = () => {
 
 	return (
 		<>
-			<NavBar />
 			<main className={styles.main}>
 				{/* Profile Picture Section */}
 				<div

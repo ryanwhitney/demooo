@@ -34,7 +34,18 @@ function NavBar() {
 					{me.isAuthenticated ? (
 						<>
 							<li>
-								<Button variant="primary">favs</Button>
+								<Link
+									className={buttonStyles({})}
+									style={{
+										textDecoration: "none",
+										display: "flex",
+										alignItems: "center",
+										gap: 8,
+									}}
+									to={`${me.user?.username}`}
+								>
+									me
+								</Link>
 							</li>
 							<li>
 								<Button

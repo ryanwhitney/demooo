@@ -1,4 +1,3 @@
-import NavBar from "@/features/nav/navBar/NavBar";
 import RecentTracks from "@/features/tracks/RecentTracks";
 import { tokens } from "@/styles/tokens";
 
@@ -25,7 +24,6 @@ const homeBannerText: React.CSSProperties = {
 function Home() {
 	return (
 		<>
-			<NavBar />
 			<div style={homeBanner}>
 				<h1 style={homeBannerText}>Free your voice memos</h1>
 			</div>
