@@ -1,7 +1,6 @@
 import { forwardRef, useState, useEffect } from "react";
 import { assignInlineVars } from "@vanilla-extract/dynamic";
 import {
-	buttonBase,
 	srOnly,
 	iconOneContainer,
 	iconTwoContainer,
@@ -66,7 +65,7 @@ const IconToggleButton = forwardRef<HTMLButtonElement, IconToggleButtonProps>(
 
 		// Combine classes
 		const buttonClassName =
-			`${buttonBase} ${className || ""} ${isToggled ? "toggled" : ""}`.trim();
+			`${className || ""} ${isToggled ? "toggled" : ""}`.trim();
 
 		return (
 			<button

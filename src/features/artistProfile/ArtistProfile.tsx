@@ -11,6 +11,7 @@ import {
 	artistInfoContainer,
 	artistLocation,
 	artistBio,
+	artistPlayButton,
 } from "./ArtistProfile.css";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import TrackList from "./artistTrackList/TrackList";
@@ -95,23 +96,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 						<PlayButton
 							isPlaying={isPlayingFromArtistPage()}
 							onToggle={handlePlayToggle}
-							// passing class currently not working for this component
-							style={{
-								width: 44,
-								height: 44,
-								padding: 0,
-								border: `3px solid ${tokens.colors.background}`,
-								background: tokens.colors.tintColor,
-								borderRadius: tokens.radii.full,
-								display: "flex",
-								justifyContent: "center",
-								alignItems: "center",
-								cursor: "pointer",
-								color: tokens.colors.primary,
-								position: "absolute",
-								bottom: -14,
-								right: -14,
-							}}
+							className={artistPlayButton}
 						>
 							play
 						</PlayButton>

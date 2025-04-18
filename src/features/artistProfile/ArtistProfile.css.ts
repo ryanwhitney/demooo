@@ -44,6 +44,7 @@ export const artistPlayButton = style({
   width: 44,
   height: 44,
   padding: 0,
+  paddingLeft: 2,
   border: "1px solid black",
   background: tokens.colors.tintColor,
   borderRadius: tokens.radii.full,
@@ -55,6 +56,11 @@ export const artistPlayButton = style({
   position: "absolute",
   bottom: -14,
   right: -14,
+  transition: "background 250ms ease-in-out",
+  ':hover': {
+    background: tokens.colors.tintColorHover,
+  },
+  
 });
 
 // Profile image styles

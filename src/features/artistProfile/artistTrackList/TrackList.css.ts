@@ -79,6 +79,7 @@ export const trackRightContent = style({
 					gap: 16,
 					paddingRight: 16,
 })
+
 export const trackRowTitleLinkWrapper = style({
   textDecoration: "none",
 })
@@ -106,12 +107,21 @@ export const favoriteIconToggle = recipe({
   width: 16,
   height: 16,
   transition: "filter 400ms ease-in-out",
+    ':hover':{
+      cursor: "pointer",
+      color: tokens.colors.tertiary,
+    },
   },
   variants:{
     isActive: {
       true: {
       color: tokens.colors.heartRed,
-      filter: `drop-shadow(0px 0px 10px ${tokens.colors.heartRed})`  
+      filter: `drop-shadow(0px 0px 10px ${tokens.colors.heartRed})`, 
+
+        ':hover':{
+          cursor: "pointer",
+          color: tokens.colors.heartRed,
+        },
       }
     }
   }
@@ -124,7 +134,12 @@ export const playIconToggle = recipe({
   padding: 10,
   width: 10,
   height: 16,
+    ':hover':{
+      cursor: "pointer",
+      color: tokens.colors.primary,
+    },
   },
+  
   variants:{
     isActive: {
       true: {

@@ -3,20 +3,6 @@ import { style, createVar, globalStyle } from '@vanilla-extract/css';
 // Passes down transition duration var 
 export const transitionDurationVar = createVar();
 
-export const buttonBase = style({
-  border: 'none',
-  background: 'none',
-  color: 'currentColor',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  position: 'relative',
-  cursor: 'pointer',
-  padding: 0,
-	width: 'fit-content',
-	overflow: 'visible'
-});
-
 // Screen reader class
 export const srOnly = style({
   position: 'absolute',

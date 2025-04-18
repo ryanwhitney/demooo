@@ -7,7 +7,7 @@ export const buttonStyles = recipe({
 		borderRadius: tokens.radii.md,
 		border: "1px solid transparent",
 		cursor: "pointer",
-		transition: "all 250ms ease-in-out",
+		transition: "all 200ms ease-in-out",
 		color: tokens.colors.primary,
 		backgroundColor: tokens.colors.background,
 		":disabled": {

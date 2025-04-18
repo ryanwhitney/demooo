@@ -44,7 +44,7 @@ export const uploadButtonContainer = style({
   justifyContent: 'center',
   alignItems: 'center',
   overflow: 'hidden',
-  transition: 'all 250ms ease-in-out',
+  transition: 'background 250ms ease-in-out',
 });
 export const uploadButton = style({
   color: 'white',
@@ -73,11 +73,11 @@ const paddingBounce = keyframes({
 
 
 globalStyle(`${imageContainer}:hover ${uploadButtonContainer}`, {
-  filter: 'brightness(1.1)',
+  backgroundColor: tokens.colors.tintColorHover,
 });
 
 globalStyle(`${imageContainer}:focus ${uploadButtonContainer}`, {
-  filter: 'brightness(1.1)',
+  backgroundColor: tokens.colors.tintColorHover,
 });
 
 globalStyle(`${imageContainer}:hover ${uploadButton}`, {
