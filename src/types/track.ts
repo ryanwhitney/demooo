@@ -1,4 +1,4 @@
-import { Profile } from "./auth"
+import type { Profile } from "./auth"
 
 export interface Track {
 	audioFile: string | undefined

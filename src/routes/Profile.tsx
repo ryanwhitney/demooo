@@ -30,7 +30,8 @@ const ProfilePage = () => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// Query to fetch user data
-	const { data, loading, error, refetch } = useQuery(GET_ME, {
+	// TODO: HANDLE ERROR STATES
+	const { data, loading, refetch } = useQuery(GET_ME, {
 		onCompleted: (data) => {
 			if (data?.me) {
 				setFormData({

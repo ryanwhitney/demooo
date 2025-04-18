@@ -122,7 +122,7 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 							style={{ borderRadius: "50%", display: "inline-block" }}
 						/>
 					)}
-					{track.artist.profile.name || username}
+					{track.artist.profile.name || track.artist.username}
 				</Link>
 			</div>
 		</div>

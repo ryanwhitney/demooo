@@ -7,12 +7,13 @@ import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import TextInput from "@/components/textInput/TextInput";
+import type { UploadTrackFormInput } from "@/types/track";
 import { useMutation } from "@apollo/client";
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 
 const TrackMultiUpload = () => {
-	const [tracks, setTracks] = useState([]);
-	const [uploadErrors, setUploadErrors] = useState([]);
+	const [tracks, setTracks] = useState<UploadTrackFormInput[]>([]);
+	const [uploadErrors, setUploadErrors] = useState<string[]>([]);
 	const [uploadMultipleTracks, { loading }] = useMutation(
 		UPLOAD_MULTIPLE_TRACKS,
 		{
@@ -20,7 +21,7 @@ const TrackMultiUpload = () => {
 		},
 	);
 
-	const handleFilesChange = (e) => {
+	const handleFilesChange = (e: ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files || e.target.files.length === 0) return;
 
 		const fileList = Array.from(e.target.files);
@@ -41,7 +42,11 @@ const TrackMultiUpload = () => {
 		setTracks(newTracks);
 	};
 
-	const handleInputChange = (index, field, value) => {
+	const handleInputChange = (
+		index: number,
+		field: keyof Omit<UploadTrackFormInput, "file">,
+		value: string,
+	) => {
 		const updatedTracks = [...tracks];
 		updatedTracks[index] = {
 			...updatedTracks[index],
@@ -50,7 +55,7 @@ const TrackMultiUpload = () => {
 		setTracks(updatedTracks);
 	};
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		// Check if any tracks are missing titles
@@ -80,12 +85,13 @@ const TrackMultiUpload = () => {
 				setTracks([]);
 				setUploadErrors([]);
 				// Reset the file input
-				const fileInput = document.getElementById("multi-track-file-input");
+				const fileInput = document.getElementById(
+					"multi-track-file-input",
+				) as HTMLInputElement;
 				if (fileInput) fileInput.value = "";
 			}
 		} catch (err) {
-			console.error("Upload error:", err);
-			setUploadErrors([err.message]);
+			setUploadErrors([err instanceof Error ? err.message : String(err)]);
 		}
 	};
 
@@ -113,7 +119,7 @@ const TrackMultiUpload = () => {
 
 					{tracks.map((track, index) => (
 						<div
-							key={index}
+							key={track.id}
 							style={{
 								marginBottom: "20px",
 								padding: "15px",
@@ -134,7 +140,7 @@ const TrackMultiUpload = () => {
 								label="title*"
 								type="text"
 								value={track.title}
-								onChange={(e) =>
+								onChange={(e: ChangeEvent<HTMLInputElement>) =>
 									handleInputChange(index, "title", e.target.value)
 								}
 								required
@@ -144,7 +150,7 @@ const TrackMultiUpload = () => {
 								label="description"
 								type="textarea"
 								value={track.description}
-								onChange={(e) =>
+								onChange={(e: ChangeEvent<HTMLInputElement>) =>
 									handleInputChange(index, "description", e.target.value)
 								}
 							/>

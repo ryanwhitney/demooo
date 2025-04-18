@@ -6,6 +6,10 @@ export const mockData = {
 			artist: {
 				id: "111",
 				username: "ryanwhitney",
+				profile: {
+					id: "222",
+					name: "Ryan Whitney",
+				}
 			},
 			titleSlug: "side-a-aig",
 			audioFile:

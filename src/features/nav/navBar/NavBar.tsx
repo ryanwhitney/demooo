@@ -20,7 +20,7 @@ function NavBar() {
 
 	const me = useAuth();
 
-	const { loading, data } = useQuery(GET_ME, {
+	const { data } = useQuery(GET_ME, {
 		fetchPolicy: "cache-and-network",
 	});
 
