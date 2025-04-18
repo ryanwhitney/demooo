@@ -6,10 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, NavLink } from "react-router";
-import { logo, navBar, navBarUser, navItemsList } from "./NavBar.css";
+import { logo, navBar, navBarUserAvatar, navItemsList } from "./NavBar.css";
 import TrackUpload from "@/features/tracks/trackUpload/TrackUpload";
 import DemoooLogo from "../AnimatedLogo/DemoooLogo";
 import { buttonStyles } from "@/components/button/Button.css";
+import { useQuery } from "@apollo/client";
+import { GET_ME } from "@/apollo/queries/userQueries";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
@@ -17,6 +19,10 @@ function NavBar() {
 	const [showUploadModal, setShowUploadModal] = useState(false);
 
 	const me = useAuth();
+
+	const { loading, data } = useQuery(GET_ME, {
+		fetchPolicy: "cache-and-network",
+	});
 
 	return (
 		<>
@@ -27,14 +33,6 @@ function NavBar() {
 				<ul className={navItemsList}>
 					{me.isAuthenticated ? (
 						<>
-							<li className={navBarUser}>{me.user?.username}</li>
-							<Link
-								className={buttonStyles({})}
-								style={{ textDecoration: "none" }}
-								to={"/profile"}
-							>
-								profile
-							</Link>
 							<li>
 								<Button variant="primary">favs</Button>
 							</li>
@@ -50,6 +48,27 @@ function NavBar() {
 								<Button variant="primary" onClick={me.logout}>
 									logout
 								</Button>
+							</li>
+							<li>
+								<Link
+									className={buttonStyles({})}
+									style={{
+										textDecoration: "none",
+										display: "flex",
+										alignItems: "center",
+										gap: 8,
+									}}
+									to={"/profile"}
+								>
+									{me.user?.username}
+									{data?.me?.profile.profilePictureOptimizedUrl && (
+										<img
+											src={`http://localhost:8000/media/${data.me?.profile.profilePictureOptimizedUrl}`}
+											alt="user profile"
+											className={navBarUserAvatar}
+										/>
+									)}
+								</Link>
 							</li>
 						</>
 					) : (
