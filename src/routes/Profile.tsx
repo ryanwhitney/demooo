@@ -137,7 +137,9 @@ const ProfilePage = () => {
 					// trigger on spacebar
 					tabIndex={0}
 					onKeyDown={(e) => {
-						if (e.key === "spacebar") {
+						// if key is spacebar, trigger file input
+						if (e.key === " ") {
+							e.preventDefault();
 							triggerFileUpload();
 						}
 					}}
