@@ -8,7 +8,8 @@ const GlobalPlayer = () => {
 	const [isVisible, setIsVisible] = useState(false);
 	const audio = useAudio();
 	const shouldShow =
-		audio.currentTrack !== null && audio.activeSource === "global";
+		audio.currentTrack !== null &&
+		(audio.activeSource === "global" || audio.activeSource === "artist-view");
 	const isPlaying = shouldShow && audio.isPlaying;
 
 	useEffect(() => {

@@ -1,8 +1,14 @@
 // AudioContext.tsx
 import type { Track } from "@/types/track";
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import {
+	createContext,
+	useContext,
+	useState,
+	useCallback,
+	type ReactNode,
+} from "react";
 
-type PlayerSource = "global" | "track-view";
+type PlayerSource = "global" | "track-view" | "artist-view";
 
 // Define the type for our context value
 interface AudioContextType {
@@ -13,7 +19,11 @@ interface AudioContextType {
 	activeSource: PlayerSource | null;
 	queue: Track[];
 	playTrack: (track: Track, source: PlayerSource) => void;
-	playTrackInQueue: (track: Track, queueTracks: Track[], source: PlayerSource) => void;
+	playTrackInQueue: (
+		track: Track,
+		queueTracks: Track[],
+		source: PlayerSource,
+	) => void;
 	pauseTrack: () => void;
 	resumeTrack: () => void;
 	nextTrack: () => void;
@@ -55,45 +65,51 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 	const [duration, setDuration] = useState(0);
 	const [activeSource, setActiveSource] = useState<PlayerSource | null>(null);
 	const [queue, setQueue] = useState<Track[]>([]);
-	
-	// Simple play method for individual tracks (clears queue)
-	const playTrack = useCallback((track: Track, source: PlayerSource) => {
-		// If it's the same track from the same source, just resume
-		if (currentTrack?.id === track.id && activeSource === source) {
-			setIsPlaying(true);
-			return;
-		}
 
-		// If we're switching sources or tracks, reset state and clear queue
-		setCurrentTrack(track);
-		setActiveSource(source);
-		setIsPlaying(true);
-		setCurrentTime(0);
-		setDuration(0);
-		setQueue([]);
-	}, [currentTrack?.id, activeSource]);
+	// Simple play method for individual tracks (clears queue)
+	const playTrack = useCallback(
+		(track: Track, source: PlayerSource) => {
+			// If it's the same track from the same source, just resume
+			if (currentTrack?.id === track.id && activeSource === source) {
+				setIsPlaying(true);
+				return;
+			}
+
+			// If we're switching sources or tracks, reset state and clear queue
+			setCurrentTrack(track);
+			setActiveSource(source);
+			setIsPlaying(true);
+			setCurrentTime(0);
+			setDuration(0);
+			setQueue([]);
+		},
+		[currentTrack?.id, activeSource],
+	);
 
 	// Play a track and set up a queue
-	const playTrackInQueue = useCallback((track: Track, queueTracks: Track[], source: PlayerSource) => {
-		// Set the new queue
-		setQueue(queueTracks);
-		
-		// Find the index of the selected track in the queue
-		const trackIndex = queueTracks.findIndex(t => t.id === track.id);
-		
-		// If not found, just play the track without queue
-		if (trackIndex === -1) {
-			playTrack(track, source);
-			return;
-		}
-		
-		// Set current track and play it
-		setCurrentTrack(track);
-		setActiveSource(source);
-		setIsPlaying(true);
-		setCurrentTime(0);
-		setDuration(0);
-	}, [playTrack]);
+	const playTrackInQueue = useCallback(
+		(track: Track, queueTracks: Track[], source: PlayerSource) => {
+			// Set the new queue
+			setQueue(queueTracks);
+
+			// Find the index of the selected track in the queue
+			const trackIndex = queueTracks.findIndex((t) => t.id === track.id);
+
+			// If not found, just play the track without queue
+			if (trackIndex === -1) {
+				playTrack(track, source);
+				return;
+			}
+
+			// Set current track and play it
+			setCurrentTrack(track);
+			setActiveSource(source);
+			setIsPlaying(true);
+			setCurrentTime(0);
+			setDuration(0);
+		},
+		[playTrack],
+	);
 
 	const pauseTrack = useCallback(() => {
 		setIsPlaying(false);
@@ -102,23 +118,23 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 	const resumeTrack = useCallback(() => {
 		setIsPlaying(true);
 	}, []);
-	
+
 	// Get current position in queue
 	const getQueuePosition = useCallback(() => {
 		if (!currentTrack || queue.length === 0) return -1;
-		return queue.findIndex(track => track.id === currentTrack.id);
+		return queue.findIndex((track) => track.id === currentTrack.id);
 	}, [currentTrack, queue]);
-	
+
 	// Play next track in queue
 	const nextTrack = useCallback(() => {
 		const currentPosition = getQueuePosition();
-		
+
 		// If not in queue or at the end, stop playback
 		if (currentPosition === -1 || currentPosition === queue.length - 1) {
 			setIsPlaying(false);
 			return;
 		}
-		
+
 		// Play next track
 		const nextTrack = queue[currentPosition + 1];
 		setCurrentTrack(nextTrack);
@@ -126,17 +142,17 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		setDuration(0);
 		setIsPlaying(true);
 	}, [queue, getQueuePosition]);
-	
+
 	// Play previous track in queue
 	const previousTrack = useCallback(() => {
 		const currentPosition = getQueuePosition();
-		
+
 		// If not in queue or at the beginning, restart current track
 		if (currentPosition <= 0) {
 			setCurrentTime(0);
 			return;
 		}
-		
+
 		// Play previous track
 		const prevTrack = queue[currentPosition - 1];
 		setCurrentTrack(prevTrack);
@@ -144,19 +160,22 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		setDuration(0);
 		setIsPlaying(true);
 	}, [queue, getQueuePosition]);
-	
+
 	// Skip to a specific track in the queue
-	const skipToTrack = useCallback((trackId: string) => {
-		const trackIndex = queue.findIndex(track => track.id === trackId);
-		if (trackIndex === -1) return;
-		
-		const track = queue[trackIndex];
-		setCurrentTrack(track);
-		setCurrentTime(0);
-		setDuration(0);
-		setIsPlaying(true);
-	}, [queue]);
-	
+	const skipToTrack = useCallback(
+		(trackId: string) => {
+			const trackIndex = queue.findIndex((track) => track.id === trackId);
+			if (trackIndex === -1) return;
+
+			const track = queue[trackIndex];
+			setCurrentTrack(track);
+			setCurrentTime(0);
+			setDuration(0);
+			setIsPlaying(true);
+		},
+		[queue],
+	);
+
 	// Clear the queue
 	const clearQueue = useCallback(() => {
 		setQueue([]);

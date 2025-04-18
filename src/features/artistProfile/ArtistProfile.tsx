@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import type { Track } from "@/types/track";
 import { artistTrackViewInfo, artistViewWrapper } from "./ArtistProfile.css";
@@ -7,9 +7,12 @@ import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator"
 import { tokens } from "@/styles/tokens";
 
 import TrackList from "./artistTrackList/TrackList";
+import { useAudio } from "@/providers/AudioProvider";
+import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const [tracks, setTracks] = useState<[Track] | null>(null);
+	const [isPLayingAll, setIsPlayingAll] = useState(false);
 
 	const { data, loading, error, refetch } = useQuery(GET_ARTIST, {
 		variables: { username: artistName },
@@ -17,6 +20,16 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 			setTracks(data.user.tracks);
 		},
 	});
+
+	const audio = useAudio();
+
+	const handlePlayToggle = useCallback(() => {
+		if (tracks) {
+			const allTracksInList = tracks;
+			const firstTrack = tracks[0];
+			audio.playTrackInQueue(firstTrack, allTracksInList, "global");
+		}
+	}, [audio, tracks]);
 
 	useEffect(() => {
 		refetch();
@@ -58,6 +71,14 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 						>
 							{data.user.profile.location}
 						</p>
+						<PlayButton
+							isPlaying={
+								audio.isPlaying && audio.activeSource === "artist-view"
+							}
+							onToggle={handlePlayToggle}
+						>
+							play
+						</PlayButton>
 						<p
 							style={{
 								color: tokens.colors.primary,
