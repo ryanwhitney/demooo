@@ -1,4 +1,8 @@
-import { UPLOAD_MULTIPLE_TRACKS } from "@/apollo/queries/trackQueries";
+import {
+	GET_ALL_TRACKS,
+	GET_USER_TRACKS,
+	UPLOAD_MULTIPLE_TRACKS,
+} from "@/apollo/queries/trackQueries";
 import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
@@ -9,10 +13,10 @@ import { useState } from "react";
 const TrackMultiUpload = () => {
 	const [tracks, setTracks] = useState([]);
 	const [uploadErrors, setUploadErrors] = useState([]);
-	const [uploadMultipleTracks, { loading, error }] = useMutation(
+	const [uploadMultipleTracks, { loading }] = useMutation(
 		UPLOAD_MULTIPLE_TRACKS,
 		{
-			refetchQueries: ["GetAllTracks", "GetTrack", "GetUserTracks"],
+			refetchQueries: [{ query: GET_USER_TRACKS }, { query: GET_ALL_TRACKS }],
 		},
 	);
 

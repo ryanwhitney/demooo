@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import type { Track } from "@/types/track";
 import {
@@ -7,7 +7,6 @@ import {
 	artistViewWrapper,
 	artistHeaderBackground,
 	profileImageContainer,
-	artistPlayButton,
 	profileImage,
 	artistInfoContainer,
 	artistLocation,
@@ -20,15 +19,13 @@ import PlayButton from "@/components/audioPlayer/components/playButton/PlayButto
 import { tokens } from "@/styles/tokens";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
-	const [tracks, setTracks] = useState<[Track] | null>(null);
 	const { data, loading, error, refetch } = useQuery(GET_ARTIST, {
 		variables: { username: artistName },
-		onCompleted: (data) => {
-			setTracks(data.user.tracks);
-		},
 	});
 
 	const audio = useAudio();
+
+	const tracks: Track[] = data?.user.tracks;
 
 	const isTrackInCurrentTracksList = useCallback(
 		(trackId: string | undefined): boolean => {
