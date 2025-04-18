@@ -13,6 +13,7 @@ import TrackPage from "./routes/TrackPage";
 import GlobalPlayer from "./features/audio/globalPlayer/GlobalPlayer";
 import ProfilePage from "./routes/Profile";
 import NavBar from "./features/nav/navBar/NavBar";
+import UploadPage from "./routes/UploadPage";
 
 // Get the root element
 const rootElement = document.getElementById("root");
@@ -34,6 +35,7 @@ if (rootElement) {
 									element={<TrackPage />}
 								/>
 								<Route path="/profile" element={<ProfilePage />} />
+								<Route path="/upload" element={<UploadPage />} />
 							</Routes>
 							<GlobalPlayer /> {/* Global audio player lives above all */}
 						</BrowserRouter>
