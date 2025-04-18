@@ -1,8 +1,5 @@
-import {
-	AUTH_USER,
-	CREATE_USER,
-	GET_USERNAME,
-} from "@/apollo/queries/userQueries";
+import { GET_USERNAME } from "@/apollo/queries/userQueries";
+import { AUTH_USER, CREATE_USER } from "@/apollo/mutations/userMutations";
 import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";

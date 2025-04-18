@@ -1,8 +1,5 @@
-import {
-	GET_ALL_TRACKS,
-	GET_USER_TRACKS,
-	UPLOAD_MULTIPLE_TRACKS,
-} from "@/apollo/queries/trackQueries";
+import { GET_ALL_TRACKS, GET_USER_TRACKS } from "@/apollo/queries/trackQueries";
+import { UPLOAD_MULTIPLE_TRACKS } from "@/apollo/mutations/trackMutations";
 import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";

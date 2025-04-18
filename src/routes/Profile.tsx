@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
-
-import { GET_ME, UPDATE_USER_PROFILE } from "@/apollo/queries/userQueries";
+import { GET_ME } from "@/apollo/queries/userQueries";
+import { UPDATE_USER_PROFILE } from "@/apollo/mutations/userMutations";
 import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";

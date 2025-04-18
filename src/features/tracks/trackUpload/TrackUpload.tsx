@@ -1,4 +1,4 @@
-import { UPLOAD_TRACK } from "@/apollo/queries/trackQueries";
+import { UPLOAD_TRACK } from "@/apollo/mutations/trackMutations";
 import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";

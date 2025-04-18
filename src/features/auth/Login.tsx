@@ -1,4 +1,4 @@
-import { AUTH_USER } from "@/apollo/queries/userQueries";
+import { AUTH_USER } from "@/apollo/mutations/userMutations";
 import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox.tsx";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator.tsx";
