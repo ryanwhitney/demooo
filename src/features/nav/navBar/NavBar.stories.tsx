@@ -68,6 +68,12 @@ export const LoggedIn: Story = {
 				email: "music@man.com",
 				firstName: "",
 				lastName: "",
+				profile: {
+					id: "1",
+					profilePictureOptimizedUrl:
+						"https://picsum.photos/seed/picsum/200/200",
+					name: "John Doe",
+				},
 			},
 			logout: () => console.log("Logout clicked"),
 		}),
@@ -87,6 +93,12 @@ export const LoggedIn: Story = {
 								email: "music@man.com",
 								firstName: "",
 								lastName: "",
+								profile: {
+									id: "1",
+									profilePictureOptimizedUrl:
+										"https://picsum.photos/seed/picsum/200/200",
+									name: "John Doe",
+								},
 							},
 						},
 					},
