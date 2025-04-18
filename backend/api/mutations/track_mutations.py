@@ -18,10 +18,14 @@ from ..types.track import TrackType
 
 
 def generate_waveform(file_path, resolution=200):
-    """Generate waveform data from an audio file."""
+    """Generate waveform data from an audio file and return duration."""
     try:
         # Load the audio file with librosa
         y, sr = librosa.load(file_path, sr=None)
+
+        # Calculate duration in seconds
+        duration = librosa.get_duration(y=y, sr=sr)
+
         # Calculate segments for the resolution
         hop_length = max(1, len(y) // resolution)
         # Generate waveform data using RMS energy
@@ -43,10 +47,24 @@ def generate_waveform(file_path, resolution=200):
                     float(f"{(val / max_val):.2f}") for val in waveform_data
                 ]
 
-        return waveform_data
+        return waveform_data, round(duration)
     except Exception as e:
         print(f"Error generating waveform: {str(e)}")
-        return []
+        return [], 0
+
+
+def get_audio_duration(file_path):
+    """Get the duration of an audio file in seconds."""
+    try:
+        # Load the audio file with librosa
+        y, sr = librosa.load(file_path, sr=None)
+        # Calculate duration in seconds
+        duration = librosa.get_duration(y=y, sr=sr)
+        # Round to nearest second
+        return round(duration)
+    except Exception as e:
+        print(f"Error getting audio duration: {str(e)}")
+        return 0
 
 
 def convert_audio_to_mp3(input_file_path, output_dir):
@@ -183,25 +201,24 @@ class UploadTrack(graphene.Mutation):
                         mp3_full_path, ContentFile(file_content)
                     )
 
-                # Store the base directory path (we'll construct specific paths in the frontend)
                 base_path = f"{artist_id}/audio/{track_id}"
                 track.audio_file = base_path
                 track.save()
                 print(f"MP3 file saved: {mp3_storage_path}")
                 print(f"TRACK SAVED: {track.title} (ID: {track_id})")
 
-                # Process MP3 for waveform generation
                 try:
-                    # Generate waveform data with resolution data points
-                    waveform_data = generate_waveform(
+                    waveform_data, duration = generate_waveform(
                         converted_file_path, resolution=200
                     )
 
-                    # Store the waveform data
+                    # Store the waveform and length
                     track.audio_waveform_data = json.dumps(waveform_data)
                     track.audio_waveform_resolution = len(waveform_data)
+                    track.audio_length = duration
                     track.save()
                     print(f"Generated waveform with {len(waveform_data)} data points")
+                    print(f"Audio duration: {duration} seconds")
 
                 except Exception as e:
                     print(f"Error processing audio: {str(e)}")

@@ -67,9 +67,10 @@ class AudioProcessingTests(BaseAudioTestCase):
         )
 
         # Test waveform generation with real audio file
-        waveform_data = generate_waveform(test_file_path)
+        waveform_data, duration = generate_waveform(test_file_path)
         self.assertIsInstance(waveform_data, list)
         self.assertTrue(len(waveform_data) > 0)  # Should have actual data
+        self.assertTrue(duration > 0)
 
         # Create track via mutation to ensure waveform generation runs
         query = """
