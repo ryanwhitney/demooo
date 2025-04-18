@@ -21,7 +21,16 @@ const TrackUpload = () => {
 	const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files) return;
 		const selectedFile = e.target.files[0];
-		setFormData({ ...formData, file: selectedFile });
+		const selectedFileName = selectedFile.name;
+		const fileNameWithoutExtension = selectedFileName
+			.split(".")
+			.slice(0, -1)
+			.join(".");
+		setFormData({
+			...formData,
+			title: formData.title || fileNameWithoutExtension,
+			file: selectedFile,
+		});
 	};
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
