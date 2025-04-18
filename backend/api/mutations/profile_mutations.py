@@ -1,5 +1,9 @@
 import os
 import tempfile
+import subprocess
+import time
+import uuid
+from pathlib import Path
 
 import graphene
 from django.core.files.base import ContentFile
@@ -9,42 +13,39 @@ from graphql_jwt.decorators import login_required
 
 from ..types.profile import ProfileType
 
-import os
-import tempfile
-import subprocess
-from pathlib import Path
 
-
-def optimize_image(input_file_path, output_dir, max_size=1024):
+def optimize_image(input_file_path, output_dir, max_size=1200):
     """
-    Optimize and resize image for profile picture.
-
-    Args:
-        input_file_path: Path to the input image file
-        output_dir: Directory to save the optimized file
-        max_size: Maximum dimension in pixels
-
-    Returns:
-        Path to the optimized image file, or None if optimization failed
+    Optimize and resize image for profile picture, always converting to JPG.
     """
     try:
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
 
-        # Generate output file path with original extension
-        original_ext = Path(input_file_path).suffix
-        output_filename = f"optimized{original_ext}"
+        # Generate a unique filename with timestamp
+        timestamp = int(time.time())
+        output_filename = f"profile_{timestamp}.jpg"
         output_file_path = os.path.join(output_dir, output_filename)
 
-        # Run imagemagick to optimize the image
+        # Run imagemagick to optimize the image and convert to jpg
         command = [
             "convert",
             input_file_path,
             "-resize",
-            f"{max_size}x{max_size}>",  # Resize if larger than max_size
+            f"{max_size}x{max_size}^",  # Resize any size image (^) to max_size
+            "-gravity",
+            "center",  # Center the crop
+            "-extent",
+            f"{max_size}x{max_size}",  # Crop to exact dimensions
             "-strip",  # Remove metadata
             "-quality",
-            "85%",  # Compress with 85% quality
+            "92%",  # Higher quality (85% → 92%)
+            "-sampling-factor",
+            "4:2:0",  # Chroma subsampling for JPG
+            "-interlace",
+            "JPEG",  # Progressive JPEG
+            "-colorspace",
+            "sRGB",  # Consistent color space
             output_file_path,
         ]
 
@@ -53,23 +54,14 @@ def optimize_image(input_file_path, output_dir, max_size=1024):
 
         # Verify the file was created and has content
         if os.path.exists(output_file_path) and os.path.getsize(output_file_path) > 0:
-            return output_file_path
+            return output_file_path, output_filename
         else:
             print("Image optimization completed but output file is missing or empty")
-            return None
+            return None, None
 
-    except subprocess.CalledProcessError as e:
-        print(f"Error optimizing image (exit code {e.returncode}):")
-        print(f"Command: {' '.join(command)}")
-        print(f"stdout: {e.stdout}")
-        print(f"stderr: {e.stderr}")
-        return None
     except Exception as e:
-        print(f"Unexpected error optimizing image: {str(e)}")
-        import traceback
-
-        traceback.print_exc()
-        return None
+        print(f"Error optimizing image: {str(e)}")
+        return None, None
 
 
 class UpdateProfile(graphene.Mutation):
@@ -96,93 +88,99 @@ class UpdateProfile(graphene.Mutation):
 
         # Handle profile picture upload if provided
         if profile_picture is not None:
-            with tempfile.TemporaryDirectory() as temp_dir:
-                # Save the uploaded file to a temporary file
+            try:
+                # Check file extension
                 original_filename = profile_picture.name
                 _, original_ext = os.path.splitext(original_filename)
-                # Check for allowed image formats
-                allowed_extensions = [".jpg", ".jpeg", ".png", ".gif"]
+                allowed_extensions = [
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".gif",
+                    ".webp",
+                    ".svg",
+                    ".bmp",
+                    ".tiff",
+                    ".tif",
+                    ".avif",
+                    ".heic",
+                    ".ico",
+                ]
                 if original_ext.lower() not in allowed_extensions:
                     raise Exception(
                         f"Invalid image format. Please upload one of: {', '.join(allowed_extensions)}"
                     )
 
-                user_id = str(user.id)
-                temp_file_path = os.path.join(temp_dir, f"original{original_ext}")
+                # Create a temporary directory for processing
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    # Save uploaded file to temp directory
+                    temp_file_path = os.path.join(temp_dir, f"original{original_ext}")
+                    with open(temp_file_path, "wb") as f:
+                        for chunk in profile_picture.chunks():
+                            f.write(chunk)
 
-                # Write the file in chunks
-                with open(temp_file_path, "wb") as f:
-                    for chunk in profile_picture.chunks():
-                        f.write(chunk)
+                    # Define paths for storage
+                    user_id = str(user.id)
+                    base_path = f"{user_id}/img/profile"
 
-                # Save the original file
-                orig_dir_path = f"{user_id}/profile/orig"
-                orig_filename = f"profile{original_ext}"
-                orig_full_path = f"{orig_dir_path}/{orig_filename}"
+                    # Create directories if they don't exist
+                    for subdir in ["orig", "new"]:
+                        path = f"{base_path}/{subdir}"
+                        if not default_storage.exists(path):
+                            try:
+                                os.makedirs(default_storage.path(path), exist_ok=True)
+                            except Exception:
+                                # If the default_storage doesn't support local path, just continue
+                                pass
 
-                with open(temp_file_path, "rb") as f:
-                    file_content = f.read()
-                    orig_storage_path = default_storage.save(
-                        orig_full_path, ContentFile(file_content)
-                    )
-
-                print(f"Original profile picture saved: {orig_storage_path}")
-
-                # Optimize and resize the image
-                optimized_file_path = optimize_image(temp_file_path, temp_dir)
-
-                if optimized_file_path:
-                    # Find optimized image extension
-                    _, optimized_ext = os.path.splitext(optimized_file_path)
-
-                    # Save the optimized image
-                    optimized_dir_path = f"{user_id}/profile/optimized"
-                    optimized_filename = f"profile{optimized_ext}"
-                    optimized_full_path = f"{optimized_dir_path}/{optimized_filename}"
-
-                    with open(optimized_file_path, "rb") as f:
-                        file_content = f.read()
-                        optimized_storage_path = default_storage.save(
-                            optimized_full_path, ContentFile(file_content)
-                        )
-
-                    # Delete old profile picture directories if they exist
-                    if profile.profile_picture:
-                        try:
-                            old_base_path = profile.profile_picture
-                            # Try to delete the original and optimized directories
-                            for subdir in ["orig", "optimized"]:
-                                try:
-                                    old_dir = f"{old_base_path}/{subdir}"
-                                    # List and delete all files in the directory
-                                    files = default_storage.listdir(old_dir)[
-                                        1
-                                    ]  # [1] gets files, [0] gets directories
-                                    for file in files:
-                                        default_storage.delete(f"{old_dir}/{file}")
-                                except Exception as e:
-                                    print(
-                                        f"Error cleaning up old profile picture {subdir}: {e}"
-                                    )
-                        except Exception as e:
-                            print(f"Error deleting old profile pictures: {e}")
-
-                    # Store the base directory path
-                    base_path = f"{user_id}/profile"
-                    profile.profile_picture = base_path
-                    print(f"PROFILE PICTURE UPDATED: User {user_id}")
-                else:
-                    # Clean up the original file since optimization failed
+                    # Clear existing files from directories
                     try:
-                        default_storage.delete(orig_storage_path)
-                    except Exception as e:
-                        print(f"Error cleaning up original profile picture: {str(e)}")
+                        # Remove all files in orig directory
+                        if default_storage.exists(f"{base_path}/orig"):
+                            _, files = default_storage.listdir(f"{base_path}/orig")
+                            for file in files:
+                                default_storage.delete(f"{base_path}/orig/{file}")
 
-                    # Throw an error for failed optimization
-                    raise Exception(
-                        "Failed to process the image. "
-                        "Please try again with a different image or contact support."
+                        # Remove all files in new directory
+                        if default_storage.exists(f"{base_path}/new"):
+                            _, files = default_storage.listdir(f"{base_path}/new")
+                            for file in files:
+                                default_storage.delete(f"{base_path}/new/{file}")
+                    except Exception as e:
+                        print(f"Warning: Could not clear old files: {e}")
+                        # Continue anyway - it's better to add new files than to fail completely
+
+                    # Generate unique filename for the original image
+                    orig_filename = f"profile_{uuid.uuid4().hex}{original_ext}"
+                    orig_path = f"{base_path}/orig/{orig_filename}"
+
+                    # Save original image
+                    with open(temp_file_path, "rb") as f:
+                        default_storage.save(orig_path, ContentFile(f.read()))
+
+                    # Optimize image (convert to JPG)
+                    optimized_file_path, optimized_filename = optimize_image(
+                        temp_file_path, temp_dir
+                    )
+                    if not optimized_file_path:
+                        raise Exception("Failed to optimize image")
+
+                    # Save optimized JPG image with unique filename
+                    optimized_path = f"{base_path}/new/{optimized_filename}"
+                    with open(optimized_file_path, "rb") as f:
+                        default_storage.save(optimized_path, ContentFile(f.read()))
+
+                    # Update profile with full path to the optimized image
+                    # This will ensure it points to the exact file with timestamp
+                    profile.profile_picture = optimized_path
+                    print(
+                        f"Profile picture updated for user {user_id} at path {optimized_path}"
                     )
 
+            except Exception as e:
+                print(f"Error updating profile picture: {str(e)}")
+                raise Exception(f"Failed to update profile picture: {str(e)}")
+
+        # Save profile changes
         profile.save()
         return UpdateProfile(profile=profile)

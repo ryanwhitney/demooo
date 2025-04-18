@@ -1,9 +1,10 @@
 import uuid
-
+import os
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.conf import settings
 
 
 class User(AbstractUser):
@@ -23,7 +24,7 @@ class Profile(models.Model):
     name = models.TextField(max_length=80, blank=True)
     location = models.TextField(max_length=120, blank=True)
     bio = models.TextField(max_length=500, blank=True)
-    # Store the base directory path where profile pictures are saved
+    # Store the full path to the optimized profile picture
     profile_picture = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -37,8 +38,29 @@ class Profile(models.Model):
         if not self.profile_picture:
             return None
 
-        # Construct the path to the optimized image
-        return f"{self.profile_picture}/optimized/profile.jpg"
+        # Return the full path to the optimized image
+        # If profile_picture already contains the full path to the optimized file,
+        # we can just return it directly
+        return self.profile_picture
+
+    @property
+    def profile_picture_url(self):
+        """Return the full URL including domain to the profile picture"""
+        if not self.profile_picture:
+            return None
+
+        # If MEDIA_URL is defined in settings, use it to construct complete URL
+        media_url = getattr(settings, "MEDIA_URL", "/media/")
+
+        # Strip any leading slash from profile_picture if it exists
+        path = self.profile_picture.lstrip("/")
+
+        # If we have an absolute media URL (starts with http), use it directly
+        if media_url.startswith(("http://", "https://")):
+            return f"{media_url.rstrip('/')}/{path}"
+
+        # Otherwise, construct a relative URL
+        return f"{media_url.rstrip('/')}/{path}"
 
     # Signal to create a profile when a user is created
     @receiver(post_save, sender=User)
@@ -58,9 +80,11 @@ class Profile(models.Model):
         from django.core.files.storage import default_storage
 
         try:
+            # Get the base path (remove the file part)
+            base_path = os.path.dirname(os.path.dirname(self.profile_picture))
+
             # Try to delete both subdirectories and their contents
-            base_path = self.profile_picture
-            for subdir in ["orig", "optimized"]:
+            for subdir in ["orig", "new"]:
                 try:
                     dir_path = f"{base_path}/{subdir}"
                     # Check if directory exists

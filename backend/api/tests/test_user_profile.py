@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+import re
 
 from django.contrib.auth import get_user_model
 from django.core.files.storage import default_storage
@@ -222,7 +223,7 @@ class UserProfileTests(BaseAPITestCase):
                 "test_profile_photo.jpeg", image_file.read(), content_type="image/jpeg"
             )
 
-        # Update profile with picture
+        # Update profile with picture - don't request profilePictureUrl in tests
         update_query = """
         mutation($file: Upload!) {
             updateProfile(
@@ -254,11 +255,11 @@ class UserProfileTests(BaseAPITestCase):
         self.assertIsNotNone(profile_data["profilePictureOptimizedUrl"])
 
         # Check that the optimized URL contains the expected path structure
+        # Updated to check for timestamped filename pattern
+        timestamp_pattern = r"/new/profile_\d+\.jpg"
         self.assertTrue(
-            profile_data["profilePictureOptimizedUrl"].endswith(
-                "/optimized/profile.jpg"
-            ),
-            "Optimized URL does not have the expected path structure",
+            re.search(timestamp_pattern, profile_data["profilePictureOptimizedUrl"]),
+            "Optimized URL does not have the expected timestamped filename pattern",
         )
 
         # Query profile to verify picture data is accessible
@@ -277,3 +278,28 @@ class UserProfileTests(BaseAPITestCase):
         queried_profile = query_response.data["me"]["profile"]
         self.assertIsNotNone(queried_profile["profilePicture"])
         self.assertIsNotNone(queried_profile["profilePictureOptimizedUrl"])
+
+        # Store the first profile path to check for change after update
+        first_profile_path = queried_profile["profilePictureOptimizedUrl"]
+
+        # Update again with a new profile picture to test path change
+        with open(test_file_path, "rb") as image_file:
+            new_profile_pic = SimpleUploadedFile(
+                "new_test_photo.jpeg", image_file.read(), content_type="image/jpeg"
+            )
+
+        variables = {"file": new_profile_pic}
+        second_update_response = self.client.execute(update_query, variables)
+        self.assertIsNone(second_update_response.errors)
+
+        # Query again to verify path changed
+        second_query_response = self.client.execute(query)
+        second_profile = second_query_response.data["me"]["profile"]
+        second_profile_path = second_profile["profilePictureOptimizedUrl"]
+
+        # Verify the path changed (different timestamp)
+        self.assertNotEqual(
+            first_profile_path,
+            second_profile_path,
+            "Profile picture path did not change after update (timestamps should differ)",
+        )
