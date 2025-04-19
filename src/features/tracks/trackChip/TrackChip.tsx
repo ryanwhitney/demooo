@@ -115,7 +115,7 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 				<Link to={`/${track.artist.username}`} className={trackArtist}>
 					{track.artist.profile?.profilePictureOptimizedUrl && (
 						<img
-							src={`http://localhost:8000/media/${track.artist.profile?.profilePictureOptimizedUrl}`}
+							src={`${import.meta.env.VITE_API_URL || "http://localhost:8000"}/media/${track.artist.profile?.profilePictureOptimizedUrl}`}
 							alt="user profile"
 							width={16}
 							height={16}

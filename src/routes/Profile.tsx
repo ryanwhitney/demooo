@@ -111,7 +111,7 @@ const ProfilePage = () => {
 	};
 
 	const profilePictureUrl = data?.me?.profile?.profilePictureOptimizedUrl
-		? `http://localhost:8000/media/${data.me.profile.profilePictureOptimizedUrl}`
+		? `${import.meta.env.VITE_API_URL || "http://localhost:8000"}/media/${data.me.profile.profilePictureOptimizedUrl}`
 		: null;
 
 	return (
