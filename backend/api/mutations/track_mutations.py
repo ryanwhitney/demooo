@@ -9,8 +9,7 @@ import librosa
 import numpy as np
 from api.models import Track
 from api.types.track import TrackType
-from api.utils import delete_track_files
-from django.conf import settings
+from api.utils import delete_track_files, ensure_storage_path_exists
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.utils.text import slugify
@@ -88,12 +87,6 @@ def convert_audio_to_mp3(input_file_path, output_dir):
         output_file_path = os.path.join(output_dir, output_filename)
 
         # Run ffmpeg to convert audio to MP3
-        # -y: Overwrite output file if it exists
-        # -i: Input file
-        # -vn: No video
-        # -ar 44100: Set audio sampling rate to 44.1 kHz
-        # -ac 2: Set number of audio channels to 2 (stereo)
-        # -b:a 192k: Set audio bitrate to 192 kbps
         command = [
             "ffmpeg",
             "-y",
@@ -178,6 +171,9 @@ class UploadTrack(graphene.Mutation):
             orig_filename = f"{track_id}{original_ext}"
             orig_full_path = f"{orig_dir_path}/{orig_filename}"
 
+            # Ensure the storage path exists (handles both local and cloud storage)
+            ensure_storage_path_exists(orig_dir_path)
+
             with open(temp_file_path, "rb") as f:
                 file_content = f.read()
                 orig_storage_path = default_storage.save(
@@ -186,8 +182,8 @@ class UploadTrack(graphene.Mutation):
 
             print(f"Original file saved: {orig_storage_path}")
 
-            # Always convert to MP3 with 320kbps bitrate
-            print(f"Converting audio file to MP3 with 320kbps bitrate...")
+            # Always convert to MP3 with high bitrate
+            print(f"Converting audio file to MP3...")
             converted_file_path = convert_audio_to_mp3(temp_file_path, temp_dir)
 
             if converted_file_path:
@@ -195,6 +191,9 @@ class UploadTrack(graphene.Mutation):
                 mp3_dir_path = f"{artist_id}/audio/{track_id}/320"
                 mp3_filename = f"{track_id}.mp3"
                 mp3_full_path = f"{mp3_dir_path}/{mp3_filename}"
+
+                # Ensure the storage path exists (handles both local and cloud storage)
+                ensure_storage_path_exists(mp3_dir_path)
 
                 with open(converted_file_path, "rb") as f:
                     file_content = f.read()
@@ -355,6 +354,9 @@ class UploadMultipleTracks(graphene.Mutation):
                     orig_filename = f"{track_id}{original_ext}"
                     orig_full_path = f"{orig_dir_path}/{orig_filename}"
 
+                    # Ensure storage path exists for both local and cloud environments
+                    ensure_storage_path_exists(orig_dir_path)
+
                     with open(temp_file_path, "rb") as f:
                         file_content = f.read()
                         orig_storage_path = default_storage.save(
@@ -363,8 +365,8 @@ class UploadMultipleTracks(graphene.Mutation):
 
                     print(f"Original file saved: {orig_storage_path}")
 
-                    # Always convert to MP3 with 320kbps bitrate
-                    print(f"Converting audio file to MP3 with 320kbps bitrate...")
+                    # Always convert to MP3 with high bitrate
+                    print(f"Converting audio file to MP3...")
                     converted_file_path = convert_audio_to_mp3(temp_file_path, temp_dir)
 
                     if converted_file_path:
@@ -372,6 +374,9 @@ class UploadMultipleTracks(graphene.Mutation):
                         mp3_dir_path = f"{artist_id}/audio/{track_id}/320"
                         mp3_filename = f"{track_id}.mp3"
                         mp3_full_path = f"{mp3_dir_path}/{mp3_filename}"
+
+                        # Ensure storage path exists for both local and cloud environments
+                        ensure_storage_path_exists(mp3_dir_path)
 
                         with open(converted_file_path, "rb") as f:
                             file_content = f.read()

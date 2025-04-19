@@ -5,28 +5,84 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Add to settings.py
+import logging
+
+logger = logging.getLogger("django")
+
+# Make sure env vars are loaded before anything else
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Path to the frontend dist directory
 FRONTEND_DIR = Path(BASE_DIR).parent / "dist"
 
-# Determine environment
+
+env_file = ".env.local"  # fallback
+if os.environ.get("ENVIRONMENT") == "production":
+    env_file = ".env.production"
+elif os.environ.get("ENVIRONMENT") == "docker":
+    env_file = ".env.docker"
+
+# Load from .env (project root > backend > settings dir)
+load_dotenv(dotenv_path=Path(BASE_DIR).parent / env_file, override=True)
+load_dotenv(dotenv_path=BASE_DIR / env_file, override=True)
+load_dotenv(dotenv_path=Path(__file__).resolve().parent / env_file, override=True)
+
+# Now you can safely access env vars
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 
-# Load the appropriate .env file based on environment
-if ENVIRONMENT == "production":
-    env_file = ".env.production"
-elif ENVIRONMENT == "docker":
-    env_file = ".env.docker"
-else:  # default to local development
-    env_file = ".env.local"
+# Now access the environment variable
+USE_CLOUDFLARE_R2 = os.environ.get("USE_CLOUDFLARE_R2", "false").lower() == "true"
 
-# Try loading from project root
-load_dotenv(dotenv_path=Path(BASE_DIR).parent / env_file, override=True)
-# Also try from backend directory (fallback)
-load_dotenv(dotenv_path=BASE_DIR / env_file, override=True)
-# And from settings directory (another fallback)
-load_dotenv(dotenv_path=Path(__file__).resolve().parent / env_file, override=True)
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
+# Log for debugging
+logger = logging.getLogger("django")
+logger.info(f"USE_CLOUDFLARE_R2 raw value: {os.environ.get('USE_CLOUDFLARE_R2')}")
+logger.info(f"Evaluated USE_CLOUDFLARE_R2: {USE_CLOUDFLARE_R2}")
+
+if USE_CLOUDFLARE_R2:
+    # Use custom storage class for R2
+    DEFAULT_FILE_STORAGE = "api.storage.CloudflareR2Storage"
+
+    # R2 connection settings
+    AWS_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME")
+    AWS_S3_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")
+    AWS_S3_REGION_NAME = "auto"
+    AWS_S3_ADDRESSING_STYLE = "path"
+    AWS_DEFAULT_ACL = "public-read"
+
+    # Additional settings to fix R2 compatibility issues
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_QUERYSTRING_AUTH = False
+
+    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
+
+    if DEBUG:
+        print(f"Using Cloudflare R2 storage with bucket: {AWS_STORAGE_BUCKET_NAME}")
+
+        # Display settings for debugging
+        r2_settings = {
+            "DEFAULT_FILE_STORAGE": DEFAULT_FILE_STORAGE,
+            "AWS_ACCESS_KEY_ID": (
+                AWS_ACCESS_KEY_ID[:4] + "..." if AWS_ACCESS_KEY_ID else None
+            ),
+            "AWS_SECRET_ACCESS_KEY": "***" if AWS_SECRET_ACCESS_KEY else None,
+            "AWS_STORAGE_BUCKET_NAME": AWS_STORAGE_BUCKET_NAME,
+            "AWS_S3_ENDPOINT_URL": AWS_S3_ENDPOINT_URL,
+            "AWS_S3_REGION_NAME": AWS_S3_REGION_NAME,
+            "AWS_S3_ADDRESSING_STYLE": AWS_S3_ADDRESSING_STYLE,
+            "AWS_DEFAULT_ACL": AWS_DEFAULT_ACL,
+            "MEDIA_URL": MEDIA_URL,
+        }
+        print("R2 Settings:", r2_settings)
+else:
+    # Local dev file storage
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    print("BASE_MEDIA_ROOT_GETTING_ELSED:", MEDIA_ROOT)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -35,9 +91,6 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parent / env_file, override=Tru
 SECRET_KEY = os.environ.get(
     "SECRET_KEY", "django-insecure-ff_uet=a%k(wee%&glo-3zoe&tgsoka-r9f@7j+9sf%bpu9_b!"
 )
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = (
     os.environ.get("ALLOWED_HOSTS", "").split(",")
@@ -164,39 +217,6 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [
     FRONTEND_DIR / "assets",
 ]
-
-# Media settings for file uploads
-USE_CLOUDFLARE_R2 = os.environ.get("USE_CLOUDFLARE_R2", "false").lower() == "true"
-if USE_CLOUDFLARE_R2:
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-
-    AWS_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY")
-    AWS_STORAGE_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME")
-    AWS_S3_ENDPOINT_URL = os.environ.get(
-        "R2_ENDPOINT_URL"
-    )  # e.g. "https://<accountid>.r2.cloudflarestorage.com"
-    AWS_S3_REGION_NAME = "auto"
-    AWS_S3_ADDRESSING_STYLE = "path"
-
-    # Optional: public-read if you're not using signed URLs
-    AWS_DEFAULT_ACL = "public-read"
-
-    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
-
-    if DEBUG:
-        print(f"Using Cloudflare R2 storage with bucket: {AWS_STORAGE_BUCKET_NAME}")
-else:
-    # Local dev file storage
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-    if DEBUG:
-        print("Using local file storage at:", MEDIA_ROOT)
-
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

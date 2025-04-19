@@ -9,29 +9,34 @@ from django.views.static import serve
 
 urlpatterns = [
     # Admin and GraphQL API
-    path('admin/', admin.site.urls),
-    path('graphql/', csrf_exempt(FileUploadGraphQLView.as_view(graphiql=settings.DEBUG))),
-    
-    # Explicitly serve media files
-    re_path(r'^media/(?P<path>.*)$', serve, {
-        'document_root': settings.MEDIA_ROOT
-    }),
-    
+    path("admin/", admin.site.urls),
+    path(
+        "graphql/", csrf_exempt(FileUploadGraphQLView.as_view(graphiql=settings.DEBUG))
+    ),
     # Serve frontend assets
-    re_path(r'^assets/(?P<path>.*)$', serve, {
-        'document_root': settings.FRONTEND_DIR / 'assets'
-    }),
-    
+    re_path(
+        r"^assets/(?P<path>.*)$",
+        serve,
+        {"document_root": settings.FRONTEND_DIR / "assets"},
+    ),
     # Serve favicon and other static files from root
-    re_path(r'^(?P<path>favicon\.ico|icon\.svg|favicon-\d+\.png)$', serve, {
-        'document_root': settings.FRONTEND_DIR
-    }),
-    
+    re_path(
+        r"^(?P<path>favicon\.ico|icon\.svg|favicon-\d+\.png)$",
+        serve,
+        {"document_root": settings.FRONTEND_DIR},
+    ),
     # Serve the frontend's index.html for all other routes
-    re_path(r'^$', TemplateView.as_view(template_name='index.html')),
-    re_path(r'^(?!admin|graphql|media|assets).*$', TemplateView.as_view(template_name='index.html')),
+    re_path(r"^$", TemplateView.as_view(template_name="index.html")),
+    re_path(
+        r"^(?!admin|graphql|media|assets).*$",
+        TemplateView.as_view(template_name="index.html"),
+    ),
 ]
 
-# Add media URL in development 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Add media URL in development only when NOT using Cloudflare R2
+if not settings.USE_CLOUDFLARE_R2:
+    urlpatterns += [
+        re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
+    ]
+    if settings.DEBUG:
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -3,6 +3,7 @@ import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.core.files.storage import default_storage
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -64,10 +65,8 @@ class Profile(models.Model):
         if not self.profile_picture:
             return None
 
-        # Return the full path to the optimized image
-        # If profile_picture already contains the full path to the optimized file,
-        # we can just return it directly
-        return self.profile_picture
+        # Use default_storage to get the proper URL based on current storage backend
+        return default_storage.url(self.profile_picture)
 
     @property
     def profile_picture_url(self):
@@ -75,18 +74,8 @@ class Profile(models.Model):
         if not self.profile_picture:
             return None
 
-        # If MEDIA_URL is defined in settings, use it to construct complete URL
-        media_url = getattr(settings, "MEDIA_URL", "/media/")
-
-        # Strip any leading slash from profile_picture if it exists
-        path = self.profile_picture.lstrip("/")
-
-        # If we have an absolute media URL (starts with http), use it directly
-        if media_url.startswith(("http://", "https://")):
-            return f"{media_url.rstrip('/')}/{path}"
-
-        # Otherwise, construct a relative URL
-        return f"{media_url.rstrip('/')}/{path}"
+        # Use default_storage to get the proper URL based on current storage backend
+        return default_storage.url(self.profile_picture)
 
     # Signal to create a profile when a user is created
     @receiver(post_save, sender=User)
@@ -103,8 +92,6 @@ class Profile(models.Model):
         if not self.profile_picture:
             return
 
-        from django.core.files.storage import default_storage
-
         try:
             # Get the base path (remove the file part)
             base_path = os.path.dirname(os.path.dirname(self.profile_picture))
@@ -116,9 +103,15 @@ class Profile(models.Model):
                     # Check if directory exists
                     if default_storage.exists(dir_path):
                         # List and delete all files in the directory
-                        _, files = default_storage.listdir(dir_path)
-                        for file in files:
-                            default_storage.delete(f"{dir_path}/{file}")
+                        try:
+                            _, files = default_storage.listdir(dir_path)
+                            for file in files:
+                                default_storage.delete(f"{dir_path}/{file}")
+                        except NotImplementedError:
+                            # Some storage backends don't support listdir
+                            print(
+                                f"Storage backend doesn't support listdir for {dir_path}"
+                            )
                 except Exception as e:
                     print(f"Error deleting files in {subdir}: {e}")
         except Exception as e:
@@ -147,7 +140,9 @@ class Track(models.Model):
     title = models.CharField(max_length=125)
     title_slug = models.SlugField(max_length=255)  # longer to allow for slug dashes
     description = models.TextField(blank=True)
-    audio_file = models.FileField(max_length=255, upload_to=track_upload_path)
+    audio_file = models.CharField(
+        max_length=255, blank=True
+    )  # Changed from FileField to CharField
     audio_length = models.IntegerField(default=0)
     audio_waveform_data = models.JSONField(blank=True, null=True)
     audio_waveform_resolution = models.IntegerField(default=0)
@@ -156,6 +151,28 @@ class Track(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.artist.username}"
+
+    @property
+    def audio_url(self):
+        """Return the URL to the MP3 audio file"""
+        if not self.audio_file:
+            return None
+
+        # Construct path to the actual MP3 file
+        mp3_path = f"{self.audio_file}/320/{self.id}.mp3"
+
+        # Use default_storage to get the proper URL based on current storage backend
+        return default_storage.url(mp3_path)
+
+    @property
+    def original_audio_url(self):
+        """Return the URL to the original audio file, if needed"""
+        if not self.audio_file:
+            return None
+
+        # Note: This is a placeholder - you'll need to determine the correct extension
+        # for the original file if you need to access it
+        return None
 
     class Meta:
         ordering = ["-created_at"]

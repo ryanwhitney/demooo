@@ -3,10 +3,7 @@ import * as style from "./ProfilePhoto.css";
 
 const ProfilePhoto = ({ me, size = 34 }: { me: User; size?: number }) => {
 	function getProfilePhotoUrl() {
-		if (me.profile.profilePictureOptimizedUrl?.startsWith("http")) {
-			return me.profile.profilePictureOptimizedUrl;
-		}
-		return `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/media/${me.profile.profilePictureOptimizedUrl}`;
+		return me.profile.profilePictureOptimizedUrl || "";
 	}
 
 	return (

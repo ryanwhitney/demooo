@@ -3,14 +3,15 @@ import tempfile
 import subprocess
 import time
 import uuid
-from pathlib import Path
 
 import graphene
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from graphene_file_upload.scalars import Upload
 from graphql_jwt.decorators import login_required
 
 from api.types.profile import ProfileType
+from api.utils import ensure_storage_path_exists
 
 
 def generate_short_unique_id():
@@ -83,8 +84,6 @@ class UpdateProfile(graphene.Mutation):
 
     @login_required
     def mutate(self, info, name=None, bio=None, location=None, profile_picture=None):
-        from django.core.files.storage import default_storage
-
         user = info.context.user
         profile = user.profile
 
@@ -116,6 +115,7 @@ class UpdateProfile(graphene.Mutation):
                     ".heic",
                     ".ico",
                 ]
+
                 if original_ext.lower() not in allowed_extensions:
                     raise Exception(
                         f"Invalid image format. Please upload one of: {', '.join(allowed_extensions)}"
@@ -133,29 +133,36 @@ class UpdateProfile(graphene.Mutation):
                     user_id = str(user.id)
                     base_path = f"{user_id}/img/profile"
 
-                    # Create directories if they don't exist
+                    # Use the new utility function to ensure directories exist
                     for subdir in ["orig", "new"]:
                         path = f"{base_path}/{subdir}"
-                        if not default_storage.exists(path):
-                            try:
-                                os.makedirs(default_storage.path(path), exist_ok=True)
-                            except Exception:
-                                # If the default_storage doesn't support local path, just continue
-                                pass
+                        ensure_storage_path_exists(path)
 
-                    # Clear existing files from directories
+                    # Clear existing files, handling both local and cloud storage
                     try:
-                        # Remove all files in orig directory
-                        if default_storage.exists(f"{base_path}/orig"):
-                            _, files = default_storage.listdir(f"{base_path}/orig")
-                            for file in files:
-                                default_storage.delete(f"{base_path}/orig/{file}")
+                        # Try to delete files in orig directory
+                        orig_dir = f"{base_path}/orig"
+                        if default_storage.exists(orig_dir):
+                            try:
+                                _, files = default_storage.listdir(orig_dir)
+                                for file in files:
+                                    default_storage.delete(f"{orig_dir}/{file}")
+                            except (NotImplementedError, Exception) as e:
+                                print(
+                                    f"Warning: Could not list/delete files in orig directory: {e}"
+                                )
 
-                        # Remove all files in new directory
-                        if default_storage.exists(f"{base_path}/new"):
-                            _, files = default_storage.listdir(f"{base_path}/new")
-                            for file in files:
-                                default_storage.delete(f"{base_path}/new/{file}")
+                        # Try to delete files in new directory
+                        new_dir = f"{base_path}/new"
+                        if default_storage.exists(new_dir):
+                            try:
+                                _, files = default_storage.listdir(new_dir)
+                                for file in files:
+                                    default_storage.delete(f"{new_dir}/{file}")
+                            except (NotImplementedError, Exception) as e:
+                                print(
+                                    f"Warning: Could not list/delete files in new directory: {e}"
+                                )
                     except Exception as e:
                         print(f"Warning: Could not clear old files: {e}")
                         # Continue anyway - it's better to add new files than to fail completely
@@ -181,7 +188,6 @@ class UpdateProfile(graphene.Mutation):
                         default_storage.save(optimized_path, ContentFile(f.read()))
 
                     # Update profile with full path to the optimized image
-                    # This will ensure it points to the exact file with timestamp
                     profile.profile_picture = optimized_path
                     print(
                         f"Profile picture updated for user {user_id} at path {optimized_path}"
