@@ -1,10 +1,11 @@
-import uuid
 import os
+import uuid
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.conf import settings
 
 
 class User(AbstractUser):
@@ -14,6 +15,31 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Follow(models.Model):
+    """Model for user following relationships"""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    follower = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="following"
+    )
+    followed = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="followers"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("follower", "followed")
+        constraints = [
+            models.CheckConstraint(
+                check=~models.Q(follower=models.F("followed")),
+                name="prevent_self_follow",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.followed.username}"
 
 
 class Profile(models.Model):
@@ -133,3 +159,22 @@ class Track(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class FavoriteTrack(models.Model):
+    """Model for user's favorite tracks"""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="favorite_tracks"
+    )
+    track = models.ForeignKey(
+        Track, on_delete=models.CASCADE, related_name="favorited_by"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "track")
+
+    def __str__(self):
+        return f"{self.user.username} favorited {self.track.title}"

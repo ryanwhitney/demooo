@@ -1,8 +1,7 @@
 import graphene
+from api.models import User
+from api.types.user import UserType
 from graphql_jwt.decorators import login_required
-
-from ..models import User
-from ..types.user import UserType
 
 
 class UserQueries:

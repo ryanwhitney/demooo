@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { Track } from "@/types/track";
 import { formatTime, monthOrder } from "@/utils/timeAndDate";
 import { useAudio } from "@/providers/AudioProvider";
@@ -8,14 +8,18 @@ import PlaySVG from "@/components/svg/PlaySVG";
 import PauseSVG from "@/components/svg/PauseSVG";
 import * as style from "./TrackList.css";
 import { Link } from "react-router";
+import { useFavorite } from "@/hooks/useFavorite";
 
 const TrackRow = ({
 	track,
 	allTracksInList,
 }: { track: Track; allTracksInList: Track[] }) => {
-	const [isFavorite, setIsFavorite] = useState(false);
-
 	const audio = useAudio();
+	const {
+		isFavorited,
+		loading: loadingFavorite,
+		toggleFavorite,
+	} = useFavorite(track.id);
 
 	// subscribe to the states we need
 	const isCurrentTrack = useMemo(() => {
@@ -61,8 +65,9 @@ const TrackRow = ({
 					iconOneTitle="Add to favorites"
 					iconTwo={<HeartSVG />}
 					iconTwoTitle="Remove from favorites"
-					onToggle={() => setIsFavorite(!isFavorite)}
-					className={`${style.favoriteIconToggle({ isActive: isFavorite })}`}
+					defaultToggled={isFavorited}
+					onToggle={toggleFavorite}
+					className={`${style.favoriteIconToggle({ isActive: isFavorited })}`}
 				/>
 				<IconToggleButton
 					iconOne={<PlaySVG />}

@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import type { Track } from "@/types/track";
 import {
@@ -23,9 +23,9 @@ import { useAudio } from "@/providers/AudioProvider";
 import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
 import { tokens } from "@/styles/tokens";
 import Button from "@/components/button/Button";
+import { useFollow } from "@/hooks/useFollow";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
-	const [isFollowing, setIsFollowing] = useState(false);
 	const { data, loading, error, refetch } = useQuery(GET_ARTIST, {
 		variables: { username: artistName },
 	});
@@ -33,6 +33,12 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const audio = useAudio();
 
 	const tracks: Track[] = data?.user.tracks;
+
+	const {
+		isFollowing,
+		loading: loadingFollow,
+		toggleFollow,
+	} = useFollow(data?.user.username);
 
 	const isTrackInCurrentTracksList = useCallback(
 		(trackId: string | undefined): boolean => {
@@ -157,9 +163,11 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 						<div
 							style={{
 								alignSelf: "flex-start",
-								justifySelf: "flex-end",
-								width: "fit-content",
 								display: "flex",
+								flexShrink: 100,
+								justifyContent: "flex-end",
+								alignItems: "center",
+								width: "100%",
 								gap: "10px",
 							}}
 						>
@@ -167,7 +175,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 								size="large"
 								variant="primary"
 								color={tokens.colors.primary}
-								onClick={() => setIsFollowing(!isFollowing)}
+								onClick={toggleFollow}
 								style={{
 									width: "fit-content",
 									minWidth: 140,

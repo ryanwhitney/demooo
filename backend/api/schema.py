@@ -1,20 +1,29 @@
 import graphene
 import graphql_jwt
+from api.mutations.favorite_track_mutations import (
+    FavoriteTrackMutation,
+    UnfavoriteTrackMutation,
+)
+from api.mutations.follow_mutations import FollowUser, UnfollowUser
+from api.mutations.profile_mutations import UpdateProfile
+from api.mutations.track_mutations import (
+    DeleteTrack,
+    UpdateTrack,
+    UploadMultipleTracks,
+    UploadTrack,
+)
+from api.mutations.user_mutations import CreateUser
+from api.queries.favorite_track_queries import FavoriteTrackQueries
+from api.queries.follow_queries import FollowQueries
+from api.queries.track_queries import TrackQueries
 
 # Import all the modular components
-from .queries.user_queries import UserQueries
-from .queries.track_queries import TrackQueries
-from .mutations.user_mutations import CreateUser
-from .mutations.profile_mutations import UpdateProfile
-from .mutations.track_mutations import (
-    UploadTrack,
-    UploadMultipleTracks,
-    UpdateTrack,
-    DeleteTrack,
-)
+from api.queries.user_queries import UserQueries
 
 
-class Query(UserQueries, TrackQueries, graphene.ObjectType):
+class Query(
+    UserQueries, TrackQueries, FollowQueries, FavoriteTrackQueries, graphene.ObjectType
+):
     pass
 
 
@@ -33,6 +42,14 @@ class Mutation(graphene.ObjectType):
     upload_track = UploadTrack.Field()
     update_track = UpdateTrack.Field()
     delete_track = DeleteTrack.Field()
+
+    # Follow mutations
+    follow_user = FollowUser.Field()
+    unfollow_user = UnfollowUser.Field()
+
+    # favorite track mutations
+    favorite_track = FavoriteTrackMutation.Field()
+    unfavorite_track = UnfavoriteTrackMutation.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

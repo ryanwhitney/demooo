@@ -1,6 +1,6 @@
 import graphene
-from ..types.user import UserType
-from ..models import User
+from api.models import User
+from api.types.user import UserType
 
 
 class CreateUser(graphene.Mutation):
@@ -13,8 +13,7 @@ class CreateUser(graphene.Mutation):
         first_name = graphene.String()
         last_name = graphene.String()
 
-    def mutate(self, info, username, password, email, 
-               first_name=None, last_name=None):
+    def mutate(self, info, username, password, email, first_name=None, last_name=None):
         if User.objects.filter(username=username).exists():
             raise Exception(f"User with username '{username}' already exists")
 
@@ -30,4 +29,4 @@ class CreateUser(graphene.Mutation):
         user.set_password(password)
         user.save()
 
-        return CreateUser(user=user) 
+        return CreateUser(user=user)

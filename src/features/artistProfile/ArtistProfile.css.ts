@@ -12,6 +12,8 @@ export const artistViewWrapper = style({
   paddingLeft: tokens.space.lg,
   paddingRight: tokens.space.lg,
   maxWidth: "100%",
+
+  width: "100%",
   margin: "0 auto",
   '@media': {
     'screen and (min-width: 480px)': {

@@ -1,7 +1,6 @@
 import graphene
+from api.models import FavoriteTrack, Track
 from graphene_django import DjangoObjectType
-
-from ..models import Track
 
 
 class TrackType(DjangoObjectType):
@@ -22,8 +21,19 @@ class TrackType(DjangoObjectType):
         )
 
     audio_url = graphene.String()
+    favorites_count = graphene.Int()
+    is_favorited = graphene.Boolean()
 
     def resolve_audio_url(self, info):
         if self.audio_file:
             return self.audio_file.url
         return None
+
+    def resolve_favorites_count(self, info):
+        return self.favorited_by.count()
+
+    def resolve_is_favorited(self, info):
+        user = info.context.user
+        if user.is_authenticated:
+            return FavoriteTrack.objects.filter(user=user, track=self).exists()
+        return False

@@ -1,13 +1,15 @@
 import graphene
-from ..types.track import TrackType
-from ..models import Track, User
+from api.models import Track, User
+from api.types.track import TrackType
 
 
 class TrackQueries:
     track = graphene.Field(TrackType, id=graphene.ID())
     tracks = graphene.List(TrackType)
     user_tracks = graphene.List(TrackType, username=graphene.String())
-    track_by_slug = graphene.Field(TrackType, username=graphene.String(), slug=graphene.String())
+    track_by_slug = graphene.Field(
+        TrackType, username=graphene.String(), slug=graphene.String()
+    )
 
     def resolve_track(self, info, id):
         try:

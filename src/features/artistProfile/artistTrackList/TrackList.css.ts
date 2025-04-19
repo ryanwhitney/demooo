@@ -101,10 +101,13 @@ export const trackRowTitle = recipe({
 
 export const favoriteIconToggle = recipe({
   base:{
-  color: tokens.colors.quaternary,
-  padding: 10,
-  width: 16,
-  transition: "filter 400ms ease-in-out",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: tokens.colors.quaternary,
+    padding: 10,
+    width: 16,
+    transition: "filter 400ms ease-in-out",
     ':hover':{
       cursor: "pointer",
       color: tokens.colors.tertiary,
@@ -128,9 +131,12 @@ export const favoriteIconToggle = recipe({
 
 export const playIconToggle = recipe({
   base:{
-  color: tokens.colors.secondary,
-  padding: 10,
-  width: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: tokens.colors.secondary,
+    padding: 10,
+    width: 10,
     ':hover':{
       cursor: "pointer",
       color: tokens.colors.primary,
