@@ -270,7 +270,7 @@ const UploadPage = () => {
 									: "Audio files only"
 								: "Drop files here"}
 							<FileTrigger
-								acceptedFileTypes={["audio/*"]}
+								acceptedFileTypes={["audio/*, video/*"]}
 								allowsMultiple={true}
 								onSelect={handleSelectFiles}
 							>
