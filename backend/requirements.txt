@@ -21,7 +21,8 @@ sqlparse==0.5.3
 stevedore==5.4.1
 text-unidecode==1.3
 typing_extensions==4.13.2
-django-graphql-jwt>=0.4.0
+django-graphql-jwt==0.4.0
 librosa>=0.11.0
 Pillow>=10.2.0  
 graphene-file-upload>=1.3.0
+dj-database-url==2.3.0
