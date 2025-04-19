@@ -31,11 +31,15 @@ SECRET_KEY = "django-insecure-ff_uet=a%k(wee%&glo-3zoe&tgsoka-r9f@7j+9sf%bpu9_b!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["demooo.fly.dev"]
 ALLOWED_HOSTS = (
     os.environ.get("ALLOWED_HOSTS", "").split(",")
     if os.environ.get("ALLOWED_HOSTS")
-    else ["localhost", "127.0.0.1"]
+    else [
+        "localhost",
+        "127.0.0.1",
+        "demooo.fly.dev",
+    ]
 )
 
 
