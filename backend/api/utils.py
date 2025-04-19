@@ -57,3 +57,19 @@ def delete_track_files(track):
                 print(f"Error deleting files in {subdir}: {e}")
     except Exception as e:
         print(f"Error during track file deletion: {e}")
+
+
+def get_r2_storage():
+    """
+    Get a direct R2 storage instance, bypassing Django's default_storage.
+
+    This ensures we're using the R2 storage directly when needed.
+    """
+    if settings.USE_CLOUDFLARE_R2:
+        # Import here to avoid circular imports
+        from api.storage import CloudflareR2Storage
+
+        return CloudflareR2Storage()
+    else:
+        # Fall back to default storage if R2 is not enabled
+        return default_storage

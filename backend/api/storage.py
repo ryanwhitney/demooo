@@ -1,11 +1,68 @@
 from storages.backends.s3boto3 import S3Boto3Storage
+from django.conf import settings
+import boto3
 
 
 class CloudflareR2Storage(S3Boto3Storage):
     """
     Custom storage class for Cloudflare R2
+
+    This implementation directly initializes the S3 client with explicit
+    credentials to ensure proper connection to Cloudflare R2.
     """
 
+    # Default settings that don't depend on Django settings
+    location = ""  # Store files in bucket root
+    file_overwrite = False  # Don't overwrite existing files with same name
+
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Add any R2 specific configuration here
+        # Set the specific R2 settings
+        self.access_key = settings.AWS_ACCESS_KEY_ID
+        self.secret_key = settings.AWS_SECRET_ACCESS_KEY
+        self.bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        self.endpoint_url = settings.AWS_S3_ENDPOINT_URL
+
+        # Initialize with R2 settings
+        super().__init__(
+            access_key=self.access_key,
+            secret_key=self.secret_key,
+            bucket_name=self.bucket_name,
+            endpoint_url=self.endpoint_url,
+            region_name=settings.AWS_S3_REGION_NAME,
+            custom_domain=None,  # Don't use custom domain
+            addressing_style=settings.AWS_S3_ADDRESSING_STYLE,
+            signature_version=settings.AWS_S3_SIGNATURE_VERSION,
+            default_acl=settings.AWS_DEFAULT_ACL,
+            querystring_auth=settings.AWS_QUERYSTRING_AUTH,
+            *args,
+            **kwargs,
+        )
+
+        # Test connection upon initialization in debug mode
+        if settings.DEBUG:
+            try:
+                # Check if we can list the bucket
+                self.bucket.objects.all().limit(1)
+                print(f"✅ Successfully connected to R2 bucket: {self.bucket_name}")
+            except Exception as e:
+                print(f"⚠️ R2 connection ERROR: {e}")
+
+    def _get_connection(self):
+        """Override the connection method to ensure proper R2 initialization"""
+        if self._connections.get(self.access_key) is None:
+            # Create a new connection with explicit settings
+            connection = boto3.resource(
+                "s3",
+                aws_access_key_id=self.access_key,
+                aws_secret_access_key=self.secret_key,
+                endpoint_url=self.endpoint_url,
+                region_name=settings.AWS_S3_REGION_NAME,
+                config=boto3.session.Config(
+                    s3={"addressing_style": settings.AWS_S3_ADDRESSING_STYLE},
+                    signature_version=settings.AWS_S3_SIGNATURE_VERSION,
+                ),
+            )
+            self._connections[self.access_key] = connection
+
+        # Return the connection
+        return self._connections[self.access_key]

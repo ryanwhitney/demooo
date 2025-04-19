@@ -40,9 +40,31 @@ logger = logging.getLogger("django")
 logger.info(f"USE_CLOUDFLARE_R2 raw value: {os.environ.get('USE_CLOUDFLARE_R2')}")
 logger.info(f"Evaluated USE_CLOUDFLARE_R2: {USE_CLOUDFLARE_R2}")
 
+# Set default storage first to local storage
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# Application definition
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "storages",  # Always include storages first
+    "graphene_django",
+    "corsheaders",
+    "api.apps.ApiConfig",  # Explicitly use our ApiConfig instead of just "api"
+]
+
+# Then override with R2 if requested
 if USE_CLOUDFLARE_R2:
     # Use custom storage class for R2
     DEFAULT_FILE_STORAGE = "api.storage.CloudflareR2Storage"
+    # Don't use R2 for static files since we want them to be served directly
+    # STATICFILES_STORAGE = "api.storage.CloudflareR2Storage"
 
     # R2 connection settings
     AWS_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")
@@ -78,10 +100,8 @@ if USE_CLOUDFLARE_R2:
         }
         print("R2 Settings:", r2_settings)
 else:
-    # Local dev file storage
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-    print("BASE_MEDIA_ROOT_GETTING_ELSED:", MEDIA_ROOT)
+    # Local dev file storage is already set as default above
+    print("Using local file storage at:", MEDIA_ROOT)
 
 
 # Quick-start development settings - unsuitable for production
@@ -103,19 +123,6 @@ ALLOWED_HOSTS = (
 )
 
 # Application definition
-
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "api",
-    "graphene_django",
-    "corsheaders",
-    "storages",
-]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
