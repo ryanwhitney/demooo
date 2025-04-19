@@ -132,7 +132,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 						className={artistHeaderBackground}
 						role="presentation"
 						style={{
-							background: `url(${import.meta.env.VITE_API_URL || "http://localhost:8000"}/media/${data.user.profile.profilePictureOptimizedUrl})`,
+							background: `url(${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/media/${data.user.profile.profilePictureOptimizedUrl})`,
 						}}
 					/>
 
@@ -146,7 +146,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 								play
 							</PlayButton>
 							<img
-								src={`${import.meta.env.VITE_API_URL || "http://localhost:8000"}/media/${data.user.profile.profilePictureOptimizedUrl}`}
+								src={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/media/${data.user.profile.profilePictureOptimizedUrl}`}
 								width={200}
 								height={200}
 								className={profileImage}

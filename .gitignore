@@ -46,3 +46,4 @@ venv.bak/
 !/backend/media/test_files/
 .env.docker
 .env
+.env.production

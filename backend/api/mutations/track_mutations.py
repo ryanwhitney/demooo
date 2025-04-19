@@ -10,6 +10,7 @@ import numpy as np
 from api.models import Track
 from api.types.track import TrackType
 from api.utils import delete_track_files
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.utils.text import slugify

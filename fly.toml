@@ -1,13 +1,21 @@
+
 # fly.toml app configuration file generated for demooo on 2025-04-19T07:04:47Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'demooo'
-primary_region = 'sea'
+app = "demooo"
+primary_region = "sea" 
 
 [build]
+  dockerfile = "Dockerfile"
+  [build.args]
+    API_BASE_URL = "https://demooo.fly.dev"
 
+[env]
+  ENVIRONMENT = "production"
+  PORT = "8080"
+  
 [http_service]
   internal_port = 80
   force_https = true
@@ -21,3 +29,16 @@ primary_region = 'sea'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 1024
+
+[mounts]
+  source = "demooo_data"
+  destination = "/app/backend/media"
+
+[[statics]]
+  guest_path = "/app/dist/assets"
+  url_prefix = "/static/assets"
+
+# Health check for database migrations
+[deploy]
+  release_command = "python /app/backend/manage.py migrate"
+

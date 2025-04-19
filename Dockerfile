@@ -9,8 +9,8 @@ COPY public/ public/
 COPY src/ src/
 COPY tsconfig.json vite.config.ts index.html ./
 
-ARG API_URL
-ENV VITE_API_URL $API_URL
+ARG API_BASE_URL
+ENV VITE_API_BASE_URL $API_BASE_URL
 
 RUN npm run build
 

@@ -7,6 +7,10 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - .env.docker
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-demooo_db}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     healthcheck:
@@ -19,8 +23,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000}
     volumes:
       - ./backend:/app/backend
+      - ./backend/.env.docker:/app/.env.docker
     ports:
       - "8000:8000"
     depends_on:
@@ -29,7 +36,12 @@ services:
     env_file:
       - .env.docker
     environment:
-      - POSTGRES_HOST=db  # Override the host to point to the Docker service
+      - ENVIRONMENT=docker
+      - POSTGRES_HOST=db
+    command: >
+      sh -c "cd /app/backend && 
+             python manage.py migrate && 
+             python manage.py runserver 0.0.0.0:8000"
 
 volumes:
   postgres_data:

@@ -7,11 +7,10 @@ from pathlib import Path
 
 import graphene
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from graphene_file_upload.scalars import Upload
 from graphql_jwt.decorators import login_required
 
-from ..types.profile import ProfileType
+from api.types.profile import ProfileType
 
 
 def generate_short_unique_id():
@@ -84,6 +83,8 @@ class UpdateProfile(graphene.Mutation):
 
     @login_required
     def mutate(self, info, name=None, bio=None, location=None, profile_picture=None):
+        from django.core.files.storage import default_storage
+
         user = info.context.user
         profile = user.profile
 
