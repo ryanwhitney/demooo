@@ -5,7 +5,7 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-# Add to settings.py
+# Django logging
 import logging
 
 logger = logging.getLogger("django")
@@ -15,56 +15,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Path to the frontend dist directory
 FRONTEND_DIR = Path(BASE_DIR).parent / "dist"
 
-
+# Determine which env file to use
 env_file = ".env.local"  # fallback
 if os.environ.get("ENVIRONMENT") == "production":
     env_file = ".env.production"
 elif os.environ.get("ENVIRONMENT") == "docker":
     env_file = ".env.docker"
 
-# Load from .env (project root > backend > settings dir)
+# Load from .env files in different potential locations
 load_dotenv(dotenv_path=Path(BASE_DIR).parent / env_file, override=True)
 load_dotenv(dotenv_path=BASE_DIR / env_file, override=True)
 load_dotenv(dotenv_path=Path(__file__).resolve().parent / env_file, override=True)
 
-# Now you can safely access env vars
+# Environment settings
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
-
-# Now access the environment variable
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 USE_CLOUDFLARE_R2 = os.environ.get("USE_CLOUDFLARE_R2", "false").lower() == "true"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
-# Log for debugging
-logger = logging.getLogger("django")
-logger.info(f"USE_CLOUDFLARE_R2 raw value: {os.environ.get('USE_CLOUDFLARE_R2')}")
-logger.info(f"Evaluated USE_CLOUDFLARE_R2: {USE_CLOUDFLARE_R2}")
+# Log environment settings for debugging
+logger.info(f"Environment: {ENVIRONMENT}")
+logger.info(f"Debug mode: {DEBUG}")
+logger.info(f"Using R2 storage: {USE_CLOUDFLARE_R2}")
 
-# Set default storage first to local storage
-DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+# File storage configuration
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# Application definition
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "storages",  # Always include storages first
-    "graphene_django",
-    "corsheaders",
-    "api.apps.ApiConfig",  # Explicitly use our ApiConfig instead of just "api"
-]
-
-# Then override with R2 if requested
+# Configure R2 storage if enabled
 if USE_CLOUDFLARE_R2:
     # Use custom storage class for R2
     DEFAULT_FILE_STORAGE = "api.storage.CloudflareR2Storage"
-    # Don't use R2 for static files since we want them to be served directly
-    # STATICFILES_STORAGE = "api.storage.CloudflareR2Storage"
 
     # R2 connection settings
     AWS_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")
@@ -79,33 +59,15 @@ if USE_CLOUDFLARE_R2:
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_QUERYSTRING_AUTH = False
 
+    # Update MEDIA_URL to use the R2 endpoint
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
 
     if DEBUG:
         print(f"Using Cloudflare R2 storage with bucket: {AWS_STORAGE_BUCKET_NAME}")
-
-        # Display settings for debugging
-        r2_settings = {
-            "DEFAULT_FILE_STORAGE": DEFAULT_FILE_STORAGE,
-            "AWS_ACCESS_KEY_ID": (
-                AWS_ACCESS_KEY_ID[:4] + "..." if AWS_ACCESS_KEY_ID else None
-            ),
-            "AWS_SECRET_ACCESS_KEY": "***" if AWS_SECRET_ACCESS_KEY else None,
-            "AWS_STORAGE_BUCKET_NAME": AWS_STORAGE_BUCKET_NAME,
-            "AWS_S3_ENDPOINT_URL": AWS_S3_ENDPOINT_URL,
-            "AWS_S3_REGION_NAME": AWS_S3_REGION_NAME,
-            "AWS_S3_ADDRESSING_STYLE": AWS_S3_ADDRESSING_STYLE,
-            "AWS_DEFAULT_ACL": AWS_DEFAULT_ACL,
-            "MEDIA_URL": MEDIA_URL,
-        }
-        print("R2 Settings:", r2_settings)
 else:
-    # Local dev file storage is already set as default above
-    print("Using local file storage at:", MEDIA_ROOT)
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+    # Use default local file storage
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    print(f"Using local file storage at: {MEDIA_ROOT}")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
@@ -121,6 +83,23 @@ ALLOWED_HOSTS = (
         "demooo.fly.dev",
     ]
 )
+
+# Application definition
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "storages",  # Always include storages first
+    "graphene_django",
+    "corsheaders",
+    "api.apps.ApiConfig",  # Explicitly use our ApiConfig
+]
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # Application definition
 

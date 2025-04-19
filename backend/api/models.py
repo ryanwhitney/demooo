@@ -70,12 +70,8 @@ class Profile(models.Model):
 
     @property
     def profile_picture_url(self):
-        """Return the full URL including domain to the profile picture"""
-        if not self.profile_picture:
-            return None
-
-        # Use default_storage to get the proper URL based on current storage backend
-        return default_storage.url(self.profile_picture)
+        """Return the URL to the profile picture"""
+        return self.profile_picture_optimized_url
 
     # Signal to create a profile when a user is created
     @receiver(post_save, sender=User)
@@ -138,11 +134,9 @@ class Track(models.Model):
         User, on_delete=models.CASCADE, related_name="tracks", db_column="user_id"
     )
     title = models.CharField(max_length=125)
-    title_slug = models.SlugField(max_length=255)  # longer to allow for slug dashes
+    title_slug = models.SlugField(max_length=255)  # ~2x title to allow for slug dashes
     description = models.TextField(blank=True)
-    audio_file = models.CharField(
-        max_length=255, blank=True
-    )  # Changed from FileField to CharField
+    audio_file = models.CharField(max_length=255, blank=True)
     audio_length = models.IntegerField(default=0)
     audio_waveform_data = models.JSONField(blank=True, null=True)
     audio_waveform_resolution = models.IntegerField(default=0)

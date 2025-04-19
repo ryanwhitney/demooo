@@ -110,9 +110,8 @@ const ProfilePage = () => {
 		return "";
 	};
 
-	const profilePictureUrl = data?.me?.profile?.profilePictureOptimizedUrl
-		? `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/media/${data.me.profile.profilePictureOptimizedUrl}`
-		: null;
+	const profilePictureUrl =
+		data?.me?.profile?.profilePictureOptimizedUrl || null;
 
 	return (
 		<>
