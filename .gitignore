@@ -44,3 +44,5 @@ venv.bak/
 /backend/media/*
 # But don't ignore the test_files directory and its contents
 !/backend/media/test_files/
+.env.docker
+.env
