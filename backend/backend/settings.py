@@ -169,5 +169,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOWED_ORIGINS = os.environ.get(
     "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:4000,http://localhost:4173,http://localhost:5173",
+    "http://localhost:3000,http://localhost:4000,http://localhost:4173,http://localhost:5173,https://demooo.fly.dev",
 ).split(",")
