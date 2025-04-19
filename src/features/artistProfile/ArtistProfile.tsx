@@ -36,7 +36,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 
 	const {
 		isFollowing,
-		loading: loadingFollow,
+		// loading: loadingFollow,
 		toggleFollow,
 	} = useFollow(data?.user.username);
 

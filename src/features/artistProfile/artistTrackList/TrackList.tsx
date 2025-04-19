@@ -17,7 +17,7 @@ const TrackRow = ({
 	const audio = useAudio();
 	const {
 		isFavorited,
-		loading: loadingFavorite,
+		// loading: loadingFavorite,
 		toggleFavorite,
 	} = useFavorite(track.id);
 

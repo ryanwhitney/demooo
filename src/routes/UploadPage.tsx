@@ -100,7 +100,7 @@ const UploadPage = () => {
 		setTracks(
 			tracks.map((track) => ({
 				...track,
-				status: "pending",
+				status: "pending" as const,
 			})),
 		);
 
@@ -139,13 +139,13 @@ const UploadPage = () => {
 					return {
 						...track,
 						id: uploadedTrack.id,
-						status: "success",
+						status: "success" as const,
 					};
 				} else {
 					// Track was not in the response, so it failed
 					return {
 						...track,
-						status: "error",
+						status: "error" as const,
 						errorMessage: "Upload failed",
 					};
 				}
@@ -182,13 +182,13 @@ const UploadPage = () => {
 					if (duplicateTitles.includes(track.title)) {
 						return {
 							...track,
-							status: "error",
-							errorMessage: `A track with this title already exists"`,
+							status: "error" as const,
+							errorMessage: `A track with this title already exists`,
 						};
 					}
 					return {
 						...track,
-						status: "pending",
+						status: "pending" as const,
 					};
 				});
 
@@ -200,7 +200,7 @@ const UploadPage = () => {
 				setTracks(
 					tracks.map((track) => ({
 						...track,
-						status: "error",
+						status: "error" as const,
 						errorMessage: errorMsg,
 					})),
 				);

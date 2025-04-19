@@ -116,7 +116,7 @@ const TrackMultiUpload = () => {
 
 					{tracks.map((track, index) => (
 						<div
-							key={track.id}
+							key={`${track.title}_${index}`}
 							style={{
 								marginBottom: "20px",
 								padding: "15px",
@@ -130,7 +130,7 @@ const TrackMultiUpload = () => {
 									marginBottom: "10px",
 								}}
 							>
-								File: {track.file.name}
+								File: {track.file?.name}
 							</div>
 
 							<TextInput

@@ -1,4 +1,4 @@
-import { useApolloClient, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { GET_ME } from "../apollo/queries/userQueries";
 import type { AuthContextType, AuthProviderProps, User } from "../types/auth";

@@ -2,7 +2,6 @@ import Button from "@/components/button/Button";
 import Modal from "@/components/modal/Modal";
 import CreateAccount from "@/features/auth/CreateAccount";
 import Login from "@/features/auth/Login";
-import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, NavLink } from "react-router";
@@ -12,7 +11,7 @@ import { buttonStyles } from "@/components/button/Button.css";
 import { useQuery } from "@apollo/client";
 import { GET_ME } from "@/apollo/queries/userQueries";
 import TrackMultiUpload from "@/features/tracks/trackMultiUpload/TrackMultiUpload";
-import ProfileMenu from "../profileMenu/ProfileMenu";
+import ProfileMenu from "@/features/nav/profileMenu/ProfileMenu";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
