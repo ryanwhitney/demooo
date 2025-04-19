@@ -14,6 +14,7 @@ import GlobalPlayer from "./features/audio/globalPlayer/GlobalPlayer";
 import ProfilePage from "./routes/Profile";
 import NavBar from "./features/nav/navBar/NavBar";
 import UploadPage from "./routes/UploadPage";
+import ProtectedRoute from "./routes/components/ProtectedRoute";
 
 // Get the root element
 const rootElement = document.getElementById("root");
@@ -34,8 +35,23 @@ if (rootElement) {
 									path="/:artistName/track/:titleSlug"
 									element={<TrackPage />}
 								/>
-								<Route path="/profile" element={<ProfilePage />} />
-								<Route path="/upload" element={<UploadPage />} />
+
+								<Route
+									path="/profile"
+									element={
+										<ProtectedRoute>
+											<ProfilePage />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path="/upload"
+									element={
+										<ProtectedRoute>
+											<UploadPage />
+										</ProtectedRoute>
+									}
+								/>
 							</Routes>
 							<GlobalPlayer /> {/* Global audio player lives above all */}
 						</BrowserRouter>

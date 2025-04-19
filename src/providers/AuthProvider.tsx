@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useApolloClient, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { GET_ME } from "../apollo/queries/userQueries";
 import type { AuthContextType, AuthProviderProps, User } from "../types/auth";
@@ -43,6 +43,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		localStorage.removeItem("authToken");
 		setIsAuthenticated(false);
 		setUser(null);
+		window.location.reload();
 	};
 
 	// Context value with proper typing

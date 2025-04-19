@@ -107,7 +107,7 @@ export const favoriteIconToggle = recipe({
     color: tokens.colors.quaternary,
     padding: 10,
     width: 16,
-    transition: "filter 400ms ease-in-out",
+    transition: "filter 400ms cubic-bezier(.05, .69, .14, 1)",
     ':hover':{
       cursor: "pointer",
       color: tokens.colors.tertiary,
@@ -117,8 +117,7 @@ export const favoriteIconToggle = recipe({
     isActive: {
       true: {
       color: tokens.colors.heartRed,
-      filter: `drop-shadow(0px 0px 10px ${tokens.colors.heartRed})`, 
-
+      filter: `drop-shadow(0px 0px 4px ${tokens.colors.heartRed})`, 
         ':hover':{
           cursor: "pointer",
           color: tokens.colors.heartRed,

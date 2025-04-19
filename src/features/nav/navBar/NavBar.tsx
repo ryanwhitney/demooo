@@ -6,19 +6,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, NavLink } from "react-router";
-import { logo, navBar, navBarUserAvatar, navItemsList } from "./NavBar.css";
+import { logo, navBar, navItemsList } from "./NavBar.css";
 import DemoooLogo from "../AnimatedLogo/DemoooLogo";
 import { buttonStyles } from "@/components/button/Button.css";
 import { useQuery } from "@apollo/client";
 import { GET_ME } from "@/apollo/queries/userQueries";
 import TrackMultiUpload from "@/features/tracks/trackMultiUpload/TrackMultiUpload";
+import ProfileMenu from "../profileMenu/ProfileMenu";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [showUploadModal, setShowUploadModal] = useState(false);
-
-	const me = useAuth();
 
 	const { data } = useQuery(GET_ME, {
 		fetchPolicy: "cache-and-network",
@@ -31,22 +30,8 @@ function NavBar() {
 					<DemoooLogo text="demoooooooo" />
 				</NavLink>
 				<ul className={navItemsList}>
-					{me.isAuthenticated ? (
+					{data?.me?.username ? (
 						<>
-							<li>
-								<Link
-									className={buttonStyles({})}
-									style={{
-										textDecoration: "none",
-										display: "flex",
-										alignItems: "center",
-										gap: 8,
-									}}
-									to={`${me.user?.username}`}
-								>
-									me
-								</Link>
-							</li>
 							<li>
 								<Link
 									className={buttonStyles({})}
@@ -61,32 +46,7 @@ function NavBar() {
 									upload
 								</Link>
 							</li>
-							<li>
-								<Button variant="primary" onClick={me.logout}>
-									logout
-								</Button>
-							</li>
-							<li>
-								<Link
-									style={{
-										textDecoration: "none",
-										display: "flex",
-										alignItems: "center",
-										gap: 8,
-									}}
-									to={"/profile"}
-								>
-									{data?.me?.profile.profilePictureOptimizedUrl && (
-										<img
-											width={40}
-											height={40}
-											src={`http://localhost:8000/media/${data.me?.profile.profilePictureOptimizedUrl}`}
-											alt="user profile"
-											className={navBarUserAvatar}
-										/>
-									)}
-								</Link>
-							</li>
+							<ProfileMenu me={data.me} />
 						</>
 					) : (
 						<>

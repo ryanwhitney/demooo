@@ -16,39 +16,37 @@ type ModalProps = {
 };
 
 function Modal({ children, onClose, title, description }: ModalProps) {
-	const [opacity, setOpacity] = useState(0);
+	const [isVisible, setIsVisible] = useState(false);
 
-	const TRANSITION_TIME = 100;
+	const TRANSITION_TIME = 150;
 
 	const handleClose = () => {
-		setOpacity(0);
+		setIsVisible(false);
 		setTimeout(() => {
 			onClose();
 		}, TRANSITION_TIME);
 	};
 
 	useEffect(() => {
-		setOpacity(1);
+		setIsVisible(true);
 	}, []);
 
 	return (
 		<div
-			className={modalBackdropContainer}
+			className={modalBackdropContainer({ isActive: isVisible })}
 			onKeyDown={(e) => {
 				if (e.key === "Escape") {
 					handleClose();
 				}
 			}}
 			style={{
-				transition: `opacity ${TRANSITION_TIME}ms ease-in`,
-				opacity: opacity,
+				transition: `all ${TRANSITION_TIME}ms ease-in-out`,
 			}}
 		>
 			<section
-				className={modalCard}
+				className={modalCard({ isActive: isVisible })}
 				style={{
-					transition: `opacity ${TRANSITION_TIME}ms ease-in`,
-					opacity: opacity,
+					transition: `all ${TRANSITION_TIME}ms ease-in-out`,
 				}}
 			>
 				<Button

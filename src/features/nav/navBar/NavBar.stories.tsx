@@ -96,7 +96,7 @@ export const LoggedIn: Story = {
 								profile: {
 									id: "1",
 									profilePictureOptimizedUrl:
-										"https://picsum.photos/seed/picsum/200/200",
+										"http://localhost:8000/media/test_files/test_profile_photo.jpeg",
 									name: "John Doe",
 								},
 							},

@@ -32,10 +32,6 @@ export const navBarUser = style({
 	padding: tokens.space.lg,
 });
 
-export const navBarUserAvatar = style({
-	borderRadius: tokens.radii.full,
-});
-
 export const navButton = style({
 	fontWeight: 500,
 });

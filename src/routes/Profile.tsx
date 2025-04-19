@@ -123,7 +123,7 @@ const ProfilePage = () => {
 					// biome-ignore lint/a11y/noNoninteractiveTabindex: it's been made iteractive
 					tabIndex={0}
 					onKeyDown={(e) => {
-						if (e.key === " ") {
+						if (e.key === "Enter" || e.key === " ") {
 							e.preventDefault();
 							triggerFileUpload();
 						}
