@@ -66,3 +66,52 @@ class CloudflareR2Storage(S3Boto3Storage):
 
         # Return the connection
         return self._connections[self.access_key]
+
+    def get_presigned_url(self, name, expiration=3600):
+        """
+        Generate a presigned URL for the given object name.
+
+        Args:
+            name: The name of the object (file path within bucket)
+            expiration: The expiration time in seconds (default: 1 hour)
+
+        Returns:
+            str: The presigned URL
+        """
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+            endpoint_url=self.endpoint_url,
+            region_name=settings.AWS_S3_REGION_NAME,
+            config=boto3.session.Config(
+                s3={"addressing_style": settings.AWS_S3_ADDRESSING_STYLE},
+                signature_version=settings.AWS_S3_SIGNATURE_VERSION,
+            ),
+        )
+
+        try:
+            # Generate the presigned URL
+            url = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": self.bucket_name,
+                    "Key": self.name_for_path(name),
+                },
+                ExpiresIn=expiration,
+            )
+            return url
+        except Exception as e:
+            if settings.DEBUG:
+                print(f"Error generating presigned URL: {e}")
+            return None
+
+    def name_for_path(self, name):
+        """
+        Get the properly formatted name (key) for a path
+        """
+        if name.startswith(self.location):
+            return name
+        if self.location:
+            return f"{self.location.rstrip('/')}/{name}"
+        return name

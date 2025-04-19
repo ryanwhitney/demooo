@@ -53,11 +53,13 @@ if USE_CLOUDFLARE_R2:
     AWS_S3_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")
     AWS_S3_REGION_NAME = "auto"
     AWS_S3_ADDRESSING_STYLE = "path"
-    AWS_DEFAULT_ACL = "public-read"
+
+    # Files are private by default, we'll use presigned URLs
+    AWS_DEFAULT_ACL = "private"
 
     # Additional settings to fix R2 compatibility issues
     AWS_S3_SIGNATURE_VERSION = "s3v4"
-    AWS_QUERYSTRING_AUTH = False
+    AWS_QUERYSTRING_AUTH = True  # Enable query string auth for URLs
 
     # Update MEDIA_URL to use the R2 endpoint
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"

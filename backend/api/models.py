@@ -65,8 +65,27 @@ class Profile(models.Model):
         if not self.profile_picture:
             return None
 
-        # Use default_storage to get the proper URL based on current storage backend
-        return default_storage.url(self.profile_picture)
+        # Check if we're using R2 storage
+        if settings.USE_CLOUDFLARE_R2:
+            try:
+                # Import here to avoid circular imports
+                from api.storage import CloudflareR2Storage
+
+                # Get R2 storage instance
+                r2_storage = CloudflareR2Storage()
+
+                # Generate a presigned URL that expires in 24 hours
+                return r2_storage.get_presigned_url(
+                    self.profile_picture, expiration=86400
+                )
+            except Exception as e:
+                if settings.DEBUG:
+                    print(f"Error generating presigned URL: {e}")
+                # Fall back to regular URL if presigning fails
+                return default_storage.url(self.profile_picture)
+        else:
+            # Use default_storage for local files
+            return default_storage.url(self.profile_picture)
 
     @property
     def profile_picture_url(self):
@@ -155,8 +174,25 @@ class Track(models.Model):
         # Construct path to the actual MP3 file
         mp3_path = f"{self.audio_file}/320/{self.id}.mp3"
 
-        # Use default_storage to get the proper URL based on current storage backend
-        return default_storage.url(mp3_path)
+        # Check if we're using R2 storage
+        if settings.USE_CLOUDFLARE_R2:
+            try:
+                # Import here to avoid circular imports
+                from api.storage import CloudflareR2Storage
+
+                # Get R2 storage instance
+                r2_storage = CloudflareR2Storage()
+
+                # Generate a presigned URL that expires in 24 hours
+                return r2_storage.get_presigned_url(mp3_path, expiration=86400)
+            except Exception as e:
+                if settings.DEBUG:
+                    print(f"Error generating presigned URL for audio: {e}")
+                # Fall back to regular URL if presigning fails
+                return default_storage.url(mp3_path)
+        else:
+            # Use default_storage for local files
+            return default_storage.url(mp3_path)
 
     @property
     def original_audio_url(self):
