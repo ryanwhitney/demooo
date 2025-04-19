@@ -32,4 +32,5 @@ RUN mkdir -p /app/backend/media && chmod 777 /app/backend/media
 
 WORKDIR /app/backend
 
-CMD python manage.py migrate && python manage.py runserver 0.0.0.0:8000
+# port 80 for Fly.io
+CMD python manage.py migrate && python manage.py runserver 0.0.0.0:80
