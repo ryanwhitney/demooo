@@ -1,11 +1,12 @@
+import { tokens } from "@/styles/tokens";
 import type { Profile } from "@/types/user";
-import * as style from "./ProfilePhoto.css";
 import { useState } from "react";
 
 const ProfilePhoto = ({
 	profile,
 	size = 34,
-}: { profile: Profile; size?: number }) => {
+	borderRadius = tokens.radii.full,
+}: { profile: Profile; size?: number; borderRadius: string }) => {
 	const [imageError, setImageError] = useState(false);
 
 	function getProfilePhotoUrl() {
@@ -35,9 +36,9 @@ const ProfilePhoto = ({
 			style={{
 				width: size,
 				height: size,
+				borderRadius: `${borderRadius}`,
 				background: generateGradient(),
 			}}
-			className={style.profilePhoto}
 		/>
 	) : (
 		<img
@@ -46,7 +47,7 @@ const ProfilePhoto = ({
 			src={getProfilePhotoUrl()}
 			// biome-ignore lint/a11y/noRedundantAlt: makes sense here
 			alt="Your profile photo"
-			className={style.profilePhoto}
+			style={{ borderRadius: `${borderRadius}` }}
 			onError={() => setImageError(true)}
 		/>
 	);

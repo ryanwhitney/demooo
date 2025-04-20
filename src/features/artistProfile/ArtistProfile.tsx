@@ -24,6 +24,7 @@ import PlayButton from "@/components/audioPlayer/components/playButton/PlayButto
 import { tokens } from "@/styles/tokens";
 import Button from "@/components/button/Button";
 import { useFollow } from "@/hooks/useFollow";
+import ProfilePhoto from "../nav/profilePhoto/ProfilePhoto";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const { data, loading, error, refetch } = useQuery(GET_ARTIST, {
@@ -47,13 +48,6 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 		},
 		[tracks],
 	);
-
-	function getProfilePhotoUrl() {
-		if (data.user.profile.profilePictureOptimizedUrl?.startsWith("http")) {
-			return data.user.profile.profilePictureOptimizedUrl;
-		}
-		return `${import.meta.env.VITE_API_BASE_URL}${data.user.profile.profilePictureOptimizedUrl}`;
-	}
 
 	const isPlayingFromArtistPage = useCallback((): boolean => {
 		return (
@@ -152,12 +146,10 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 							>
 								play
 							</PlayButton>
-							<img
-								src={getProfilePhotoUrl()}
-								width={200}
-								height={200}
-								className={profileImage}
-								alt="buga"
+							<ProfilePhoto
+								profile={data.user.profile}
+								size={200}
+								borderRadius={tokens.radii.md}
 							/>
 						</div>
 						<div className={artistInfoContainer}>

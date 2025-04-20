@@ -90,9 +90,6 @@ export const artistPlayButton = style({
   
 });
 
-export const profileImage = style({
-  borderRadius: tokens.radii.md
-});
 
 export const artistTitle = style({
   color: tokens.colors.primary,
