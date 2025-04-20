@@ -14,6 +14,8 @@ export const mockData = {
 			titleSlug: "side-a-aig",
 			audioFile:
 				"http://localhost:8000/media/audio/test_files/sample.mp3",
+			audioUrl:
+					"http://localhost:8000/media/audio/test_files/sample.mp3",
 			description: "recorded drunk in a hotel room in new orleans.",
 			audioLength: 120,
 			createdAt: "2025-04-04",

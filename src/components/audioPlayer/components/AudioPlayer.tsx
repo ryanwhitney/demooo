@@ -77,10 +77,21 @@ const AudioPlayer = ({
 
 	const waveformData = parseWaveformData(track.audioWaveformData);
 
-	// set this to desired audio file URL based on env and quality
-	const audioFileUrl = track.audioFile?.startsWith("http")
-		? `${track.audioFile}/320.mp3`
-		: `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/media/${track.audioFile}/320/${track.id}.mp3`;
+	// Use the audio_url from GraphQL which will be presigned when using R2 storage
+	// If audioUrl is missing, construct the URL based on audioFile
+	const audioFileUrl = (() => {
+		// If we have a presigned URL from the backend, use it
+		if (track.audioUrl) {
+			console.log("Using presigned URL:", track.audioUrl);
+			return track.audioUrl;
+		}
+
+		// Otherwise, construct the URL based on audioFile
+		if (track.audioFile?.startsWith("http")) {
+			console.log("Using direct URL:", `${track.audioFile}/320.mp3`);
+			return `${track.audioFile}/320.mp3`;
+		}
+	})();
 
 	const normalizedProgress = duration > 0 ? currentTime / duration : 0;
 

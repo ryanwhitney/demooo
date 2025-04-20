@@ -2,6 +2,7 @@ import type { Profile } from "./auth"
 
 export interface Track {
 	audioFile: string | undefined
+	audioUrl: string | undefined
 	id: string;
 	title: string; // A Great Song 
 	titleSlug: string; // a-great-song

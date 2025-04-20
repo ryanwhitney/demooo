@@ -8,6 +8,7 @@ export const UPLOAD_TRACK = gql`
         title
         description
         audioFile
+        audioUrl
       }
     }
   }
@@ -21,6 +22,7 @@ export const UPLOAD_MULTIPLE_TRACKS = gql`
         title
         description
         audioFile
+        audioUrl
       }
       failedUploads
     }

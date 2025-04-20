@@ -20,14 +20,14 @@ class TrackType(DjangoObjectType):
             "updated_at",
         )
 
-    audio_url = graphene.String()
+    # Define audio_url as a String field - this will be sent to the client
+    audio_url = graphene.String(description="URL to the MP3 audio file")
     favorites_count = graphene.Int()
     is_favorited = graphene.Boolean()
 
     def resolve_audio_url(self, info):
-        if self.audio_file:
-            return self.audio_file.url
-        return None
+        """Return the presigned URL to the MP3 audio file"""
+        return self.audio_url
 
     def resolve_favorites_count(self, info):
         return self.favorited_by.count()

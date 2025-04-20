@@ -174,25 +174,26 @@ class Track(models.Model):
         # Construct path to the actual MP3 file
         mp3_path = f"{self.audio_file}/320/{self.id}.mp3"
 
+        # Debug output to check when this method is called
+        print(f"Track.audio_url called for: {self.title}, path: {mp3_path}")
+
         # Check if we're using R2 storage
         if settings.USE_CLOUDFLARE_R2:
             try:
-                # Import here to avoid circular imports
                 from api.storage import CloudflareR2Storage
 
                 # Get R2 storage instance
                 r2_storage = CloudflareR2Storage()
-
                 # Generate a presigned URL that expires in 24 hours
-                return r2_storage.get_presigned_url(mp3_path, expiration=86400)
+                return r2_storage.get_presigned_url(self.mp3_path, expiration=86400)
             except Exception as e:
-                if settings.DEBUG:
-                    print(f"Error generating presigned URL for audio: {e}")
-                # Fall back to regular URL if presigning fails
-                return default_storage.url(mp3_path)
+                regular_url = default_storage.url(mp3_path)
+                return regular_url
         else:
             # Use default_storage for local files
-            return default_storage.url(mp3_path)
+            local_url = default_storage.url(mp3_path)
+            print(f"Using local URL: {local_url}")
+            return local_url
 
     @property
     def original_audio_url(self):
