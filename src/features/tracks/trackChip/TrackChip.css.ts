@@ -25,23 +25,22 @@ export const waveformWrapper = style({
 	justifyContent: "center",
 	padding: "16px 8px",
 	position: 'relative',
-
-	// position: "relative",
 });
 
 export const trackChipPlayButton = style({
 	width: 24,
 	height: 24,
 	padding: 8,
-	// position: 'relative',
 	alignSelf: 'center',
 	justifySelf: 'center',
 	transition: 'opacity 150ms ease', 
 	zIndex: 4,
 	opacity: 0,
+	':focus':{
+		opacity: 1
+	},
 	'::before':{
 		content: '\ ',
-		// background: 'red',
 		position: 'absolute',
 		top: 0,
 		left: 0,
@@ -56,13 +55,24 @@ export const waveformElement = style({
 	opacity: 1,
 	position: 'absolute',
 	transition: 'opacity 200ms ease', 
+	transform: 'translate3d(0, 0, 0)', // fix safari jitter
 });
 
 // Add this globalStyle definition to create the group hover effect
 globalStyle(`${waveformWrapper}:hover ${trackChipPlayButton}`, {
   opacity: 1,
 });
+
+// Add this globalStyle definition to create the group hover effect
+globalStyle(`${trackChipWrapper}:focus ${trackChipPlayButton}`, {
+  opacity: 1,
+});
+
 globalStyle(`${waveformWrapper}:hover ${waveformElement}`, {
+  opacity: 0.2
+});
+
+globalStyle(`${trackChipWrapper}:focus ${waveformElement}`, {
   opacity: 0.2
 });
 
@@ -83,7 +93,7 @@ export const trackTitle = style({
 	padding: tokens.space.sm,
 	position: 'relative',
 	fontWeight: 400,
-	transition: 'font-weight 200ms ease',
+	// transition: 'font-weight 200ms ease',
 	// account for line 2 somehow showing below
 	lineHeight: 1.8,
 	marginBottom: -2,
@@ -114,7 +124,7 @@ export const trackArtistContainer = style({
 	// width: 'fit-content',
 	padding: tokens.space.sm,
 	position: 'relative',
-	transition: "color 0.1s ease-in-out",
+	// transition: "color 0.1s ease-in-out",
 	zIndex: 2,
 	':hover':{
 		color: tokens.colors.primary,

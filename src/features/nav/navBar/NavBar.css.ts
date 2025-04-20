@@ -8,6 +8,8 @@ export const navBar = style({
 	display: "flex",
 	justifyContent: "space-between",
 	alignItems: "center",
+	width: '100vw',
+	maxWidth: 1200,
 });
 
 export const logo = style({

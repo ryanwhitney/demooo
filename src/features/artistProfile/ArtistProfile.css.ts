@@ -18,10 +18,9 @@ export const artistViewWrapper = style({
     'screen and (min-width: 480px)': {
       maxWidth: 768,
       gap: tokens.space.xxl,
-    },
+    }
   },
-});
-
+})
 export const artistHeaderBackgroundGrain = style({
   width: "100%",
   height: "300px",

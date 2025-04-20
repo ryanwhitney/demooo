@@ -92,22 +92,27 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 	}, [audio, isCurrentTrack, isPlaying, track]);
 
 	return (
-		<article className={trackChipWrapper}>
+		<article
+			className={trackChipWrapper}
+			tabIndex={0}
+			onKeyDown={(e) => {
+				if (e.key === " " || e.key === "enter") {
+					e.preventDefault();
+					handleClick();
+				}
+			}}
+			aria-labelledby="`play-${track.title}-${track.artist.username}`"
+		>
 			<div className={trackText}>
 				<strong>
 					<Link
-						title={trackTitle}
 						className={trackTitle}
 						to={`/${track.artist.username}/track/${track.titleSlug}`}
 					>
 						{track.title}
 					</Link>
 				</strong>
-				<Link
-					title={track.artist.profile.name || track.artist.username}
-					className={trackArtistContainer}
-					to={`/${track.artist.username}`}
-				>
+				<Link className={trackArtistContainer} to={`/${track.artist.username}`}>
 					<ProfilePhoto
 						ariaHidden={true}
 						height={16}
@@ -130,6 +135,7 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 					isPlaying={isPlaying}
 					onClick={handleClick}
 					color="white"
+					id={`play-${track.title}-${track.artist.username}`}
 				/>
 				<Waveform className={waveformElement} width={91} />
 			</div>

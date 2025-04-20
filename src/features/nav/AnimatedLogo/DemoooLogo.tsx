@@ -95,11 +95,12 @@ const DemoooLogo = ({ text }: { text: string }) => {
 	return (
 		<div
 			className={mainContainer}
-			title="Demooo Logo"
+			role="img"
+			aria-label="Demooo"
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
-			<div>
+			<div aria-hidden>
 				{text.split("").map((char, index) => (
 					<span
 						key={`${char}-${

@@ -15,13 +15,16 @@ globalStyle("html, body", {
 	minHeight: "100vh",
 	display: "flex",
 	flexDirection: "column",
-	alignItems: "stretch",
-	width: "100vw",
+	alignItems: "center",
 	overflowX: "hidden",
+	width: "100vw",
 });
 
 globalStyle("main", {
 	maxWidth: 960,
 	margin: "0 auto",
 	padding: "0 32px",
+	display: "flex",
+	flexDirection: "column",
+	alignItems: "center",
 });
