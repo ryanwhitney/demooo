@@ -6,18 +6,18 @@ export const artistViewWrapper = style({
   flexDirection: 'column',
   justifyContent: "space-around",
   alignItems: 'center',
-  gap: tokens.space.xxl,
+  gap: tokens.space.xl,
   paddingTop: tokens.space.xl,
   paddingBottom: tokens.space.xl,
   paddingLeft: tokens.space.lg,
   paddingRight: tokens.space.lg,
   maxWidth: "100%",
-
   width: "100%",
   margin: "0 auto",
   '@media': {
     'screen and (min-width: 480px)': {
-      maxWidth: "80%",
+      maxWidth: 768,
+      gap: tokens.space.xxl,
     },
   },
 });
@@ -43,10 +43,11 @@ export const artistHeaderBackground = style({
 
 export const artistHeaderContainer = style({
   display: "flex",
-  flexDirection: "column-reverse",
+  flexDirection: "column",
   justifyContent: "flex-start",
   alignItems: "center",
   width: "100%",
+  flexWrap: 'wrap',
   '@media': {
     'screen and (min-width: 480px)': {
       flexDirection: "row",
@@ -56,13 +57,23 @@ export const artistHeaderContainer = style({
 });
 export const artistInfoAndPhoto = style({
  display: 'flex',
- flexDirection: 'row-reverse',
+ flexDirection: 'column-reverse',
  gap: tokens.space.xl,
+ alignItems: 'center',
+ textAlign: 'center',
+ '@media': {
+   'screen and (min-width: 480px)': {
+    flexDirection: 'row-reverse',
+    textAlign: 'left',
+    flexGrow: 1,
+   },
+ },
 
 });
 export const artistInfoContainer = style({
   display: "flex",
   flexDirection: "column",
+  width: '100%',
 });
 
 // Container for profile image and play button
@@ -98,23 +109,52 @@ export const artistPlayButton = style({
 
 export const artistTitle = style({
   color: tokens.colors.primary,
-  fontSize: 60,
+  // fontSize: 38,
+  fontSize: 'clamp(16px, 5vw, 60px)',
   fontWeight: tokens.fontWeights.bold,
   lineHeight: 1,
-  marginBottom: 8,
+  marginBottom: 16,
+  '@media': {
+    'screen and (min-width: 480px)': {
+      // fontSize: 'clamp(16px, 5vw, 42px)',
+    },
+  },
+  
 });
 
 export const artistLocation = style({
   color: tokens.colors.secondary,
   fontSize: tokens.fontSizes.md,
-  marginBottom: 24,
+  marginBottom: 8,
+
+  '@media': {
+    'screen and (min-width: 480px)': {
+      marginBottom: 24,
+    },
+  },
 });
 
 export const artistBio = style({
   color: tokens.colors.primary,
   fontSize: tokens.fontSizes.md,
+  marginBottom: 16,
 });
 
+export const artistButtons = style({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100%",
+  gap: "10px",
+  '@media': {
+    'screen and (min-width: 480px)': {
+      flexShrink: 100,
+      width: "fit-content",
+      justifyContent: "flex-end",
+      alignSelf: "flex-start",
+    },
+  },
+})
 
 
 export const artistTrackViewInfo = style({

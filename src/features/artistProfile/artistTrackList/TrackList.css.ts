@@ -13,6 +13,7 @@ export const yearHeading = style({
   color: tokens.colors.tertiary,
   fontWeight: tokens.fontWeights.light,
   width: "fit-content",
+  paddingLeft: 16,
 });
 
 export const yearWrapper = style({
@@ -20,6 +21,7 @@ export const yearWrapper = style({
   '@media': {
     'screen and (min-width: 768px)': {
       width: 0,
+      paddingLeft: 0,
       overflow: "visible",
       float: "left",
       position: "relative",

@@ -157,17 +157,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 								/>
 							</div>
 						</div>
-						<div
-							style={{
-								alignSelf: "flex-start",
-								display: "flex",
-								flexShrink: 100,
-								justifyContent: "flex-end",
-								alignItems: "center",
-								width: "100%",
-								gap: "10px",
-							}}
-						>
+						<div className={style.artistButtons}>
 							<Button
 								size="large"
 								variant="primary"
