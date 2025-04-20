@@ -56,7 +56,7 @@ const ProfileMenu = ({ me }: { me: User }) => {
 				<Menu className={styles.menuContainer}>
 					<MenuItem>
 						<Link to={"/profile"} className={styles.menuItem}>
-							Profile
+							Settings
 						</Link>
 					</MenuItem>
 					<Separator className={styles.separator} />

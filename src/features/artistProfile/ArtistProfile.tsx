@@ -48,6 +48,13 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 		[tracks],
 	);
 
+	function getProfilePhotoUrl() {
+		if (data.user.profile.profilePictureOptimizedUrl?.startsWith("http")) {
+			return data.user.profile.profilePictureOptimizedUrl;
+		}
+		return `${import.meta.env.VITE_API_BASE_URL}${data.user.profile.profilePictureOptimizedUrl}`;
+	}
+
 	const isPlayingFromArtistPage = useCallback((): boolean => {
 		return (
 			!!audio.isPlaying &&
@@ -132,7 +139,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 						className={artistHeaderBackground}
 						role="presentation"
 						style={{
-							background: `url(${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/media/${data.user.profile.profilePictureOptimizedUrl})`,
+							background: `url(${getProfilePhotoUrl()})`,
 						}}
 					/>
 
@@ -146,7 +153,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 								play
 							</PlayButton>
 							<img
-								src={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/media/${data.user.profile.profilePictureOptimizedUrl}`}
+								src={getProfilePhotoUrl()}
 								width={200}
 								height={200}
 								className={profileImage}

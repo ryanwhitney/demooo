@@ -56,6 +56,7 @@ export const menuItem = style({
   fontSize: 12,
   borderRadius: tokens.radii.md,
   textDecoration: "none",
+  textAlign: "left",
   color: tokens.colors.primary,
   display: "block",
   ':hover':{
