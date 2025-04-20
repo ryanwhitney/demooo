@@ -7,7 +7,6 @@ import {
 	artistViewWrapper,
 	artistHeaderBackground,
 	profileImageContainer,
-	profileImage,
 	artistInfoContainer,
 	artistLocation,
 	artistBio,
@@ -129,13 +128,14 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 							/>
 						</svg>
 					</div>
-					<div
-						className={artistHeaderBackground}
-						role="presentation"
-						style={{
-							background: `url(${getProfilePhotoUrl()})`,
-						}}
-					/>
+					<div className={artistHeaderBackground} role="presentation">
+						<ProfilePhoto
+							profile={data.user.profile}
+							width="100%"
+							height={200}
+							borderRadius={tokens.radii.md}
+						/>
+					</div>
 
 					<header className={artistHeaderContainer}>
 						<div className={profileImageContainer}>
@@ -148,7 +148,8 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 							</PlayButton>
 							<ProfilePhoto
 								profile={data.user.profile}
-								size={200}
+								width={200}
+								height={200}
 								borderRadius={tokens.radii.md}
 							/>
 						</div>

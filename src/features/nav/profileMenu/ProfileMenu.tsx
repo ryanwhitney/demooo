@@ -46,7 +46,7 @@ const ProfileMenu = ({ me }: { me: User }) => {
 				}}
 			>
 				<div className={styles.profileContainer}>
-					<ProfilePhoto profile={me.profile} size={60} />
+					<ProfilePhoto profile={me.profile} width={60} height={60} />
 					<div className={styles.profileInfoContainer}>
 						<span className={styles.profileName}>{me.profile.name}</span>
 						<span className={styles.profileUsername}>{me.username}</span>

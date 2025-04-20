@@ -2,11 +2,19 @@ import { tokens } from "@/styles/tokens";
 import type { Profile } from "@/types/user";
 import { useState } from "react";
 
+const DEFAULT_SIZE = 34;
+
 const ProfilePhoto = ({
 	profile,
-	size = 34,
+	height = DEFAULT_SIZE,
+	width = DEFAULT_SIZE,
 	borderRadius = tokens.radii.full,
-}: { profile: Profile; size?: number; borderRadius: string }) => {
+}: {
+	profile: Profile;
+	height?: number | string;
+	width?: number | string;
+	borderRadius?: string;
+}) => {
 	const [imageError, setImageError] = useState(false);
 
 	function getProfilePhotoUrl() {
@@ -19,31 +27,34 @@ const ProfilePhoto = ({
 	// Generate a consistent gradient color based on the user's ID or name
 	function generateGradient() {
 		const seed = profile.id || "default";
-		// Simple hash function to generate a number from a string
+		//  hash function to generate a number from a string
 		const hash = seed
 			.split("")
 			.reduce((acc, char) => acc + char.charCodeAt(0), 0);
 
-		// Generate two colors based on the hash
 		const hue1 = hash % 360;
-		const hue2 = (hash * 13) % 360; // Multiply by prime for more variation
-
+		const hue2 = (hash * 13) % 360;
 		return `linear-gradient(135deg, hsl(${hue1}, 70%, 60%), hsl(${hue2}, 70%, 60%))`;
+	}
+
+	// Helper function to convert height/width to CSS value
+	function toCssValue(value: number | string): string {
+		return typeof value === "number" ? `${value}px` : value;
 	}
 
 	return imageError ? (
 		<div
 			style={{
-				width: size,
-				height: size,
-				borderRadius: `${borderRadius}`,
+				width: toCssValue(width),
+				height: toCssValue(height),
+				borderRadius: borderRadius,
 				background: generateGradient(),
 			}}
 		/>
 	) : (
 		<img
-			width={size}
-			height={size}
+			width={toCssValue(width)}
+			height={toCssValue(height)}
 			src={getProfilePhotoUrl()}
 			// biome-ignore lint/a11y/noRedundantAlt: makes sense here
 			alt="Your profile photo"

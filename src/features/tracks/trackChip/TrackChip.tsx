@@ -114,7 +114,7 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 					{track.title}
 				</Link>
 				<Link to={`/${track.artist.username}`} className={trackArtist}>
-					<ProfilePhoto size={16} profile={track.artist.profile} />
+					<ProfilePhoto height={16} width={16} profile={track.artist.profile} />
 					{track.artist.profile.name || track.artist.username}
 				</Link>
 			</div>

@@ -28,17 +28,15 @@ export const GET_ALL_TRACKS = gql`
       id
       title
       titleSlug
-      description
-      audioFile
       audioUrl
       audioLength
       audioWaveformData
-      audioWaveformResolution
       createdAt
       artist {
         username
         id
         profile{
+          id
           name
           profilePictureOptimizedUrl
         }
