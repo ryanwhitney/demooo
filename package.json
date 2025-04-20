@@ -25,6 +25,7 @@
     "react-router": "^7.5.0"
   },
   "devDependencies": {
+    "@axe-core/react": "^4.10.1",
     "@biomejs/biome": "1.9.4",
     "@storybook/addon-essentials": "^8.6.12",
     "@storybook/addon-interactions": "^8.6.12",

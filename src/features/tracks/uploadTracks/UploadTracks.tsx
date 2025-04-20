@@ -8,7 +8,7 @@ import type { UploadTrackFormInput } from "@/types/track";
 import { useMutation } from "@apollo/client";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Button, DropZone, FileTrigger } from "react-aria-components";
-import { dropping, notDropping } from "./UploadPage.css";
+import { dropping, notDropping } from "./UploadTracks.css";
 import TextInput from "@/components/textInput/TextInput";
 
 // Extended type to track upload status
@@ -20,7 +20,7 @@ interface UploadTrackWithStatus extends UploadTrackFormInput {
 	originalFileDate: string; // Store original file date for display
 }
 
-const UploadPage = () => {
+const UploadTracks = () => {
 	const [dropped, setDropped] = useState(false);
 	const [tracks, setTracks] = useState<UploadTrackWithStatus[]>([]);
 	const [uploadErrors, setUploadErrors] = useState<string[]>([]);
@@ -456,4 +456,4 @@ const UploadPage = () => {
 	);
 };
 
-export default UploadPage;
+export default UploadTracks;

@@ -1,7 +1,7 @@
 import { mockData } from "@/apollo/mockData";
 import type { Meta, StoryObj } from "@storybook/react";
 import { MemoryRouter } from "react-router";
-import TrackView from "./TrackView";
+import TrackView from "./SingleTrackView";
 
 const meta: Meta<typeof TrackView> = {
 	title: "Components/TrackView",

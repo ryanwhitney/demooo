@@ -10,7 +10,7 @@ const SiteFooter = () => {
 				paddingTop: tokens.space.xxl,
 				alignItems: "center",
 				lineHeight: 1,
-				color: tokens.colors.tertiary,
+				color: tokens.colors.secondary,
 			}}
 		>
 			<small>

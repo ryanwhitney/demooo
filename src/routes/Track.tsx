@@ -1,8 +1,8 @@
-import { useParams } from "react-router";
-import TrackView from "@/features/tracks/trackView/TrackView";
-import { GET_TRACK_BY_SLUG } from "@/apollo/queries/trackQueries";
-import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
+import { useParams } from "react-router";
+import { useQuery } from "@apollo/client";
+import { GET_TRACK_BY_SLUG } from "@/apollo/queries/trackQueries";
+import TrackView from "@/features/tracks/singleTrackView/SingleTrackView";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 
 function TrackPage() {

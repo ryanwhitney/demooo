@@ -1,42 +1,35 @@
 import type { Track } from "@/types/track";
 import { Link } from "react-router";
-import {
-	trackViewArtist,
-	trackViewDetails,
-	trackViewInfo,
-	trackViewTagsWrapper,
-	trackViewTitle,
-	trackViewWrapper,
-} from "./TrackView.css";
+import * as style from "./SingleTrackView.css";
 import SinglePlayer from "@/features/audio/singlePlayer/SinglePlayer";
 
-function TrackView({ track }: { track: Track }) {
+function SingleTrackView({ track }: { track: Track }) {
 	return (
 		<main>
 			<title>Music | {track.artist.username}</title>
-			<div className={trackViewWrapper}>
-				<div className={trackViewInfo}>
+			<div className={style.trackViewWrapper}>
+				<div className={style.trackViewInfo}>
 					<div>
-						<h1 className={trackViewTitle}>{track.title}</h1>
+						<h1 className={style.trackViewTitle}>{track.title}</h1>
 						<p>
 							by{" "}
 							<Link
 								to={`/${track.artist.username}`}
-								className={trackViewArtist}
+								className={style.trackViewArtist}
 							>
 								{track.artist.username}
 							</Link>
 						</p>
 					</div>
 					<SinglePlayer track={track} />
-					<div className={trackViewDetails}>
+					<div className={style.trackViewDetails}>
 						<p>{track.description || "no notes"}</p>
 					</div>
-					<div className={trackViewTagsWrapper} />
+					<div className={style.trackViewTagsWrapper} />
 				</div>
 			</div>
 		</main>
 	);
 }
 
-export default TrackView;
+export default SingleTrackView;

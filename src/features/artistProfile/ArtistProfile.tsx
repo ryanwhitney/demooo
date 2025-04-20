@@ -69,7 +69,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	}, [refetch]);
 
 	return (
-		<main>
+		<div>
 			{loading ? (
 				<ProgressIndicator />
 			) : error ? (
@@ -175,7 +175,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 					</div>
 				</div>
 			)}
-		</main>
+		</div>
 	);
 };
 
