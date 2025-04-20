@@ -3,6 +3,7 @@ import type { Track } from "@/types/track";
 import { Link } from "react-router";
 import {
 	trackArtist,
+	trackArtistContainer,
 	trackChipPlayButton,
 	trackChipWrapper,
 	trackText,
@@ -91,29 +92,36 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 	}, [audio, isCurrentTrack, isPlaying, track]);
 
 	return (
-		<article className={trackChipWrapper} onClick={handleClick}>
+		<article className={trackChipWrapper}>
 			<div className={trackText}>
 				<strong>
 					<Link
+						title={trackTitle}
 						className={trackTitle}
 						to={`/${track.artist.username}/track/${track.titleSlug}`}
 					>
 						{track.title}
 					</Link>
 				</strong>
-				<Link className={trackArtist} to={`/${track.artist.username}`}>
+				<Link
+					title={track.artist.profile.name || track.artist.username}
+					className={trackArtistContainer}
+					to={`/${track.artist.username}`}
+				>
 					<ProfilePhoto
 						ariaHidden={true}
 						height={16}
 						width={16}
 						profile={track.artist.profile}
 					/>
-					{track.artist.profile.name || track.artist.username}
+					<span className={trackArtist}>
+						{track.artist.profile.name || track.artist.username}
+					</span>
 				</Link>
 			</div>
-			<button
-				type="button"
-				onClick={handleClick}
+			<div
+				// type="button"
+				// onClick={handleClick}
 				className={waveformWrapper}
 				style={{ border: "none" }}
 			>
@@ -123,8 +131,8 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 					onClick={handleClick}
 					color="white"
 				/>
-				<Waveform className={waveformElement} width={55} />
-			</button>
+				<Waveform className={waveformElement} width={91} />
+			</div>
 		</article>
 	);
 });

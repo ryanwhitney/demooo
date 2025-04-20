@@ -1,6 +1,7 @@
 import { GET_ALL_TRACKS } from "@/apollo/queries/trackQueries";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import TrackChip from "@/features/tracks/trackChip/TrackChip";
+import { tokens } from "@/styles/tokens";
 import type { Track } from "@/types/track";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
@@ -19,6 +20,7 @@ const RecentTracks = () => {
 				flexDirection: "column",
 				justifyContent: "center",
 				alignItems: "center",
+				padding: tokens.space.xl,
 			}}
 		>
 			<h2
@@ -41,12 +43,13 @@ const RecentTracks = () => {
 				<ul
 					style={{
 						display: "flex",
-						gap: 20,
+						gap: 16,
 						justifyContent: "center",
-						padding: 20,
+						padding: 0,
 						flexWrap: "wrap",
 						listStyle: "none",
 						margin: 0,
+						maxWidth: 768,
 					}}
 				>
 					{data?.tracks?.map((track: Track) => (
