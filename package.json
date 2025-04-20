@@ -40,6 +40,7 @@
     "globals": "^15.15.0",
     "storybook": "^8.6.12",
     "storybook-addon-apollo-client": "^8.1.2",
+    "terser": "^5.39.0",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
     "vite-tsconfig-paths": "^5.1.4"
