@@ -1,4 +1,4 @@
-import type { Profile } from "./auth"
+import type { Profile, User } from "./user"
 
 export interface Track {
 	audioFile: string | undefined
@@ -9,7 +9,7 @@ export interface Track {
 	description: string; // this is a song i made
 	audioWaveformData: string;
 	audioWaveformResolution: number;
-	artist: TrackUser; // foreignKey, user.id
+	artist: User; // foreignKey, user.id
 	audioLength: number;
 	createdAt: string;
 	recordedAt: string;

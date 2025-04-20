@@ -1,9 +1,15 @@
-import type { User } from "@/types/auth";
+import type { Profile } from "@/types/user";
 import * as style from "./ProfilePhoto.css";
 
-const ProfilePhoto = ({ me, size = 34 }: { me: User; size?: number }) => {
+const ProfilePhoto = ({
+	profile,
+	size = 34,
+}: { profile: Profile; size?: number }) => {
 	function getProfilePhotoUrl() {
-		return me.profile.profilePictureOptimizedUrl || "";
+		if (profile.profilePictureOptimizedUrl?.startsWith("http")) {
+			return profile.profilePictureOptimizedUrl;
+		}
+		return `http://localhost:8000/${profile.profilePictureOptimizedUrl}`;
 	}
 
 	return (

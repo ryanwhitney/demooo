@@ -13,6 +13,7 @@ import {
 import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
 import { useAudio } from "@/providers/AudioProvider";
 import { memo, useCallback, useMemo } from "react";
+import ProfilePhoto from "@/features/nav/profilePhoto/ProfilePhoto";
 
 type WaveformProps = HTMLAttributes<SVGSVGElement> & {
 	width?: number;
@@ -113,15 +114,9 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 					{track.title}
 				</Link>
 				<Link to={`/${track.artist.username}`} className={trackArtist}>
-					{track.artist.profile?.profilePictureOptimizedUrl && (
-						<img
-							src={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/media/${track.artist.profile?.profilePictureOptimizedUrl}`}
-							alt="user profile"
-							width={16}
-							height={16}
-							style={{ borderRadius: "50%", display: "inline-block" }}
-						/>
-					)}
+					<div style={{ display: "inline-block" }}>
+						<ProfilePhoto size={16} profile={track.artist.profile} />
+					</div>
 					{track.artist.profile.name || track.artist.username}
 				</Link>
 			</div>

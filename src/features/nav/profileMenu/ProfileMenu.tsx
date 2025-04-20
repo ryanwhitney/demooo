@@ -1,4 +1,4 @@
-import type { User } from "@/types/auth";
+import type { User } from "@/types/user";
 import ProfilePhoto from "@/features/nav/profilePhoto/ProfilePhoto";
 import {
 	Button,
@@ -36,7 +36,7 @@ const ProfileMenu = ({ me }: { me: User }) => {
 	return (
 		<MenuTrigger isOpen={isMenuOpen} onOpenChange={handleOpenChange}>
 			<Button type="button" aria-label="Menu">
-				<ProfilePhoto me={me} />
+				<ProfilePhoto profile={me.profile} />
 			</Button>
 			<Popover
 				className={styles.popover}
@@ -46,7 +46,7 @@ const ProfileMenu = ({ me }: { me: User }) => {
 				}}
 			>
 				<div className={styles.profileContainer}>
-					<ProfilePhoto me={me} size={60} />
+					<ProfilePhoto profile={me.profile} size={60} />
 					<div className={styles.profileInfoContainer}>
 						<span className={styles.profileName}>{me.profile.name}</span>
 						<span className={styles.profileUsername}>{me.username}</span>

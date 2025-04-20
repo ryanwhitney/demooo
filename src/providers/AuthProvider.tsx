@@ -1,9 +1,10 @@
 import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { GET_ME } from "../apollo/queries/userQueries";
-import type { AuthContextType, AuthProviderProps, User } from "../types/auth";
+import type { AuthContextType, AuthProviderProps } from "../types/auth";
 import useTokenRefresh from "../hooks/useTokenRefresh";
 import { AuthContext } from "./AuthContext";
+import type { User } from "@/types/user";
 
 export function AuthProvider({ children }: AuthProviderProps) {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);

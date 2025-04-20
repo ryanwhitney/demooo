@@ -110,8 +110,15 @@ const ProfilePage = () => {
 		return "";
 	};
 
-	const profilePictureUrl =
-		data?.me?.profile?.profilePictureOptimizedUrl || null;
+	function getProfilePhotoUrl() {
+		if (data?.me.profile?.profilePictureOptimizedUrl) {
+			if (data.me.profile.profilePictureOptimizedUrl?.startsWith("http")) {
+				return data.me.profile.profilePictureOptimizedUrl;
+			}
+			return `http://localhost:8000/${data.me.profile.profilePictureOptimizedUrl}`;
+		}
+		return null;
+	}
 
 	return (
 		<>
@@ -156,11 +163,11 @@ const ProfilePage = () => {
 								alt="preview of new profile photo"
 							/>
 						) : (
-							profilePictureUrl && (
+							getProfilePhotoUrl() && (
 								<img
 									width={140}
 									height={140}
-									src={profilePictureUrl}
+									src={getProfilePhotoUrl()}
 									// biome-ignore lint/a11y/noRedundantAlt: it makes sense here
 									alt="Your profile photo"
 									className={styles.profileImage}

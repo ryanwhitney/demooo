@@ -1,19 +1,5 @@
-export interface User {
-	id: string;
-	username: string;
-	email: string;
-	firstName: string;
-	lastName: string;
-	profile: Profile;
-}
+import type { User } from "./user"
 
-export interface Profile {
-	id: string;
-	name?: string;
-	location?: string;
-	bio?: string;
-	profilePictureOptimizedUrl?: string;
-}
 
 export interface AuthContextType {
 	isAuthenticated: boolean;
