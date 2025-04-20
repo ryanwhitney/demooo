@@ -1,5 +1,6 @@
-from django.apps import AppConfig
 import sys
+
+from django.apps import AppConfig
 
 
 class ApiConfig(AppConfig):
@@ -51,16 +52,3 @@ class ApiConfig(AppConfig):
         # Verify what we ended up with
         storage_class = default_storage.__class__.__name__
         print(f"Storage after fix: {storage_class}")
-
-        # Test if our storage implementation actually works
-        try:
-            # Try to save a simple file
-            test_file = "storage_init_test.txt"
-            from io import BytesIO
-
-            test_content = "Test from ApiConfig.ready()"
-            content = BytesIO(test_content.encode("utf-8"))
-            default_storage.save(test_file, content)
-            print("✅ Storage test successful")
-        except Exception as e:
-            print(f"❌ Storage test failed: {e}")
