@@ -9,11 +9,13 @@ const ProfilePhoto = ({
 	height = DEFAULT_SIZE,
 	width = DEFAULT_SIZE,
 	borderRadius = tokens.radii.full,
+	ariaHidden,
 }: {
 	profile: Profile;
 	height?: number | string;
 	width?: number | string;
 	borderRadius?: string;
+	ariaHidden?: boolean;
 }) => {
 	const [imageError, setImageError] = useState(false);
 
@@ -50,16 +52,17 @@ const ProfilePhoto = ({
 				borderRadius: borderRadius,
 				background: generateGradient(),
 			}}
+			aria-hidden={ariaHidden}
 		/>
 	) : (
 		<img
 			width={toCssValue(width)}
 			height={toCssValue(height)}
 			src={getProfilePhotoUrl()}
-			// biome-ignore lint/a11y/noRedundantAlt: makes sense here
-			alt="Your profile photo"
+			alt="profile photo"
 			style={{ borderRadius: `${borderRadius}` }}
 			onError={() => setImageError(true)}
+			aria-hidden={ariaHidden}
 		/>
 	);
 };

@@ -43,7 +43,7 @@ export const artistHeaderBackground = style({
 
 export const artistHeaderContainer = style({
   display: "flex",
-  flexDirection: "column",
+  flexDirection: "column-reverse",
   justifyContent: "flex-start",
   alignItems: "center",
   width: "100%",
@@ -54,7 +54,12 @@ export const artistHeaderContainer = style({
     },
   },
 });
+export const artistInfoAndPhoto = style({
+ display: 'flex',
+ flexDirection: 'row-reverse',
+ gap: tokens.space.xl,
 
+});
 export const artistInfoContainer = style({
   display: "flex",
   flexDirection: "column",

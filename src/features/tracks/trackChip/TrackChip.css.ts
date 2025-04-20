@@ -8,6 +8,8 @@ export const trackChipWrapper = style({
 	borderRadius: tokens.radii.lg,
 	transition: "all 0.2s ease-in-out",
 	textDecoration: "none",
+	display:'flex',
+	flexDirection: 'column-reverse',
 	":hover": {
 		borderColor: tokens.colors.tertiaryDark,
 	},

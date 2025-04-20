@@ -7,12 +7,16 @@ export type PlayButtonProps = HTMLAttributes<HTMLButtonElement> & {
 	isPlaying: boolean;
 	onToggle?: (isToggled: boolean) => void;
 	className?: string;
+	iconOneTitle?: string;
+	iconTwoTitle?: string;
 };
 
 const PlayButton = ({
 	isPlaying,
 	onToggle,
 	className,
+	iconOneTitle = "play",
+	iconTwoTitle = "pause",
 	...rest
 }: PlayButtonProps) => (
 	<IconToggleButton
@@ -21,8 +25,8 @@ const PlayButton = ({
 		className={className}
 		defaultToggled={isPlaying}
 		onToggle={onToggle}
-		iconOneTitle="Play"
-		iconTwoTitle="Pause"
+		iconOneTitle={iconOneTitle}
+		iconTwoTitle={iconTwoTitle}
 		{...rest}
 	/>
 );

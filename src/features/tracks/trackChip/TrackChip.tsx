@@ -91,12 +91,31 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 	}, [audio, isCurrentTrack, isPlaying, track]);
 
 	return (
-		<div className={trackChipWrapper}>
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: <there's an actual button present within> */}
-			<div
-				style={{ border: "none" }}
-				className={waveformWrapper}
+		<article className={trackChipWrapper} onClick={handleClick}>
+			<div className={trackText}>
+				<strong>
+					<Link
+						className={trackTitle}
+						to={`/${track.artist.username}/track/${track.titleSlug}`}
+					>
+						{track.title}
+					</Link>
+				</strong>
+				<Link className={trackArtist} to={`/${track.artist.username}`}>
+					<ProfilePhoto
+						ariaHidden={true}
+						height={16}
+						width={16}
+						profile={track.artist.profile}
+					/>
+					{track.artist.profile.name || track.artist.username}
+				</Link>
+			</div>
+			<button
+				type="button"
 				onClick={handleClick}
+				className={waveformWrapper}
+				style={{ border: "none" }}
 			>
 				<PlayButton
 					className={trackChipPlayButton}
@@ -105,20 +124,8 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 					color="white"
 				/>
 				<Waveform className={waveformElement} width={55} />
-			</div>
-			<div className={trackText}>
-				<Link
-					to={`/${track.artist.username}/track/${track.titleSlug}`}
-					className={trackTitle}
-				>
-					{track.title}
-				</Link>
-				<Link to={`/${track.artist.username}`} className={trackArtist}>
-					<ProfilePhoto height={16} width={16} profile={track.artist.profile} />
-					{track.artist.profile.name || track.artist.username}
-				</Link>
-			</div>
-		</div>
+			</button>
+		</article>
 	);
 });
 

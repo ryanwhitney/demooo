@@ -2,20 +2,7 @@ import { useQuery } from "@apollo/client";
 import { useCallback, useEffect } from "react";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import type { Track } from "@/types/track";
-import {
-	artistTrackViewInfo,
-	artistViewWrapper,
-	artistHeaderBackground,
-	profileImageContainer,
-	artistInfoContainer,
-	artistLocation,
-	artistBio,
-	artistPlayButton,
-	artistHeaderContainer,
-	artistTitle,
-	artistContentWrapper,
-	artistHeaderBackgroundGrain,
-} from "./ArtistProfile.css";
+import * as style from "./ArtistProfile.css";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import TrackList from "./artistTrackList/TrackList";
 import { useAudio } from "@/providers/AudioProvider";
@@ -97,9 +84,9 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 			) : data.user === null ? (
 				<p>Artist not found</p>
 			) : (
-				<div className={artistViewWrapper}>
+				<div className={style.artistViewWrapper}>
 					<title>Music | {data.user.username}</title>
-					<div className={artistHeaderBackgroundGrain} role="presentation">
+					<div className={style.artistHeaderBackgroundGrain} aria-hidden>
 						<svg
 							viewBox="0 0 200 200"
 							xmlns="http://www.w3.org/2000/svg"
@@ -128,7 +115,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 							/>
 						</svg>
 					</div>
-					<div className={artistHeaderBackground} role="presentation">
+					<div className={style.artistHeaderBackground} aria-hidden>
 						<ProfilePhoto
 							profile={data.user.profile}
 							width="100%"
@@ -137,28 +124,38 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 						/>
 					</div>
 
-					<header className={artistHeaderContainer}>
-						<div className={profileImageContainer}>
-							<PlayButton
-								isPlaying={isPlayingFromArtistPage()}
-								onToggle={handlePlayToggle}
-								className={artistPlayButton}
-							>
-								play
-							</PlayButton>
-							<ProfilePhoto
-								profile={data.user.profile}
-								width={200}
-								height={200}
-								borderRadius={tokens.radii.md}
-							/>
-						</div>
-						<div className={artistInfoContainer}>
-							<h2 className={artistTitle}>
-								{data.user.profile.name || data.user.username}
-							</h2>
-							<p className={artistLocation}>{data.user.profile.location}</p>
-							<p className={artistBio}>{data.user.profile.bio}</p>
+					<header className={style.artistHeaderContainer}>
+						<div className={style.artistInfoAndPhoto}>
+							<div className={style.artistInfoContainer}>
+								<h1 className={style.artistTitle}>
+									{data.user.profile.name || data.user.username}
+								</h1>
+								<p className={style.artistLocation}>
+									{data.user.profile.location}
+								</p>
+								<p className={style.artistBio}>{data.user.profile.bio}</p>
+							</div>
+							<div className={style.profileImageContainer}>
+								<PlayButton
+									isPlaying={isPlayingFromArtistPage()}
+									onToggle={handlePlayToggle}
+									className={style.artistPlayButton}
+									aria-label={
+										isPlayingFromArtistPage()
+											? "pause"
+											: `play all ${tracks.length} tracks`
+									}
+								>
+									play all {tracks.length} tracks
+								</PlayButton>
+								<ProfilePhoto
+									aria-hidden
+									profile={data.user.profile}
+									width={200}
+									height={200}
+									borderRadius={tokens.radii.md}
+								/>
+							</div>
 						</div>
 						<div
 							style={{
@@ -205,8 +202,8 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 							</Button>
 						</div>
 					</header>
-					<div className={artistContentWrapper}>
-						<div className={artistTrackViewInfo}>
+					<div className={style.artistContentWrapper}>
+						<div className={style.artistTrackViewInfo}>
 							{tracks && <TrackList tracks={tracks} />}
 						</div>
 					</div>

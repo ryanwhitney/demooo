@@ -47,6 +47,7 @@ export const monthWrapper = style({
   borderRadius: tokens.radii.lg,
   width: '100%',
   padding: "2px 0",
+  listStyle: 'none'
 });
 
 export const trackDivider = style({

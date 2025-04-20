@@ -114,37 +114,33 @@ const TrackList = ({ tracks }: { tracks: Track[] }) => {
 	return (
 		<div className={style.allYearsWrapper}>
 			{sortedYears.map((year) => (
-				<div key={`${year}_countainer`}>
-					<div className={style.yearWrapper}>
-						<h2 key={`${year}_h2`} className={style.yearHeading}>
+				<section key={`${year}_container`}>
+					<header className={style.yearWrapper}>
+						<h2 id={`year-${year}`} className={style.yearHeading}>
 							{year}
 						</h2>
-					</div>
-					<div key={year} className={style.allMonthsWrapper}>
+					</header>
+
+					<div className={style.allMonthsWrapper}>
 						{Object.keys(groupedTracks[year])
 							.sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b))
 							.map((month) => (
-								<div key={`${year}-${month}`}>
+								<article key={`${year}-${month}`}>
 									<h3 className={style.monthHeading}>{month}</h3>
-									<section className={style.monthWrapper}>
+									<ul className={style.monthWrapper}>
 										{groupedTracks[year][month].map((track, index) => (
-											<>
-												<TrackRow
-													key={`${track.id}-${index}`}
-													track={track}
-													allTracksInList={allTracks}
-												/>
-												<hr
-													key={`${track.id}-${index}-divider`}
-													className={style.trackDivider}
-												/>
-											</>
+											<li key={`${track.id}-${index}`}>
+												<TrackRow track={track} allTracksInList={allTracks} />
+												{index < groupedTracks[year][month].length - 1 && (
+													<hr className={style.trackDivider} />
+												)}
+											</li>
 										))}
-									</section>
-								</div>
+									</ul>
+								</article>
 							))}
 					</div>
-				</div>
+				</section>
 			))}
 		</div>
 	);

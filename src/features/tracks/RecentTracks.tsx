@@ -13,7 +13,7 @@ const RecentTracks = () => {
 	}, [refetch]);
 
 	return (
-		<div
+		<section
 			style={{
 				display: "flex",
 				flexDirection: "column",
@@ -21,7 +21,8 @@ const RecentTracks = () => {
 				alignItems: "center",
 			}}
 		>
-			<p
+			<h2
+				id="latest-tracks-heading"
 				style={{
 					padding: 20,
 					textTransform: "uppercase",
@@ -31,27 +32,31 @@ const RecentTracks = () => {
 				}}
 			>
 				Latest
-			</p>
-			<div
-				style={{
-					display: "flex",
-					gap: 20,
-					justifyContent: "center",
-					padding: 20,
-					flexWrap: "wrap",
-				}}
-			>
-				{loading ? (
-					<ProgressIndicator />
-				) : error ? (
-					error.message
-				) : (
-					data?.tracks?.map((track: Track) => (
-						<TrackChip key={`${track.id}`} track={track} />
-					))
-				)}
-			</div>
-		</div>
+			</h2>
+			{loading ? (
+				<ProgressIndicator />
+			) : error ? (
+				<p>{error.message}</p>
+			) : (
+				<ul
+					style={{
+						display: "flex",
+						gap: 20,
+						justifyContent: "center",
+						padding: 20,
+						flexWrap: "wrap",
+						listStyle: "none",
+						margin: 0,
+					}}
+				>
+					{data?.tracks?.map((track: Track) => (
+						<li key={`${track.id}`}>
+							<TrackChip track={track} />
+						</li>
+					))}
+				</ul>
+			)}
+		</section>
 	);
 };
 

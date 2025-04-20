@@ -122,12 +122,14 @@ const ProfilePage = () => {
 
 	return (
 		<>
+			{loading && <ProgressIndicator />}
 			<main className={styles.main}>
-				<div
+				<button
 					className={styles.imageContainer}
 					onClick={triggerFileUpload}
-					// biome-ignore lint/a11y/noNoninteractiveTabindex: it's been made iteractive
+					aria-labelledby="profilePicture"
 					tabIndex={0}
+					type="button"
 					onKeyDown={(e) => {
 						if (e.key === "Enter" || e.key === " ") {
 							e.preventDefault();
@@ -135,8 +137,7 @@ const ProfilePage = () => {
 						}
 					}}
 				>
-					<div className={styles.uploadButtonContainer}>
-						{loading && <ProgressIndicator />}
+					<div className={styles.uploadButtonContainer} aria-hidden>
 						<svg
 							width="11"
 							height="12"
@@ -175,7 +176,7 @@ const ProfilePage = () => {
 							)
 						)}
 					</div>
-				</div>
+				</button>
 
 				{/* Form Section */}
 				{updateError && <ErrorBox text={updateError.message} />}
