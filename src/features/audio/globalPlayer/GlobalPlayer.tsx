@@ -1,8 +1,9 @@
 import AudioPlayer from "@/components/audioPlayer/components/AudioPlayer";
 import { useAudio } from "@/providers/AudioProvider";
-import { tokens } from "@/styles/tokens";
 import type { Track } from "@/types/track";
 import { useCallback, useEffect, useState } from "react";
+import * as style from "./GlobalPlayer.css";
+import { clsx } from "clsx";
 
 const GlobalPlayer = () => {
 	const [isVisible, setIsVisible] = useState(false);
@@ -24,30 +25,8 @@ const GlobalPlayer = () => {
 	}, [audio]);
 
 	return (
-		<div
-			style={{
-				position: "fixed",
-				bottom: `${isVisible ? "8px" : "-30px"}`,
-				transition: "bottom 300ms ease-in-out",
-				right: 8,
-				borderRadius: 23,
-				backgroundColor: "rgba(60, 60, 69, 0.3)",
-				backdropFilter: "blur(10px)",
-				border: `.33px solid ${tokens.colors.secondaryDark}`,
-				WebkitBackdropFilter: "blur(10px)",
-				zIndex: 100,
-				overflow: "hidden",
-			}}
-		>
-			<div
-				style={{
-					scale: 0.5,
-					marginLeft: -56,
-					marginRight: -56,
-					marginBottom: -22,
-					marginTop: -12,
-				}}
-			>
+		<div className={clsx(style.container, isVisible && style.containerVisible)}>
+			<div className={style.playerWrapper}>
 				{shouldShow && (
 					<AudioPlayer
 						track={audio.currentTrack as Track}

@@ -1,6 +1,6 @@
 import { tokens } from "@/styles/tokens";
 
-const Footer = () => {
+const SiteFooter = () => {
 	return (
 		<footer
 			style={{
@@ -23,4 +23,4 @@ const Footer = () => {
 	);
 };
 
-export default Footer;
+export default SiteFooter;

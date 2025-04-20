@@ -18,9 +18,7 @@ const RecentTracks = () => {
 			style={{
 				display: "flex",
 				flexDirection: "column",
-				justifyContent: "center",
 				alignItems: "center",
-				padding: tokens.space.xl,
 			}}
 		>
 			<h2

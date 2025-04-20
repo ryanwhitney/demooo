@@ -8,9 +8,8 @@ import TrackList from "./artistTrackList/TrackList";
 import { useAudio } from "@/providers/AudioProvider";
 import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
 import { tokens } from "@/styles/tokens";
-import Button from "@/components/button/Button";
-import { useFollow } from "@/hooks/useFollow";
 import ProfilePhoto from "../nav/profilePhoto/ProfilePhoto";
+import FollowButton from "../followButton/FollowButton";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const { data, loading, error, refetch } = useQuery(GET_ARTIST, {
@@ -20,12 +19,6 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const audio = useAudio();
 
 	const tracks: Track[] = data?.user.tracks;
-
-	const {
-		isFollowing,
-		// loading: loadingFollow,
-		toggleFollow,
-	} = useFollow(data?.user.username);
 
 	const isTrackInCurrentTracksList = useCallback(
 		(trackId: string | undefined): boolean => {
@@ -90,7 +83,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 						<svg
 							viewBox="0 0 200 200"
 							xmlns="http://www.w3.org/2000/svg"
-							role="presentation"
+							aria-hidden="true"
 						>
 							<filter id="noise">
 								<feTurbulence
@@ -158,25 +151,8 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 							</div>
 						</div>
 						<div className={style.artistButtons}>
-							<Button
-								size="large"
-								variant="primary"
-								color={tokens.colors.primary}
-								onClick={toggleFollow}
-								style={{
-									width: "fit-content",
-									minWidth: 140,
-									textAlign: "center",
-									backgroundColor: isFollowing
-										? tokens.colors.backgroundSecondary
-										: tokens.colors.tintColor,
-									border: `2px solid ${tokens.colors.backgroundSecondary}`,
-									transition: "background-color 0.3s ease",
-								}}
-							>
-								{isFollowing ? "✅ Following" : "Follow"}
-							</Button>
-							<Button
+							<FollowButton userToFollow={data.user} />
+							{/* <Button
 								size="large"
 								variant="primary"
 								color={tokens.colors.primary}
@@ -189,7 +165,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 								}}
 							>
 								•••
-							</Button>
+							</Button> */}
 						</div>
 					</header>
 					<div className={style.artistContentWrapper}>

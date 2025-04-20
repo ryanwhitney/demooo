@@ -28,6 +28,7 @@ export const artistHeaderBackgroundGrain = style({
   top: 0,
   zIndex: -1,
   overflow: "hidden",
+  userSelect: "none",
 });
 
 // Background blur effect for artist header
@@ -38,6 +39,7 @@ export const artistHeaderBackground = style({
   top: 0,
   zIndex: -2,
   filter: "blur(50px) saturate(1) ",
+  userSelect: "none",
 });
 
 export const artistHeaderContainer = style({
@@ -170,6 +172,8 @@ export const artistTrackViewInfo = style({
 
 export const artistContentWrapper = style({
   display: "flex",
-  justifyContent: "flex-start",
+  justifyContent: "center",
   width: "100%",
+  scale: 1.1,
+  marginTop: 120,
 });

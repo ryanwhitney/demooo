@@ -15,8 +15,7 @@ import ProfilePage from "./routes/Profile";
 import NavBar from "./features/nav/navBar/NavBar";
 import UploadPage from "./routes/UploadPage";
 import ProtectedRoute from "./routes/components/ProtectedRoute";
-import Footer from "./features/footer/footer";
-
+import SiteFooter from "./features/footer/SiteFooter";
 // Get the root element
 const rootElement = document.getElementById("root");
 
@@ -54,7 +53,7 @@ if (rootElement) {
 									}
 								/>
 							</Routes>
-							<Footer />
+							<SiteFooter />
 							<GlobalPlayer /> {/* Global audio player lives above all */}
 						</BrowserRouter>
 					</AudioProvider>

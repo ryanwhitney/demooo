@@ -55,6 +55,12 @@ const ProfileMenu = ({ me }: { me: User }) => {
 				<Separator className={styles.separator} />
 				<Menu className={styles.menuContainer}>
 					<MenuItem>
+						<Link to={`/${me.username}`} className={styles.menuItem}>
+							Your profile
+						</Link>
+					</MenuItem>
+					<Separator className={styles.separator} />
+					<MenuItem>
 						<Link to={"/profile"} className={styles.menuItem}>
 							Settings
 						</Link>
@@ -62,7 +68,7 @@ const ProfileMenu = ({ me }: { me: User }) => {
 					<Separator className={styles.separator} />
 					<MenuItem>
 						<Button onPress={auth.logout} className={styles.menuItem}>
-							Log Out
+							Log out
 						</Button>
 					</MenuItem>
 				</Menu>
