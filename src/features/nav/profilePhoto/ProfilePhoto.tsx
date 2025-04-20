@@ -17,7 +17,7 @@ const ProfilePhoto = ({
 
 	// Generate a consistent gradient color based on the user's ID or name
 	function generateGradient() {
-		const seed = profile.id || profile.name || "default";
+		const seed = profile.id || "default";
 		// Simple hash function to generate a number from a string
 		const hash = seed
 			.split("")
