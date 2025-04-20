@@ -1,7 +1,6 @@
 import { GET_ALL_TRACKS } from "@/apollo/queries/trackQueries";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import TrackChip from "@/features/tracks/trackChip/TrackChip";
-import { tokens } from "@/styles/tokens";
 import type { Track } from "@/types/track";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
