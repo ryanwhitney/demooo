@@ -8,41 +8,26 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
 // Enable debugging in development only
 const DEBUG = import.meta.env.DEV;
 
-// Flag to track if we're already fetching the token
-let fetchingCsrfPromise: Promise<boolean> | null = null;
+// Flag to track if initial setup is done
+let setupComplete = false;
 
-// Ensure CSRF token is available before any request
+// Ensure CSRF token is available before any request - but only once
 const ensureCsrfToken = async (): Promise<boolean> => {
-  // If we're already fetching, return the existing promise
-  if (fetchingCsrfPromise) {
-    return fetchingCsrfPromise;
-  }
-  
-  // Check if we already have a token
-  if (getCsrfToken()) {
-    if (DEBUG) console.log("Apollo client: CSRF token already available");
+  // Skip if we already completed setup or already have a token
+  if (setupComplete || getCsrfToken()) {
+    if (DEBUG && !setupComplete) {
+      console.log("Apollo client: CSRF token already available");
+      setupComplete = true;
+    }
     return true;
   }
   
   // Start fetching a new token
   if (DEBUG) console.log("Apollo client: Fetching CSRF token");
-  fetchingCsrfPromise = fetchCsrfToken();
-  
-  try {
-    // Wait for the fetch to complete
-    const result = await fetchingCsrfPromise;
-    // Reset the promise
-    fetchingCsrfPromise = null;
-    return result;
-  } catch (error) {
-    // Reset the promise on error
-    fetchingCsrfPromise = null;
-    return false;
-  }
+  const result = await fetchCsrfToken();
+  setupComplete = true;
+  return result;
 };
-
-// Immediately start fetching CSRF token when module loads
-const initPromise = ensureCsrfToken();
 
 // Create the upload link with credentials
 const uploadLink = createUploadLink({
@@ -53,26 +38,20 @@ const uploadLink = createUploadLink({
   },
 });
 
+// Immediately start fetching CSRF token when module loads
+ensureCsrfToken();
+
 // Add CSRF token to all headers
 const authLink = setContext(async (_operation, { headers }) => {
-  // Wait for the initial token fetch
-  await initPromise;
+  // Make sure we have initialized CSRF
+  await ensureCsrfToken();
   
-  // Get the token - if not found, try fetching it again
-  let csrfToken = getCsrfToken();
+  // Get the token
+  const csrfToken = getCsrfToken();
   
-  if (!csrfToken) {
-    if (DEBUG) console.log("No CSRF token found before request, fetching again...");
-    await ensureCsrfToken();
-    csrfToken = getCsrfToken();
-  }
-  
-  if (DEBUG) {
-    if (csrfToken) {
-      console.log("Using CSRF token for request");
-    } else {
-      console.warn("No CSRF token available for request - proceeding anyway");
-    }
+  if (DEBUG && !csrfToken) {
+    // Only log actual problems to reduce console noise
+    console.warn("No CSRF token available for request - proceeding anyway");
   }
   
   // Use our utility function to add the CSRF header

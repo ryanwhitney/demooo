@@ -7,6 +7,10 @@ const DEBUG = import.meta.env.DEV;
 // This helps in private browsing where cookies might be restricted
 let inMemoryCsrfToken = '';
 
+// Track if we're already fetching to prevent duplicate requests
+let isFetchingCsrf = false;
+let csrfInitialized = false;
+
 /**
  * Get the CSRF token from cookies or memory
  */
@@ -19,18 +23,27 @@ export const getCsrfToken = (): string => {
   
   // If found in cookies, update our in-memory reference too
   if (cookieValue) {
+    // Only log on value change to reduce noise
+    if (inMemoryCsrfToken !== cookieValue && DEBUG) {
+      console.log("CSRF token found in cookies");
+    }
     inMemoryCsrfToken = cookieValue;
-    if (DEBUG) console.log("CSRF token found in cookies");
     return cookieValue;
   }
   
   // If not in cookies but we have it in memory, use that
   if (inMemoryCsrfToken) {
-    if (DEBUG) console.log("Using in-memory CSRF token (cookies unavailable)");
+    if (DEBUG && !csrfInitialized) {
+      console.log("Using in-memory CSRF token (cookies unavailable)");
+      csrfInitialized = true;
+    }
     return inMemoryCsrfToken;
   }
   
-  if (DEBUG) console.log("No CSRF token available");
+  if (DEBUG && !csrfInitialized) {
+    console.log("No CSRF token available");
+    csrfInitialized = true;
+  }
   return '';
 };
 
@@ -67,18 +80,26 @@ export const extractCsrfTokenFromResponse = async (response: Response): Promise<
  */
 export const fetchCsrfToken = async (): Promise<boolean> => {
   try {
-    if (DEBUG) console.log("Fetching CSRF token...");
-
-    // Check if we already have a valid token
-    if (getCsrfToken()) {
+    // Check if we already have a token or if a fetch is in progress
+    if (isFetchingCsrf) {
+      return true; // Another fetch is in progress, assume it will succeed
+    }
+    
+    const existingToken = getCsrfToken();
+    if (existingToken) {
       if (DEBUG) console.log("Already have CSRF token");
       return true;
     }
+
+    if (DEBUG) console.log("Fetching CSRF token...");
+    isFetchingCsrf = true;
 
     const response = await fetch(`${API_BASE_URL}/api/csrf/`, {
       method: "GET",
       credentials: "include",
     });
+
+    isFetchingCsrf = false;
 
     if (response.ok) {
       if (DEBUG) console.log("CSRF token fetch response OK");
@@ -112,6 +133,7 @@ export const fetchCsrfToken = async (): Promise<boolean> => {
     console.error("Failed to fetch CSRF token:", response.statusText);
     return false;
   } catch (error) {
+    isFetchingCsrf = false;
     console.error("Error fetching CSRF token:", error);
     return false;
   }
@@ -146,9 +168,19 @@ export const useCsrf = () => {
 
   // Fetch CSRF token on component mount
   useEffect(() => {
+    let mounted = true;
+    
     const setupCsrf = async () => {
+      // If we already have a token, don't fetch again
+      if (getCsrfToken()) {
+        if (mounted) setCsrfFetched(true);
+        return;
+      }
+      
       try {
         const success = await fetchCsrfToken();
+        if (!mounted) return;
+        
         setCsrfFetched(success);
         
         if (!success) {
@@ -163,12 +195,17 @@ export const useCsrf = () => {
           }
         }
       } catch (err) {
+        if (!mounted) return;
         console.error("Error in CSRF setup:", err);
         setError("Failed to set up secure connection. Please try refreshing the page.");
       }
     };
 
     setupCsrf();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return { 

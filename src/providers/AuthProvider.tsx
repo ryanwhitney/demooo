@@ -5,58 +5,53 @@ import type { AuthContextType, AuthProviderProps } from "../types/auth";
 import { AuthContext } from "./AuthContext";
 import { LOGOUT } from "@/apollo/mutations/userMutations";
 import type { User } from "@/types/user";
-import { fetchCsrfToken, getCsrfToken } from "@/utils/csrf";
+import { getCsrfToken } from "@/utils/csrf";
 
-const API_BASE_URL =
-	import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const DEBUG = import.meta.env.DEV;
 
 export function AuthProvider({ children }: AuthProviderProps) {
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // Start with null to indicate unknown
 	const [user, setUser] = useState<User | null>(null);
 	const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-	const [csrfFetched, setCsrfFetched] = useState(false);
+	const [csrfReady, setCsrfReady] = useState(false);
 
-	// Fetch CSRF token before any authentication operations
+	// Check for CSRF token - don't fetch, as that's done at Apollo client level
 	useEffect(() => {
-		const setupCsrf = async () => {
-			try {
-				if (DEBUG) console.log("AuthProvider: Setting up CSRF token");
-				const success = await fetchCsrfToken();
-				if (success) {
-					if (DEBUG)
-						console.log("AuthProvider: CSRF token fetched successfully");
-					setCsrfFetched(true);
-				} else {
-					// Try one more time after a short delay
-					await new Promise((resolve) => setTimeout(resolve, 300));
-					const retrySuccess = await fetchCsrfToken();
-					if (retrySuccess || getCsrfToken()) {
-						if (DEBUG)
-							console.log("AuthProvider: CSRF token available after retry");
-						setCsrfFetched(true);
-					} else {
-						console.error(
-							"AuthProvider: Failed to fetch CSRF token after retry",
-						);
-						// Still set as fetched to proceed with auth check - we might have the token in memory
-						setCsrfFetched(true);
-					}
+		// Immediately check if token already exists (from Apollo client init)
+		const hasToken = !!getCsrfToken();
+		if (hasToken) {
+			if (DEBUG) console.log("AuthProvider: CSRF token already exists");
+			setCsrfReady(true);
+		} else {
+			// Poll briefly for token to appear
+			const checkInterval = setInterval(() => {
+				if (getCsrfToken()) {
+					if (DEBUG) console.log("AuthProvider: CSRF token detected");
+					setCsrfReady(true);
+					clearInterval(checkInterval);
 				}
-			} catch (error) {
-				console.error("AuthProvider: Error in CSRF flow:", error);
-				// Still set csrfFetched to true to allow the auth query to proceed
-				setCsrfFetched(true);
-			}
-		};
+			}, 100);
 
-		setupCsrf();
-	}, []);
+			// Set a timeout to proceed anyway after a short delay
+			setTimeout(() => {
+				if (!csrfReady) {
+					if (DEBUG)
+						console.log(
+							"AuthProvider: Proceeding without confirmed CSRF token",
+						);
+					setCsrfReady(true);
+					clearInterval(checkInterval);
+				}
+			}, 500);
+
+			return () => clearInterval(checkInterval);
+		}
+	}, [csrfReady]);
 
 	// Get current user data - this will automatically include the session cookie
 	const { loading } = useQuery(GET_ME, {
 		fetchPolicy: "network-only", // Always check with server
-		skip: !csrfFetched, // Skip the query until CSRF token is fetched
+		skip: !csrfReady, // Skip the query until CSRF is ready
 		onCompleted: (data) => {
 			if (DEBUG) console.log("AuthProvider: GET_ME completed", data);
 			if (data?.me) {
