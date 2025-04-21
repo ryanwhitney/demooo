@@ -6,6 +6,8 @@ import { GridList, GridListItem } from "react-aria-components";
 import { Link } from "react-router";
 import * as style from "./ManageTracks.css";
 import { formatTime } from "@/utils/timeAndDate";
+import { tokens } from "@/styles/tokens";
+import TextInput from "@/components/textInput/TextInput";
 const ManageTracks = () => {
 	const { user } = useAuth();
 
@@ -35,24 +37,41 @@ const ManageTracks = () => {
 							<Link to="/upload">do that now</Link>
 						</>
 					) : (
-						<GridList>
+						<GridList aria-label="Tracks List">
 							{tracks.map((track: Track) => (
 								<GridListItem
 									key={track.id}
+									/* Add textValue to support type-to-select accessibility feature */
+									textValue={track.title}
 									style={{
 										display: "grid",
-										gridTemplateColumns: "1fr 1fr 1fr 1fr",
+										background: tokens.colors.backgroundSecondary,
+										gridTemplateColumns: "2fr 0.5fr 1fr 1fr",
 										gap: "16px",
 										alignItems: "center",
 										padding: "12px",
-										borderBottom: "1px solid #eee",
+										borderBottom: `1px solid ${tokens.colors.quaternaryDark}`,
 									}}
 								>
-									<div style={{ fontWeight: "bold" }}>
-										<Link to={`/track/${track.id}`}>{track.title}</Link>
-									</div>
-									<span>{formatTime(track.audioLength)} </span>
-									Added: {new Date(track.createdAt).toLocaleDateString()}
+									<div style={{ fontWeight: "bold" }}>{track.title}</div>
+									<span
+										style={{
+											color: tokens.colors.secondary,
+											// fontFamily: tokens.fonts.system,
+											fontSize: 12,
+										}}
+									>
+										{formatTime(track.audioLength)}{" "}
+									</span>
+									<span
+										style={{
+											color: tokens.colors.secondary,
+											// fontFamily: tokens.fonts.system,
+											fontSize: 12,
+										}}
+									>
+										{new Date(track.createdAt).toLocaleDateString()}
+									</span>
 									<div>
 										<div style={{ display: "flex", gap: "8px" }}>
 											{/* Month dropdown */}
@@ -71,16 +90,24 @@ const ManageTracks = () => {
 												</label>
 												<select
 													id={`${track.id}_month_select`}
-													value={new Date(track.recordedAt).getMonth()}
+													/* Ensure value is a number and convert to string */
+													value={String(new Date(track.recordedAt).getMonth())}
+													onChange={(e) => {
+														console.log(e.target.value);
+													}}
 													style={{
-														flex: "1",
 														padding: "8px",
 														borderRadius: "4px",
-														border: "1px solid #ccc",
+														color: tokens.colors.primary,
+														border: `1px solid ${tokens.colors.quaternary}`,
+														background: tokens.colors.backgroundSecondary,
 													}}
 												>
 													{Array.from({ length: 12 }, (_, i) => (
-														<option key={`${track.id}_${i}_month`} value={i}>
+														<option
+															key={`${track.id}_${i}_month`}
+															value={String(i)}
+														>
 															{new Date(2023, i, 1).toLocaleString("default", {
 																month: "short",
 															})}
@@ -103,12 +130,19 @@ const ManageTracks = () => {
 												</label>
 												<select
 													id={`${track.id}_year_select`}
-													value={new Date(track.recordedAt).getFullYear()}
+													/* Ensure value is a number and convert to string */
+													value={String(
+														new Date(track.recordedAt).getFullYear(),
+													)}
+													onChange={(e) => {
+														console.log(e.target.value);
+													}}
 													style={{
-														flex: "1",
 														padding: "8px",
 														borderRadius: "4px",
-														border: "1px solid #ccc",
+														color: tokens.colors.primary,
+														border: `1px solid ${tokens.colors.quaternary}`,
+														background: tokens.colors.backgroundSecondary,
 													}}
 												>
 													{Array.from({ length: 100 }, (_, i) => {
@@ -116,7 +150,7 @@ const ManageTracks = () => {
 														return (
 															<option
 																key={`${track.id}_year_${year}`}
-																value={year}
+																value={String(year)}
 															>
 																{year}
 															</option>

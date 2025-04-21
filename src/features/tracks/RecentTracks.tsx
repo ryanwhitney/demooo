@@ -4,6 +4,7 @@ import TrackChip from "@/features/tracks/trackChip/TrackChip";
 import type { Track } from "@/types/track";
 import { tokens } from "@/styles/tokens";
 import PageLoadingIndicator from "../artistProfile/pageLoadingIndicator/PageLoadingIndicator";
+import { GridList, GridListItem } from "react-aria-components";
 
 const RecentTracks = () => {
 	const { data, loading, error } = useQuery(GET_ALL_TRACKS, {
@@ -35,7 +36,7 @@ const RecentTracks = () => {
 			) : error ? (
 				<p>{error.message}</p>
 			) : (
-				<ul
+				<GridList
 					style={{
 						display: "flex",
 						gap: 16,
@@ -48,11 +49,11 @@ const RecentTracks = () => {
 					}}
 				>
 					{data?.tracks?.map((track: Track) => (
-						<li key={`${track.id}`}>
+						<GridListItem key={`${track.id}`}>
 							<TrackChip track={track} />
-						</li>
+						</GridListItem>
 					))}
-				</ul>
+				</GridList>
 			)}
 		</section>
 	);
