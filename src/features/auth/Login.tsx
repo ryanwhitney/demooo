@@ -8,11 +8,6 @@ import type { LoginFormInput } from "@/types/auth";
 import { useMutation } from "@apollo/client";
 import { useState, useEffect } from "react";
 
-// For debugging
-const DEBUG = true;
-const API_BASE_URL =
-	import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-
 type LoginProps = {
 	onSuccess: () => void;
 };
@@ -32,31 +27,21 @@ const Login = ({ onSuccess }: LoginProps) => {
 	useEffect(() => {
 		const fetchCsrfToken = async () => {
 			try {
-				if (DEBUG) console.log("Login component: Fetching CSRF token...");
-
-				const response = await fetch(`${API_BASE_URL}/api/csrf/`, {
-					method: "GET",
-					credentials: "include",
-				});
+				const response = await fetch(
+					`${import.meta.env.VITE_API_BASE_URL}/api/csrf/`,
+					{
+						method: "GET",
+						credentials: "include",
+					},
+				);
 
 				if (response.ok) {
-					if (DEBUG)
-						console.log("Login component: CSRF token fetched successfully");
 					setCsrfFetched(true);
 				} else {
-					console.error(
-						"Login component: Failed to fetch CSRF token:",
-						response.statusText,
-					);
-					setErrorMessage(
-						"Failed to fetch CSRF token. Please try refreshing the page.",
-					);
+					setErrorMessage("Failed to fetch token. Please try again.");
 				}
 			} catch (error) {
-				console.error("Login component: Error fetching CSRF token:", error);
-				setErrorMessage(
-					"Network error when setting up secure connection. Please try again.",
-				);
+				setErrorMessage("Something went wrong. Please try again.");
 			}
 		};
 
@@ -69,18 +54,16 @@ const Login = ({ onSuccess }: LoginProps) => {
 			password: formData.password,
 		},
 		onCompleted: (data) => {
-			if (DEBUG) console.log("Login response:", data);
-
 			if (data.login.success) {
 				setFormData({ username: "", password: "" });
 				setIsAuthenticated(true);
+				window.location.reload();
 				onSuccess();
 			} else {
 				setErrorMessage(data.login.message || "Login failed");
 			}
 		},
 		onError: (error) => {
-			if (DEBUG) console.error("Login error:", error);
 			setErrorMessage(error.message);
 		},
 	});
@@ -90,11 +73,8 @@ const Login = ({ onSuccess }: LoginProps) => {
 		setErrorMessage(null);
 
 		if (!csrfFetched) {
-			setErrorMessage("Please wait, setting up secure connection...");
 			return;
 		}
-
-		if (DEBUG) console.log("Submitting login with:", formData);
 
 		login();
 	};
@@ -102,12 +82,6 @@ const Login = ({ onSuccess }: LoginProps) => {
 	return (
 		<>
 			{errorMessage && <ErrorBox text={errorMessage} />}
-			{!errorMessage &&
-				!loading &&
-				formData.username === "" &&
-				formData.password === "" && (
-					<p>Please enter your credentials to log in.</p>
-				)}
 			<form onSubmit={handleSubmit}>
 				<TextInput
 					label="Username"

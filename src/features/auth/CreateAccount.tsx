@@ -57,11 +57,12 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 				setFormData({ ...formData, password: "" });
 				setIsAuthenticated(true);
 				onSuccess();
+				window.location.reload();
 			}
 		},
 		onError: (error) => {
 			setFormData({ ...formData, password: "" });
-			console.error("Authentication error after signup:", error);
+			console.error("Atuh error after signup:", error);
 		},
 	});
 
