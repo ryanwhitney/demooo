@@ -5,7 +5,6 @@ import ArtistPage from "./Artist";
 import TrackPage from "./Track";
 import ProfilePage from "./Profile";
 import UploadPage from "./Upload";
-import ProtectedRoute from "@/components/protectedRoute/ProtectedRoute";
 import MainLayout from "@/layouts/MainLayout";
 
 export const routes: RouteObject[] = [

@@ -19,7 +19,7 @@ class AuthenticationTests(BaseAPITestCase):
             }
         }
         """
-        response = self.client.execute(query)
+        response = self.execute(query)
 
         self.assertIsNotNone(response.data["createUser"]["user"])
         created_user = response.data["createUser"]["user"]
@@ -43,18 +43,25 @@ class AuthenticationTests(BaseAPITestCase):
             }
         }
         """
-        self.client.execute(create_query)
+        self.execute(create_query)
 
-        # Login
+        # Login with the new login mutation
         login_query = """
         mutation {
-            tokenAuth(username: "testuser", password: "testpass123") {
-                token
+            login(username: "testuser", password: "testpass123") {
+                success
+                message
+                user {
+                    username
+                    email
+                }
             }
         }
         """
-        response = self.client.execute(login_query)
-        self.assertIsNotNone(response.data["tokenAuth"]["token"])
+        response = self.execute(login_query)
+        self.assertIsNotNone(response.data["login"])
+        self.assertTrue(response.data["login"]["success"])
+        self.assertEqual(response.data["login"]["user"]["username"], "testuser")
 
     def test_login_mutation_wrong_password(self):
         """Test login mutation with wrong password"""
@@ -72,32 +79,38 @@ class AuthenticationTests(BaseAPITestCase):
             }
         }
         """
-        self.client.execute(create_query)
+        self.execute(create_query)
 
         # Login with bad password
         login_query = """
         mutation {
-            tokenAuth(username: "testuser", password: "wrongpassword") {
-                token
+            login(username: "testuser", password: "wrongpassword") {
+                success
+                message
             }
         }
         """
-        response = self.client.execute(login_query)
-        self.assertIsNotNone(response.errors)
-        self.assertIn("Please enter valid credentials", str(response.errors))
+        response = self.execute(login_query)
+        self.assertFalse(response.data["login"]["success"])
+        self.assertIn(
+            "Please enter valid credentials", response.data["login"]["message"]
+        )
 
     def test_login_mutation_nonexistent_user(self):
         """Test login mutation with nonexistent user"""
         login_query = """
         mutation {
-            tokenAuth(username: "nonexistent", password: "testpass123") {
-                token
+            login(username: "nonexistent", password: "testpass123") {
+                success
+                message
             }
         }
         """
-        response = self.client.execute(login_query)
-        self.assertIsNotNone(response.errors)
-        self.assertIn("Please enter valid credentials", str(response.errors))
+        response = self.execute(login_query)
+        self.assertFalse(response.data["login"]["success"])
+        self.assertIn(
+            "Please enter valid credentials", response.data["login"]["message"]
+        )
 
     def test_authenticated_query(self):
         """Test that authenticated queries work"""
@@ -105,8 +118,8 @@ class AuthenticationTests(BaseAPITestCase):
         user = self.User.objects.create_user(
             username="testuser", email="test@example.com", password="testpass123"
         )
-        self.client.authenticate(user)
 
+        # Use the execute method with authentication
         query = """
         query {
             me {
@@ -115,7 +128,7 @@ class AuthenticationTests(BaseAPITestCase):
             }
         }
         """
-        response = self.client.execute(query)
+        response = self.execute(query, authenticate=True, user=user)
         self.assertEqual(response.data["me"]["username"], "testuser")
         self.assertEqual(response.data["me"]["email"], "test@example.com")
 
@@ -129,7 +142,8 @@ class AuthenticationTests(BaseAPITestCase):
             }
         }
         """
-        response = self.client.execute(query)
+        # Pass authenticate=False to ensure no authentication
+        response = self.execute(query, authenticate=False)
         self.assertIsNotNone(response.errors)
         error_msg = "You do not have permission to perform this action"
         self.assertIn(error_msg, str(response.errors))

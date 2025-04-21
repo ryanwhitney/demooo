@@ -23,7 +23,7 @@ class AudioProcessingTests(BaseAudioTestCase):
         variables = {"file": self.audio_file, "title": "Audio Conversion Test"}
 
         # Pass the variables to the execute method
-        response = self.client.execute(query, variables)
+        response = self.execute(query, variables=variables)
         self.assertIsNone(response.errors, f"Unexpected errors: {response.errors}")
 
         track_id = response.data["uploadTrack"]["track"]["id"]
@@ -87,8 +87,8 @@ class AudioProcessingTests(BaseAudioTestCase):
 
         variables = {"file": self.audio_file, "title": "Waveform Test Via Mutation"}
 
-        # Pass the variables to the execute method
-        response = self.client.execute(query, variables)
+        # Pass the variables to the execute method with authentication
+        response = self.execute(query, variables=variables)
         self.assertIsNone(response.errors, f"Unexpected errors: {response.errors}")
 
         track_id = response.data["uploadTrack"]["track"]["id"]

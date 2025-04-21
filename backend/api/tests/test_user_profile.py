@@ -59,7 +59,7 @@ class UserProfileTests(BaseAPITestCase):
             }
         }
         """
-        response = self.client.execute(query)
+        response = self.execute(query)
 
         # Verify no errors and profile ID is returned
         self.assertIsNone(response.errors, f"Unexpected errors: {response.errors}")
@@ -78,7 +78,7 @@ class UserProfileTests(BaseAPITestCase):
             }}
         }}
         """
-        profile_response = self.client.execute(profile_query)
+        profile_response = self.execute(profile_query)
         self.assertIsNone(profile_response.errors)
 
     def test_update_profile(self):
@@ -88,7 +88,6 @@ class UserProfileTests(BaseAPITestCase):
         user = User.objects.create_user(
             username="updateuser", email="update@example.com", password="testpass123"
         )
-        self.client.authenticate(user)
 
         # Update the profile without a profile picture
         update_query = """
@@ -104,7 +103,7 @@ class UserProfileTests(BaseAPITestCase):
             }
         }
         """
-        update_response = self.client.execute(update_query)
+        update_response = self.execute(update_query, authenticate=True, user=user)
         self.assertIsNone(
             update_response.errors, f"Unexpected errors: {update_response.errors}"
         )
@@ -125,7 +124,7 @@ class UserProfileTests(BaseAPITestCase):
             }
         }
         """
-        query_response = self.client.execute(query)
+        query_response = self.execute(query, authenticate=True, user=user)
         self.assertIsNone(query_response.errors)
         queried_profile = query_response.data["me"]["profile"]
         self.assertEqual(queried_profile["name"], "Updated Name")
@@ -157,7 +156,7 @@ class UserProfileTests(BaseAPITestCase):
         }
         """
         variables = {"username": "queryuser"}
-        response = self.client.execute(query, variables)
+        response = self.execute(query, variables=variables)
 
         # Verify the response
         self.assertIsNone(response.errors)
@@ -195,7 +194,7 @@ class UserProfileTests(BaseAPITestCase):
         }
         """
         variables = {"username": "artistuser"}
-        response = self.client.execute(query, variables)
+        response = self.execute(query, variables=variables)
 
         # Verify the profile data is included
         self.assertIsNone(response.errors)
@@ -212,7 +211,6 @@ class UserProfileTests(BaseAPITestCase):
         user = User.objects.create_user(
             username="picuser", email="pic@example.com", password="testpass123"
         )
-        self.client.authenticate(user)
 
         # Load test profile photo
         test_file_path = os.path.join(
@@ -242,7 +240,9 @@ class UserProfileTests(BaseAPITestCase):
         """
 
         variables = {"file": profile_pic}
-        update_response = self.client.execute(update_query, variables)
+        update_response = self.execute(
+            update_query, variables=variables, authenticate=True, user=user
+        )
         self.assertIsNone(
             update_response.errors, f"Unexpected errors: {update_response.errors}"
         )
@@ -273,7 +273,7 @@ class UserProfileTests(BaseAPITestCase):
             }
         }
         """
-        query_response = self.client.execute(query)
+        query_response = self.execute(query, authenticate=True, user=user)
         self.assertIsNone(query_response.errors)
         queried_profile = query_response.data["me"]["profile"]
         self.assertIsNotNone(queried_profile["profilePicture"])
@@ -289,11 +289,13 @@ class UserProfileTests(BaseAPITestCase):
             )
 
         variables = {"file": new_profile_pic}
-        second_update_response = self.client.execute(update_query, variables)
+        second_update_response = self.execute(
+            update_query, variables=variables, authenticate=True, user=user
+        )
         self.assertIsNone(second_update_response.errors)
 
         # Query again to verify path changed
-        second_query_response = self.client.execute(query)
+        second_query_response = self.execute(query, authenticate=True, user=user)
         second_profile = second_query_response.data["me"]["profile"]
         second_profile_path = second_profile["profilePictureOptimizedUrl"]
 

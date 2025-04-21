@@ -1,6 +1,3 @@
-import os
-import shutil
-
 from api.models import Profile, Track, User
 from api.utils import delete_track_files
 from django.contrib import admin
@@ -27,7 +24,7 @@ class TrackInline(admin.TabularInline):
         if obj.audio_file:
             return format_html(
                 '<audio controls><source src="{}" type="audio/mpeg"></audio>',
-                obj.audio_file.url,
+                obj.audio_url,
             )
         return "No audio file"
 
@@ -97,7 +94,8 @@ class CustomUserAdmin(UserAdmin):
                 dirs, _ = default_storage.listdir(base_user_path)
                 for dir_name in dirs:
                     track_path = f"{base_user_path}/{dir_name}"
-                    delete_track_files(track_path)
+                    # Since we're not using a Track object, use dict format
+                    delete_track_files({"audio_file": track_path})
 
                 # Delete the base directory itself
                 default_storage.delete(base_user_path)
@@ -124,7 +122,8 @@ class CustomUserAdmin(UserAdmin):
                     dirs, _ = default_storage.listdir(base_user_path)
                     for dir_name in dirs:
                         track_path = f"{base_user_path}/{dir_name}"
-                        delete_track_files(track_path)
+                        # Since we're not using a Track object, use dict format
+                        delete_track_files({"audio_file": track_path})
 
                     # Delete the base directory itself
                     default_storage.delete(base_user_path)
@@ -178,7 +177,7 @@ class TrackAdmin(admin.ModelAdmin):
         if obj.audio_file:
             return format_html(
                 '<audio controls><source src="{}" type="audio/mpeg"></audio>',
-                obj.audio_file.url,
+                obj.audio_url,
             )
         return "No audio file"
 
@@ -187,31 +186,23 @@ class TrackAdmin(admin.ModelAdmin):
     def delete_model(self, request, obj):
         """Override to ensure track directory is deleted from storage"""
         if obj.audio_file:
-            # Store the path before deletion
-            base_path = str(obj.audio_file)
+            # Delete associated files using the utility function directly
+            delete_track_files(obj)
 
-            # Delete the model first
+            # Delete the model after files are deleted
             super().delete_model(request, obj)
-
-            # Delete associated files using the utility function
-            delete_track_files(base_path)
         else:
             super().delete_model(request, obj)
 
     def delete_queryset(self, request, queryset):
         """Override to ensure track directories are deleted when batch deleting"""
-        # Store paths before deletion
-        paths = []
+        # Delete files for each track using the utility function
         for obj in queryset:
             if obj.audio_file:
-                paths.append(str(obj.audio_file))
+                delete_track_files(obj)
 
         # Delete the queryset
         super().delete_queryset(request, queryset)
-
-        # Delete files for each track using the utility function
-        for path in paths:
-            delete_track_files(path)
 
 
 # Register Profile model directly

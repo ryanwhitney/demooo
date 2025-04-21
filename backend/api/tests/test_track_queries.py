@@ -25,7 +25,7 @@ class TrackQueryTests(BaseAudioTestCase):
                 }
             }
         """
-        response = self.client.execute(query)
+        response = self.execute(query)
         self.assertNotIn("errors", response.data)
 
         # Test get track by ID query
@@ -38,7 +38,7 @@ class TrackQueryTests(BaseAudioTestCase):
                 }}
             }}
         """
-        response = self.client.execute(query)
+        response = self.execute(query)
         self.assertNotIn("errors", response.data)
 
         # Test get tracks by username
@@ -50,5 +50,5 @@ class TrackQueryTests(BaseAudioTestCase):
                 }}
             }}
         """
-        response = self.client.execute(query)
+        response = self.execute(query)
         self.assertNotIn("errors", response.data)

@@ -24,7 +24,7 @@ class TrackMutationTests(BaseAudioTestCase):
         variables = {"file": self.audio_file, "title": "New Test Track"}
 
         # Pass the variables to the execute method
-        response = self.client.execute(query, variables)
+        response = self.execute(query, variables=variables)
         self.assertNotIn("errors", response.data)
 
         # Get the created track ID and audio file path
@@ -70,7 +70,7 @@ class TrackMutationTests(BaseAudioTestCase):
                 }}
             }}
         """
-        response = self.client.execute(update_query)
+        response = self.execute(update_query)
         self.assertNotIn("errors", response.data)
 
         # Test delete track mutation
@@ -81,7 +81,7 @@ class TrackMutationTests(BaseAudioTestCase):
                 }}
             }}
         """
-        response = self.client.execute(delete_query)
+        response = self.execute(delete_query)
         # Check for errors in the response
         self.assertIsNone(response.errors, f"Unexpected errors: {response.errors}")
         # Check that deleteTrack field exists and has success property
@@ -96,9 +96,7 @@ class TrackMutationTests(BaseAudioTestCase):
 
     def test_authentication_required(self):
         """Test that authentication is required for protected mutations"""
-        # Remove authentication
-        self.client.logout()
-
+        # Create a query with no authentication
         query = """
             mutation($file: Upload!, $title: String!) {
                 uploadTrack(file: $file, title: $title) {
@@ -111,7 +109,8 @@ class TrackMutationTests(BaseAudioTestCase):
 
         variables = {"file": self.audio_file, "title": "Test Track"}
 
-        response = self.client.execute(query, variables)
+        # Execute without authentication
+        response = self.execute(query, variables=variables, authenticate=False)
         self.assertIsNotNone(response.errors, "Expected errors in response")
         error_message = str(response.errors[0])
         self.assertIn("You do not have permission", error_message)
@@ -123,7 +122,7 @@ class TrackMutationTests(BaseAudioTestCase):
             artist=self.user,
             title="Duplicate Test",
             title_slug="duplicate-test",
-            audio_file=self.audio_file,
+            audio_file="dummy_path",
         )
 
         # Attempt to create another track with the same title
@@ -139,7 +138,7 @@ class TrackMutationTests(BaseAudioTestCase):
 
         variables = {"file": self.audio_file, "title": "Duplicate Test"}
 
-        response = self.client.execute(query, variables)
+        response = self.execute(query, variables=variables)
         self.assertIsNotNone(response.errors, "Expected errors in response")
         error_message = str(response.errors[0])
         self.assertIn("You already have a track with that title", error_message)

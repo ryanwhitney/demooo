@@ -22,15 +22,35 @@ def ensure_storage_path_exists(path):
     # For cloud storage, directories don't need to be created
 
 
-def delete_track_files(track):
-    """Delete all files associated with a track"""
-    if not track.audio_file:
+def delete_track_files(track_or_path):
+    """
+    Delete all files associated with a track or path
+
+    Args:
+        track_or_path: Either a Track object or a dict with audio_file key,
+                      or a string representing the base path
+    """
+    # Handle different input types
+    if hasattr(track_or_path, "audio_file"):  # Track object
+        if not track_or_path.audio_file:
+            return
+        base_path = track_or_path.audio_file
+        track_id = track_or_path.id
+    elif isinstance(track_or_path, dict) and "audio_file" in track_or_path:  # Dict
+        if not track_or_path["audio_file"]:
+            return
+        base_path = track_or_path["audio_file"]
+        track_id = track_or_path.get("id", None)
+    elif isinstance(track_or_path, str):  # Direct path string
+        base_path = track_or_path
+        track_id = None  # We don't know the ID in this case
+    else:
+        print(
+            f"Warning: Unsupported type for delete_track_files: {type(track_or_path)}"
+        )
         return
 
     try:
-        # Get the base path
-        base_path = track.audio_file
-
         # Try to delete subdirectories and their contents
         for subdir in ["orig", "320"]:
             try:
@@ -48,13 +68,26 @@ def delete_track_files(track):
                         if subdir == "orig":
                             # Try to delete by pattern matching
                             pass  # Implement if needed
-                        elif subdir == "320":
-                            # Try to delete MP3 file directly
-                            mp3_path = f"{dir_path}/{track.id}.mp3"
+                        elif subdir == "320" and track_id:
+                            # Try to delete MP3 file directly if we have the ID
+                            mp3_path = f"{dir_path}/{track_id}.mp3"
                             if default_storage.exists(mp3_path):
                                 default_storage.delete(mp3_path)
+
+                    # Attempt to delete the empty subdirectory itself
+                    try:
+                        default_storage.delete(dir_path)
+                    except Exception as e:
+                        print(f"Could not delete subdirectory {dir_path}: {e}")
             except Exception as e:
                 print(f"Error deleting files in {subdir}: {e}")
+
+        # Finally, try to delete the base directory
+        try:
+            if default_storage.exists(base_path):
+                default_storage.delete(base_path)
+        except Exception as e:
+            print(f"Could not delete base directory {base_path}: {e}")
     except Exception as e:
         print(f"Error during track file deletion: {e}")
 
