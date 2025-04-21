@@ -1,7 +1,6 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
-import type { DefinitionNode, OperationDefinitionNode } from 'graphql';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
@@ -50,28 +49,16 @@ const getCsrfToken = (): string => {
   return cookieValue;
 }
 
-// Check if an operation is a mutation
-const isMutationOperation = (definitions: readonly DefinitionNode[]): boolean => {
-  return definitions.some(def => 
-    def.kind === 'OperationDefinition' && 
-    (def as OperationDefinitionNode).operation === 'mutation'
-  );
-};
-
-// Add CSRF token to headers
-const authLink = setContext(async (operation, { headers }) => {
+// Add CSRF token to all headers
+const authLink = setContext(async (_operation, { headers }) => {
   // Wait for the CSRF token to be pre-fetched
   await csrfPromise;
   
   const csrfToken = getCsrfToken();
-  
-  // Only add CSRF token for mutations (POST requests)
-  const isMutation = isMutationOperation(operation.query.definitions);
-  
+    
   return {
     headers: {
       ...headers,
-      // Always include the CSRF token
       'X-CSRFToken': csrfToken,
     },
   };

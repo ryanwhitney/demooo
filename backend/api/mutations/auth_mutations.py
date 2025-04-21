@@ -32,5 +32,7 @@ class LogoutMutation(graphene.Mutation):
     def mutate(self, info):
         # info.context is the WSGIRequest
         request = info.context
+
+        # Always call logout regardless of auth state - Django handles this gracefully
         logout(request)
         return LogoutMutation(success=True, message="Successfully logged out")

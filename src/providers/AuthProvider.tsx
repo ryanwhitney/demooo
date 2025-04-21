@@ -63,12 +63,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 	const logout = async () => {
 		try {
-			const result = await logoutMutation();
+			await logoutMutation();
+			// Clear auth state
 			setIsAuthenticated(false);
 			setUser(null);
+			// Reload to reset Apollo cache and application state
 			window.location.reload();
 		} catch (error) {
 			console.error("Logout error:", error);
+			// Even if logout failed on server, reset local state
+			setIsAuthenticated(false);
+			setUser(null);
+			window.location.reload();
 		}
 	};
 
