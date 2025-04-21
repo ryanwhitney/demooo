@@ -4,12 +4,13 @@ import { UPLOAD_MULTIPLE_TRACKS } from "@/apollo/mutations/trackMutations";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import ErrorBox from "@/components/errorBox/ErrorBox";
 import { useMutation } from "@apollo/client";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { Button, DropZone, FileTrigger } from "react-aria-components";
 import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UploadTracks.css";
+import LoadIndicator from "@/components/loadIndicator/LoadIndicator";
+import { tokens } from "@/styles/tokens";
 
-// Simplified track type
 interface UploadTrack {
 	title: string;
 	description: string;
@@ -22,6 +23,8 @@ const UploadTracks = () => {
 	const [tracks, setTracks] = useState<UploadTrack[]>([]);
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [isDropZoneMinimized, setIsDropZoneMinimized] = useState(false);
+	const [isLoadingFiles, setIsLoadingFiles] = useState(false);
 
 	const [uploadMultipleTracks, { loading }] = useMutation(
 		UPLOAD_MULTIPLE_TRACKS,
@@ -30,8 +33,10 @@ const UploadTracks = () => {
 		},
 	);
 
-	// Process audio files
 	const processAudioFiles = (files: File[]) => {
+		setDropped(true);
+		setIsLoadingFiles(true);
+
 		const validFiles: UploadTrack[] = [];
 
 		for (const file of files) {
@@ -55,6 +60,13 @@ const UploadTracks = () => {
 			setTracks((prev) => [...prev, ...validFiles]);
 			return true;
 		}
+
+		setTimeout(() => {
+			setIsLoadingFiles(false);
+			if (dropped && tracks.length === 0) {
+				setDropped(false);
+			}
+		}, 1000);
 
 		return false;
 	};
@@ -129,6 +141,96 @@ const UploadTracks = () => {
 		setErrorMessage("");
 		setDropped(false);
 		setIsSubmitted(false);
+		setIsLoadingFiles(false);
+	};
+
+	useEffect(() => {
+		if (tracks.length > 0) {
+			setTimeout(() => {
+				setIsDropZoneMinimized(true);
+				setIsLoadingFiles(false);
+			}, 1000);
+		} else {
+			setIsDropZoneMinimized(false);
+		}
+	}, [tracks]);
+
+	const handleDrop = async (e: any) => {
+		if (!e || !e.items || e.items.length === 0) return;
+
+		const droppedFiles: File[] = [];
+
+		// Loop through all dropped items
+		for (let i = 0; i < e.items.length; i++) {
+			const item = e.items[i];
+
+			try {
+				// Handle file drop items
+				if (item.kind === "file") {
+					// Use a more compatible approach that works in Chrome
+					const file = await item.getFile();
+					if (file) {
+						droppedFiles.push(file);
+					}
+				}
+			} catch (error) {
+				console.error("Error processing dropped item:", error);
+			}
+		}
+
+		if (droppedFiles.length > 0) {
+			processAudioFiles(droppedFiles);
+		}
+	};
+
+	const GetDropZoneContents = ({ dropped }: { dropped: boolean }) => {
+		const getDisplayText = () => {
+			if (!dropped) {
+				return "or drop files here";
+			}
+
+			if (isLoadingFiles && !isDropZoneMinimized) {
+				return <LoadIndicator size={16} />;
+			}
+		};
+
+		const getButtonText = () => {
+			if (dropped && tracks.length > 0) {
+				return !isDropZoneMinimized ? "" : "Add more";
+			}
+			return "Browse to add";
+		};
+
+		const getInstructionText = () => {
+			if ((dropped && tracks.length > 0) || isDropZoneMinimized) return null;
+			return (
+				<small style={{ marginTop: 20, color: tokens.colors.secondary }}>
+					(supports most audio files, max 30mb each.)
+				</small>
+			);
+		};
+
+		return (
+			<>
+				<FileTrigger
+					acceptedFileTypes={["audio/*"]}
+					allowsMultiple={true}
+					onSelect={handleSelectFiles}
+				>
+					<Button
+						className={style.addFilesButton}
+						style={{
+							textDecoration: isDropZoneMinimized ? "none" : "underline",
+							fontWeight: isDropZoneMinimized ? 400 : 600,
+						}}
+					>
+						{getButtonText()}
+					</Button>
+				</FileTrigger>
+				{getDisplayText()}
+				{getInstructionText()}
+			</>
+		);
 	};
 
 	return (
@@ -142,51 +244,34 @@ const UploadTracks = () => {
 					{(!isSubmitted || tracks.length === 0) && (
 						<DropZone
 							className={({ isDropTarget }) =>
-								`${tracks.length > 0 ? style.dropZoneWithFiles : ""} ${isDropTarget ? style.dropZoneDropping : ""} ${style.dropZone} `
+								`${isDropZoneMinimized ? style.dropZoneWithFiles : ""} ${
+									isDropTarget ? style.dropZoneDropping : ""
+								} ${style.dropZone}`
 							}
-							getDropOperation={(types) =>
-								types.has("audio/*") ? "copy" : "cancel"
-							}
-							onDrop={async (e) => {
-								setDropped(true);
-								const droppedFiles: File[] = [];
-								for (const item of e.items) {
-									if (item.kind === "file") {
-										const file = await item.getFile();
-										droppedFiles.push(file);
-									}
-								}
-								processAudioFiles(droppedFiles);
-							}}
+							// Accept all drops and filter afterward (otherwise chrome disabled drop)
+							getDropOperation={() => "copy"}
+							onDrop={handleDrop}
+							aria-label="Drop audio files here or click to select files"
 						>
-							{dropped
-								? tracks.length > 0
-									? ""
-									: "Audio files only"
-								: "Drop files here"}
-							<FileTrigger
-								acceptedFileTypes={["audio/*, video/*"]}
-								allowsMultiple={true}
-								onSelect={handleSelectFiles}
-							>
-								<Button className={style.addFilesButton}>
-									{dropped && tracks.length > 0
-										? "add more"
-										: "or browse files"}
-								</Button>
-							</FileTrigger>
+							<GetDropZoneContents dropped={dropped} />
 						</DropZone>
 					)}
 
-					<div className={style.fileList}>
+					<div
+						className={style.fileList}
+						style={{ opacity: isDropZoneMinimized ? "1" : "0" }}
+					>
 						{tracks.length > 0 && (
 							<>
-								<h2 className={style.editHeader}>Edit titles and upload</h2>
+								<h2 className={style.editHeader}>
+									Nice! Ready to upload {tracks.length}{" "}
+									{tracks.length === 1 ? "track" : "tracks"}
+								</h2>
+								<p className={style.editHeaderDescription}>
+									You can edit titles before uploading.
+								</p>
 								{tracks.map((track, index) => (
-									<div
-										key={`track-upload-${style.fileItem}`}
-										className={style.fileItem}
-									>
+									<div key={`track-upload-${index}`} className={style.fileItem}>
 										<div className={style.titleContainer}>
 											{isSubmitted ? (
 												<div className={style.titleText}>{track.title}</div>
@@ -218,6 +303,7 @@ const UploadTracks = () => {
 												type="button"
 												onClick={() => removeTrack(index)}
 												className={style.removeButton}
+												aria-label={`Remove ${track.title}`}
 											>
 												×
 											</button>

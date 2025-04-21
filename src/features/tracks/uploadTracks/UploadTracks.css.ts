@@ -29,7 +29,7 @@ export const dropZone = style({
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
-  transition: "all 250ms ease-in-out",
+  transition: "all 300ms ease-out",
   background: tokens.colors.backgroundSecondary,
   height: 180,
 });
@@ -43,12 +43,16 @@ export const dropZoneWithFiles = style({
 });
 
 export const addFilesButton = style({
-  color: "white",
+  color: tokens.colors.secondary,
+  padding: "10px 16px",
   border: "none",
-  textDecoration: "underline",
-  borderRadius: 4,
+  borderRadius: 10,
   cursor: "pointer",
-  fontWeight: "bold"
+  fontWeight: "bold",
+  transition: "color 150ms ease",
+  ':hover':{
+    color: tokens.colors.primary,
+  }
 });
 
 // File list styles
@@ -58,7 +62,7 @@ export const fileList = style({
   display: 'flex',
   flexDirection: 'column',
   height: "auto",
-  transition: "height 0.5s ease-in-out",
+  transition: "all 300ms ease-out",
 });
 
 export const fileItem = style({
@@ -86,8 +90,16 @@ globalStyle(`${titleContainer} ${inputContainer}`, {
 
 export const editHeader = style({
   fontSize: tokens.fontSizes.md,
+  paddingLeft: tokens.space.lg,
   textAlign: "center",
+  marginBottom: -8,
+});
+export const editHeaderDescription = style({
+  fontSize: tokens.fontSizes.md,
+  paddingLeft: tokens.space.lg,
+  fontWeight: 400,
   color: tokens.colors.secondary,
+  textAlign: "center",
 });
 export const titleText = style({
   // padding: "4px 8px", 
