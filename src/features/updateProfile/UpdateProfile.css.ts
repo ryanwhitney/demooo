@@ -19,6 +19,8 @@ export const imageContainer = style({
   position: 'relative',
   cursor: 'pointer',
   transition: 'filter 250ms ease',
+  transform: 'translate3d(0, 0, 0)', // fix safari jitter
+
 });
 
 // Image wrapper for border radius
@@ -27,6 +29,8 @@ export const imageWrapper = style({
   height: 140,
   overflow: 'hidden',
   borderRadius: 999,
+	transform: 'translate3d(0, 0, 0)', // fix safari jitter
+
 });
 
 // Upload button

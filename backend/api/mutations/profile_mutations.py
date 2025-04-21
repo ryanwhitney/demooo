@@ -23,7 +23,7 @@ def generate_short_unique_id():
     return f"{t}{r}"  # e.g. "596583af"
 
 
-def optimize_image(input_file_path, output_dir, max_size=1200):
+def optimize_image(input_file_path, output_dir, max_size=600):
     """
     Optimize and resize image for profile picture, always converting to JPG.
     """

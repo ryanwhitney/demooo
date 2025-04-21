@@ -1,9 +1,9 @@
 import { GET_ALL_TRACKS } from "@/apollo/queries/trackQueries";
 import { useQuery } from "@apollo/client";
 import TrackChip from "@/features/tracks/trackChip/TrackChip";
-import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import type { Track } from "@/types/track";
 import { tokens } from "@/styles/tokens";
+import PageLoadingIndicator from "../artistProfile/pageLoadingIndicator/PageLoadingIndicator";
 
 const RecentTracks = () => {
 	const { data, loading, error } = useQuery(GET_ALL_TRACKS, {
@@ -30,8 +30,8 @@ const RecentTracks = () => {
 			>
 				Latest
 			</h2>
-			{loading ? (
-				<ProgressIndicator />
+			{loading && !data?.tracks ? (
+				<PageLoadingIndicator height={400} />
 			) : error ? (
 				<p>{error.message}</p>
 			) : (

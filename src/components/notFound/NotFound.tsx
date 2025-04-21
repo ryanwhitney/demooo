@@ -7,10 +7,10 @@ const NotFound = ({
 	return (
 		<div>
 			<h1 className={style.notFoundHeader}>
-				{headerText ? "Sorry…Not Found" : headerText}
+				{headerText ? "Sorry…we couldn't find that" : headerText}
 			</h1>
 			<p className={style.notFoundDescription}>
-				{headerText ? "We couldn't find that page." : descriptionText}
+				{headerText ? "Go baaack or try again." : descriptionText}
 			</p>
 		</div>
 	);

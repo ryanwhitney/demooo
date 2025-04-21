@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 
 export const GET_TRACK = gql`
   query GetTrack($id: ID!) {
-    track(id: $id) {
+    tracks(limit: 12, orderBy: { createdAt: DESC }) {
       id
       title
       description
@@ -44,6 +44,7 @@ export const GET_ALL_TRACKS = gql`
     }
   }
 `;
+
 
 export const GET_USER_TRACKS = gql`
   query GetUserTracks($username: String!) {

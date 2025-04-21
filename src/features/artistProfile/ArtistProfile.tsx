@@ -1,16 +1,17 @@
 import { useCallback, useState } from "react";
 import type { Track } from "@/types/track";
 import * as style from "./ArtistProfile.css";
-import TrackList from "./artistTrackList/TrackList";
+import TrackList from "@/features/artistProfile/artistTrackList/TrackList";
 import { useAudio } from "@/providers/AudioProvider";
 import PlayButton from "@/components/audioPlayer/components/playButton/PlayButton";
 import { tokens } from "@/styles/tokens";
-import ProfilePhoto from "../nav/profilePhoto/ProfilePhoto";
-import FollowButton from "../followButton/FollowButton";
+import ProfilePhoto from "@/features/nav/profilePhoto/ProfilePhoto";
+import FollowButton from "@/features/followButton/FollowButton";
 import type { User } from "@/types/user";
 import { useQuery } from "@apollo/client";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
-import NotFound from "../notFound/NotFound";
+import NotFound from "@/components/notFound/NotFound";
+import PageLoadingIndicator from "./pageLoadingIndicator/PageLoadingIndicator";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const [artist, setArtist] = useState<User | null>(null);
@@ -73,13 +74,13 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 		}
 	}, [audio, tracks, isTrackInCurrentTracksList]);
 
-	if (loading) return <p>Loading...</p>;
+	if (loading) return <PageLoadingIndicator />;
 	if (error) return <NotFound />;
 	console.log("artist", artist);
 	return artist === null ? (
 		<NotFound />
 	) : (
-		<div>
+		<div style={{ transition: "height 0.3s ease-in-out" }}>
 			<div className={style.artistViewWrapper}>
 				<title>Music | {artist?.username}</title>
 				<div className={style.artistHeaderBackgroundGrain} aria-hidden>

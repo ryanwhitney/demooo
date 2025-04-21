@@ -8,6 +8,7 @@ import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator"
 import TextArea from "@/components/textArea/TextArea";
 import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UpdateProfile.css";
+import PageLoadingIndicator from "../artistProfile/pageLoadingIndicator/PageLoadingIndicator";
 
 interface FormData {
 	username?: string;
@@ -122,7 +123,7 @@ const UpdateProfile = () => {
 
 	return (
 		<>
-			{loading && <ProgressIndicator />}
+			{loading && <PageLoadingIndicator />}
 			<main className={style.main}>
 				<button
 					className={style.imageContainer}

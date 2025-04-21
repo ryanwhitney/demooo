@@ -1,9 +1,11 @@
-import AudioPlayer from "@/components/audioPlayer/components/AudioPlayer";
-import { useAudio } from "@/providers/AudioProvider";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import type { Track } from "@/types/track";
-import { useCallback, useEffect, useState } from "react";
-import * as style from "./GlobalPlayer.css";
+import { useAudio } from "@/providers/AudioProvider";
 import { clsx } from "clsx";
+import * as style from "./GlobalPlayer.css";
+const AudioPlayer = lazy(
+	() => import("@/components/audioPlayer/components/AudioPlayer"),
+);
 
 const GlobalPlayer = () => {
 	const [isVisible, setIsVisible] = useState(false);
@@ -28,14 +30,16 @@ const GlobalPlayer = () => {
 		<div className={clsx(style.container, isVisible && style.containerVisible)}>
 			<div className={style.playerWrapper}>
 				{shouldShow && (
-					<AudioPlayer
-						track={audio.currentTrack as Track}
-						isPlaying={isPlaying}
-						onPlayPause={audio.setIsPlaying}
-						onTimeUpdate={audio.setCurrentTime}
-						onDurationChange={audio.setDuration}
-						onEnded={handleTrackEnded}
-					/>
+					<Suspense fallback={<div>Loading...</div>}>
+						<AudioPlayer
+							track={audio.currentTrack as Track}
+							isPlaying={isPlaying}
+							onPlayPause={audio.setIsPlaying}
+							onTimeUpdate={audio.setCurrentTime}
+							onDurationChange={audio.setDuration}
+							onEnded={handleTrackEnded}
+						/>
+					</Suspense>
 				)}
 			</div>
 		</div>

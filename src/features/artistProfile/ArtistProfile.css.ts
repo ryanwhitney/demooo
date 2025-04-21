@@ -174,6 +174,4 @@ export const artistContentWrapper = style({
   display: "flex",
   justifyContent: "center",
   width: "100%",
-  scale: 1.1,
-  marginTop: 120,
 });
