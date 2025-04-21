@@ -6,6 +6,7 @@ import TrackPage from "./Track";
 import ProfilePage from "./Profile";
 import UploadPage from "./Upload";
 import MainLayout from "@/layouts/MainLayout";
+import ProtectedRoute from "@/components/protectedRoute/ProtectedRoute";
 
 export const routes: RouteObject[] = [
 	{
@@ -27,17 +28,17 @@ export const routes: RouteObject[] = [
 			{
 				path: "profile",
 				element: (
-					// <ProtectedRoute>
-					<ProfilePage />
-					// </ProtectedRoute>
+					<ProtectedRoute>
+						<ProfilePage />
+					</ProtectedRoute>
 				),
 			},
 			{
 				path: "upload",
 				element: (
-					// <ProtectedRoute>
-					<UploadPage />
-					// </ProtectedRoute>
+					<ProtectedRoute>
+						<UploadPage />
+					</ProtectedRoute>
 				),
 			},
 		],
