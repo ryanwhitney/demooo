@@ -2,17 +2,22 @@ from django.contrib import admin
 from django.urls import path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
-from graphene_file_upload.django import FileUploadGraphQLView
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from django.views.static import serve
+from api.views import (
+    session_debug,
+    get_csrf_token,
+    CustomGraphQLView,
+)  # Import the custom view
 
 urlpatterns = [
     # Admin and GraphQL API
     path("admin/", admin.site.urls),
-    path(
-        "graphql/", csrf_exempt(FileUploadGraphQLView.as_view(graphiql=settings.DEBUG))
-    ),
+    # Use our custom GraphQL view that handles CSRF correctly
+    path("graphql/", CustomGraphQLView.as_view(graphiql=settings.DEBUG)),
+    # Debug and CSRF endpoints
+    path("api/debug/session/", session_debug, name="session_debug"),
+    path("api/csrf/", get_csrf_token, name="csrf"),
     # Serve frontend assets
     re_path(
         r"^assets/(?P<path>.*)$",

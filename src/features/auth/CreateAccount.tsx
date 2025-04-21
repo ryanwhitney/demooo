@@ -1,5 +1,5 @@
 import { GET_USERNAME } from "@/apollo/queries/userQueries";
-import { AUTH_USER, CREATE_USER } from "@/apollo/mutations/userMutations";
+import { LOGIN, CREATE_USER } from "@/apollo/mutations/userMutations";
 import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
@@ -51,12 +51,13 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 		},
 	});
 
-	const [authenticateUser] = useMutation(AUTH_USER, {
+	const [authenticateUser] = useMutation(LOGIN, {
 		onCompleted: (data) => {
-			setFormData({ ...formData, password: "" });
-			localStorage.setItem("authToken", data.tokenAuth.token);
-			setIsAuthenticated(true);
-			onSuccess();
+			if (data.login.success) {
+				setFormData({ ...formData, password: "" });
+				setIsAuthenticated(true);
+				onSuccess();
+			}
 		},
 		onError: (error) => {
 			setFormData({ ...formData, password: "" });

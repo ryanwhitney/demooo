@@ -1,5 +1,4 @@
 import graphene
-import graphql_jwt
 from api.mutations.favorite_track_mutations import (
     FavoriteTrackMutation,
     UnfavoriteTrackMutation,
@@ -13,6 +12,7 @@ from api.mutations.track_mutations import (
     UploadTrack,
 )
 from api.mutations.user_mutations import CreateUser
+from api.mutations.auth_mutations import LoginMutation, LogoutMutation
 from api.queries.favorite_track_queries import FavoriteTrackQueries
 from api.queries.follow_queries import FollowQueries
 from api.queries.track_queries import TrackQueries
@@ -30,9 +30,8 @@ class Query(
 class Mutation(graphene.ObjectType):
     # User mutations
     create_user = CreateUser.Field()
-    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
-    verify_token = graphql_jwt.Verify.Field()
-    refresh_token = graphql_jwt.Refresh.Field()
+    login = LoginMutation.Field()
+    logout = LogoutMutation.Field()
 
     # Profile mutations
     update_profile = UpdateProfile.Field()

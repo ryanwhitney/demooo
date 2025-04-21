@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 from pathlib import Path
 
 import dj_database_url
@@ -138,19 +137,31 @@ WSGI_APPLICATION = "backend.wsgi.application"
 GRAPHENE = {
     "SCHEMA": "api.schema.schema",
     "MIDDLEWARE": [
-        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+        "api.middleware.GraphQLAuthenticationMiddleware",
     ],
 }
 
 AUTHENTICATION_BACKENDS = [
-    "graphql_jwt.backends.JSONWebTokenBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-GRAPHQL_JWT = {
-    "JWT_VERIFY_EXPIRATION": True,
-    "JWT_EXPIRATION_DELTA": timedelta(days=7),
-}
+# Session settings
+SESSION_COOKIE_HTTPONLY = True
+# Only require secure cookies in production, not in development
+SESSION_COOKIE_SECURE = False
+# Use 'None' for development to allow cross-site cookies
+SESSION_COOKIE_SAMESITE = "None" if DEBUG else "Lax"
+
+# CSRF settings - extremely important for SPA + Django httpOnly cookies
+CSRF_COOKIE_HTTPONLY = False  # Must be False so JavaScript can access it
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = "None" if DEBUG else "Lax"
+CSRF_USE_SESSIONS = False  # Store in cookie, not session
+CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"  # Match the X-CSRFToken header
+CSRF_TRUSTED_ORIGINS = [
+    "https://demooo.fly.dev",
+    "http://localhost:5173",
+]
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -214,20 +225,15 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
     "http://localhost:3000,http://localhost:4000,http://localhost:4173,http://localhost:5173,https://demooo.fly.dev",
 ).split(",")
 
+CORS_ALLOW_CREDENTIALS = True
 
-# CSRF trusted origins for production
-CSRF_TRUSTED_ORIGINS = [
-    "https://demooo.fly.dev",
-]
-
-# copypasting recommendations for switching to a prod server
-
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+# Ensure these match the cookie settings above (comment out for development)
+# SECURE_SSL_REDIRECT = False
+# SESSION_COOKIE_SECURE = True  # Already set above
+# CSRF_COOKIE_SECURE = True  # Already set above
+# SECURE_HSTS_SECONDS = 31536000  # 1 year
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
 
 if ENVIRONMENT == "production":
     # Add this to your existing production settings

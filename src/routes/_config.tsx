@@ -28,17 +28,17 @@ export const routes: RouteObject[] = [
 			{
 				path: "profile",
 				element: (
-					<ProtectedRoute>
-						<ProfilePage />
-					</ProtectedRoute>
+					// <ProtectedRoute>
+					<ProfilePage />
+					// </ProtectedRoute>
 				),
 			},
 			{
 				path: "upload",
 				element: (
-					<ProtectedRoute>
-						<UploadPage />
-					</ProtectedRoute>
+					// <ProtectedRoute>
+					<UploadPage />
+					// </ProtectedRoute>
 				),
 			},
 		],

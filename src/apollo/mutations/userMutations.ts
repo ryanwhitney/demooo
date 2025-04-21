@@ -11,12 +11,30 @@ export const CREATE_USER = gql`
     }
   }
 `;
-export const AUTH_USER = gql`
-  mutation TokenAuth($username: String!, $password: String!) {
-    tokenAuth(username: $username, password: $password) {
-      token
-      payload
-      refreshExpiresIn
+
+export const LOGIN = gql`
+  mutation Login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      success
+      message
+      user {
+        id
+        username
+        email
+        profile {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const LOGOUT = gql`
+  mutation Logout {
+    logout {
+      success
+      message
     }
   }
 `;

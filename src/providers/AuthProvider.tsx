@@ -1,59 +1,84 @@
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { GET_ME } from "../apollo/queries/userQueries";
 import type { AuthContextType, AuthProviderProps } from "../types/auth";
-import useTokenRefresh from "../hooks/useTokenRefresh";
 import { AuthContext } from "./AuthContext";
+import { LOGOUT } from "@/apollo/mutations/userMutations";
 import type { User } from "@/types/user";
+
+const API_BASE_URL =
+	import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export function AuthProvider({ children }: AuthProviderProps) {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [user, setUser] = useState<User | null>(null);
-	const { loading: refreshLoading } = useTokenRefresh();
+	const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+	const [csrfFetched, setCsrfFetched] = useState(false);
 
-	// Only fetch user data if we have a token
-	const { refetch } = useQuery(GET_ME, {
-		skip: !isAuthenticated,
-		fetchPolicy: "network-only",
+	// Fetch CSRF token before any authentication operations
+	useEffect(() => {
+		const fetchCsrfToken = async () => {
+			try {
+				const response = await fetch(`${API_BASE_URL}/api/csrf/`, {
+					method: "GET",
+					credentials: "include",
+				});
+
+				if (response.ok) {
+					setCsrfFetched(true);
+				} else {
+					console.error("Failed to fetch CSRF token:", response.statusText);
+				}
+			} catch (error) {
+				console.error("Error in CSRF flow:", error);
+			}
+		};
+
+		fetchCsrfToken();
+	}, []);
+
+	// Get current user data - this will automatically include the session cookie
+	const { loading } = useQuery(GET_ME, {
+		fetchPolicy: "network-only", // Always check with server
+		skip: !csrfFetched, // Skip the query until CSRF token is fetched
 		onCompleted: (data) => {
 			if (data?.me) {
 				setUser(data.me);
+				setIsAuthenticated(true);
+			} else {
+				setIsAuthenticated(false);
+				setUser(null);
 			}
+			setInitialLoadComplete(true);
 		},
-		onError: () => {
-			localStorage.removeItem("authToken");
+		onError: (error) => {
+			console.error("GET_ME query error:", error);
 			setIsAuthenticated(false);
 			setUser(null);
+			setInitialLoadComplete(true);
 		},
 	});
 
-	//  Refetch user data when isAuthenticated changes to true
-	useEffect(() => {
-		if (isAuthenticated) {
-			refetch();
+	const [logoutMutation] = useMutation(LOGOUT);
+
+	const logout = async () => {
+		try {
+			const result = await logoutMutation();
+			setIsAuthenticated(false);
+			setUser(null);
+			window.location.reload();
+		} catch (error) {
+			console.error("Logout error:", error);
 		}
-	}, [isAuthenticated, refetch]);
-
-	// Check if user is authenticated on component mount
-	useEffect(() => {
-		const token = localStorage.getItem("authToken");
-		setIsAuthenticated(!!token);
-	}, []);
-
-	const logout = () => {
-		localStorage.removeItem("authToken");
-		setIsAuthenticated(false);
-		setUser(null);
-		window.location.reload();
 	};
 
 	// Context value with proper typing
 	const contextValue: AuthContextType = {
 		isAuthenticated,
-		setIsAuthenticated, // Expose the setter
+		setIsAuthenticated,
 		user,
 		logout,
-		refreshLoading,
+		loading: loading && !initialLoadComplete,
 	};
 
 	return (

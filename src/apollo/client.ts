@@ -1,24 +1,95 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
+import type { DefinitionNode, OperationDefinitionNode } from 'graphql';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
+// Enable debugging in development only
+const DEBUG = import.meta.env.DEV;
+
+// Immediately fetch CSRF token when this module loads
+async function preFetchCsrfToken() {
+  try {
+    if (DEBUG) console.log("Apollo client: Pre-fetching CSRF token");
+    
+    const response = await fetch(`${API_BASE_URL}/api/csrf/`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    
+    if (!response.ok) {
+      console.error("Failed to pre-fetch CSRF token:", response.statusText);
+    }
+    return response.ok;
+  } catch (error) {
+    console.error("Error pre-fetching CSRF token:", error);
+    return false;
+  }
+}
+
+// Start the pre-fetch process
+const csrfPromise = preFetchCsrfToken();
+
+// Create the upload link with credentials
 const uploadLink = createUploadLink({
   uri: `${API_BASE_URL}/graphql/`,
+  credentials: 'include',
+  fetchOptions: {
+    credentials: 'include',
+  },
 });
 
-const authLink = setContext((_, { headers }) => {
-	const token = localStorage.getItem("authToken");
-	return {
-		headers: {
-			...headers,
-			authorization: token ? `JWT ${token}` : "",
-		},
-	};
+// Get the CSRF token from cookies
+const getCsrfToken = (): string => {
+  const cookieValue = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1] || '';
+  
+  return cookieValue;
+}
+
+// Check if an operation is a mutation
+const isMutationOperation = (definitions: readonly DefinitionNode[]): boolean => {
+  return definitions.some(def => 
+    def.kind === 'OperationDefinition' && 
+    (def as OperationDefinitionNode).operation === 'mutation'
+  );
+};
+
+// Add CSRF token to headers
+const authLink = setContext(async (operation, { headers }) => {
+  // Wait for the CSRF token to be pre-fetched
+  await csrfPromise;
+  
+  const csrfToken = getCsrfToken();
+  
+  // Only add CSRF token for mutations (POST requests)
+  const isMutation = isMutationOperation(operation.query.definitions);
+  
+  return {
+    headers: {
+      ...headers,
+      // Always include the CSRF token
+      'X-CSRFToken': csrfToken,
+    },
+  };
 });
 
 export const client = new ApolloClient({
-	link: authLink.concat(uploadLink),
-	cache: new InMemoryCache(),
+  link: authLink.concat(uploadLink),
+  cache: new InMemoryCache(),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'network-only',
+    },
+    query: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all',
+    },
+    mutate: {
+      errorPolicy: 'all',
+    },
+  },
 });

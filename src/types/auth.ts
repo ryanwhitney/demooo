@@ -6,7 +6,7 @@ export interface AuthContextType {
 	setIsAuthenticated: (value: boolean) => void;
 	user: User | null;
 	logout: () => void;
-	refreshLoading: boolean;
+	loading: boolean;
 }
 
 export interface AuthProviderProps {
