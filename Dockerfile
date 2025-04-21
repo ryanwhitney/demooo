@@ -36,4 +36,4 @@ RUN mkdir -p /app/backend/media && chmod 777 /app/backend/media
 WORKDIR /app/backend
 
 # port 80 for Fly.io
-CMD python manage.py migrate && python manage.py runserver 0.0.0.0:80
+CMD python manage.py migrate && gunicorn --bind 0.0.0.0:80 --workers 3 backend.wsgi

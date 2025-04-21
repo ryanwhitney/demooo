@@ -161,6 +161,7 @@ DATABASES = {
             "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/postgres"
         ),
         conn_max_age=600,
+        conn_health_checks=True,
     )
 }
 
@@ -218,3 +219,35 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 CSRF_TRUSTED_ORIGINS = [
     "https://demooo.fly.dev",
 ]
+
+# copypasting recommendations for switching to a prod server
+
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+if ENVIRONMENT == "production":
+    # Add this to your existing production settings
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+            },
+        },
+        "root": {
+            "handlers": ["console"],
+            "level": "WARNING",
+        },
+        "loggers": {
+            "django": {
+                "handlers": ["console"],
+                "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
+                "propagate": False,
+            },
+        },
+    }

@@ -29,3 +29,4 @@ dj-database-url==2.3.0
 boto3>=1.28,<2.0
 django-storages[boto3]>=1.14,<2.0
 python-dotenv==1.1.0
+gunicorn==21.2.0
