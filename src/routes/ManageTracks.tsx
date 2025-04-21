@@ -4,10 +4,9 @@ import type { Track } from "@/types/track";
 import { useQuery } from "@apollo/client";
 import { GridList, GridListItem } from "react-aria-components";
 import { Link } from "react-router";
-import * as style from "./ManageTracks.css";
+import * as styles from "./ManageTracks.css";
 import { formatTime } from "@/utils/timeAndDate";
-import { tokens } from "@/styles/tokens";
-import TextInput from "@/components/textInput/TextInput";
+
 const ManageTracks = () => {
 	const { user } = useAuth();
 
@@ -27,64 +26,40 @@ const ManageTracks = () => {
 	if (error) return <div>Error loading tracks: {error.message}</div>;
 
 	return (
-		<>
+		<div className={styles.container}>
 			{artist ? (
 				<>
-					<h2>{artist.username}'s Tracks</h2>
+					<h2 className={styles.pageHeading}>{artist.username}'s Tracks</h2>
 					{tracks.length === 0 ? (
-						<>
+						<div className={styles.emptyStateContainer}>
 							<p>You haven't uploaded anything yet</p>
-							<Link to="/upload">do that now</Link>
-						</>
+							<Link to="/upload" className={styles.uploadLink}>
+								do that now
+							</Link>
+						</div>
 					) : (
-						<GridList aria-label="Tracks List">
+						<GridList aria-label="Tracks List" className={styles.tracksList}>
 							{tracks.map((track: Track) => (
 								<GridListItem
 									key={track.id}
 									/* Add textValue to support type-to-select accessibility feature */
 									textValue={track.title}
-									style={{
-										display: "grid",
-										background: tokens.colors.backgroundSecondary,
-										gridTemplateColumns: "2fr 0.5fr 1fr 1fr",
-										gap: "16px",
-										alignItems: "center",
-										padding: "12px",
-										borderBottom: `1px solid ${tokens.colors.quaternaryDark}`,
-									}}
+									className={styles.trackItem}
 								>
-									<div style={{ fontWeight: "bold" }}>{track.title}</div>
-									<span
-										style={{
-											color: tokens.colors.secondary,
-											// fontFamily: tokens.fonts.system,
-											fontSize: 12,
-										}}
-									>
+									<div className={styles.trackTitle}>{track.title}</div>
+									<span className={styles.trackDuration}>
 										{formatTime(track.audioLength)}{" "}
 									</span>
-									<span
-										style={{
-											color: tokens.colors.secondary,
-											// fontFamily: tokens.fonts.system,
-											fontSize: 12,
-										}}
-									>
+									<span className={styles.trackDate}>
 										{new Date(track.createdAt).toLocaleDateString()}
 									</span>
 									<div>
-										<div style={{ display: "flex", gap: "8px" }}>
+										<div className={styles.selectsContainer}>
 											{/* Month dropdown */}
-											<div
-												style={{
-													display: "flex",
-													flexDirection: "column",
-													flex: "1",
-												}}
-											>
+											<div className={styles.selectWrapper}>
 												<label
 													htmlFor={`${track.id}_month_select`}
-													className={style.visuallyHidden}
+													className={styles.visuallyHidden}
 												>
 													month
 												</label>
@@ -95,13 +70,7 @@ const ManageTracks = () => {
 													onChange={(e) => {
 														console.log(e.target.value);
 													}}
-													style={{
-														padding: "8px",
-														borderRadius: "4px",
-														color: tokens.colors.primary,
-														border: `1px solid ${tokens.colors.quaternary}`,
-														background: tokens.colors.backgroundSecondary,
-													}}
+													className={styles.selectField}
 												>
 													{Array.from({ length: 12 }, (_, i) => (
 														<option
@@ -115,16 +84,10 @@ const ManageTracks = () => {
 													))}
 												</select>
 											</div>
-											<div
-												style={{
-													display: "flex",
-													flexDirection: "column",
-													flex: "1",
-												}}
-											>
+											<div className={styles.selectWrapper}>
 												<label
 													htmlFor={`${track.id}_year_select`}
-													className={style.visuallyHidden}
+													className={styles.visuallyHidden}
 												>
 													year
 												</label>
@@ -137,13 +100,7 @@ const ManageTracks = () => {
 													onChange={(e) => {
 														console.log(e.target.value);
 													}}
-													style={{
-														padding: "8px",
-														borderRadius: "4px",
-														color: tokens.colors.primary,
-														border: `1px solid ${tokens.colors.quaternary}`,
-														background: tokens.colors.backgroundSecondary,
-													}}
+													className={styles.selectField}
 												>
 													{Array.from({ length: 100 }, (_, i) => {
 														const year = new Date().getFullYear() - i;
@@ -160,6 +117,7 @@ const ManageTracks = () => {
 											</div>
 										</div>
 									</div>
+									<button type="button">•••</button>
 								</GridListItem>
 							))}
 						</GridList>
@@ -168,7 +126,7 @@ const ManageTracks = () => {
 			) : (
 				<div>No artist data found</div>
 			)}
-		</>
+		</div>
 	);
 };
 
