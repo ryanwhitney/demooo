@@ -7,6 +7,7 @@ import ProfilePage from "./Profile";
 import UploadPage from "./Upload";
 import MainLayout from "@/layouts/MainLayout";
 import ProtectedRoute from "@/components/protectedRoute/ProtectedRoute";
+import ManageTracks from "./ManageTracks";
 
 export const routes: RouteObject[] = [
 	{
@@ -24,6 +25,14 @@ export const routes: RouteObject[] = [
 			{
 				path: ":artistName/track/:titleSlug",
 				element: <TrackPage />,
+			},
+			{
+				path: "manage-tracks",
+				element: (
+					<ProtectedRoute>
+						<ManageTracks />
+					</ProtectedRoute>
+				),
 			},
 			{
 				path: "profile",

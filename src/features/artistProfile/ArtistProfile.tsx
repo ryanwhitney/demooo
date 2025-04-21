@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import type { Track } from "@/types/track";
 import * as style from "./ArtistProfile.css";
 import TrackList from "@/features/artistProfile/artistTrackList/TrackList";
@@ -14,19 +14,14 @@ import NotFound from "@/components/notFound/NotFound";
 import PageLoadingIndicator from "./pageLoadingIndicator/PageLoadingIndicator";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
-	const [artist, setArtist] = useState<User | null>(null);
-	const [tracks, setTracks] = useState<Track[] | []>([]);
-
-	const { loading, error } = useQuery(GET_ARTIST, {
+	const { data, loading, error } = useQuery(GET_ARTIST, {
 		variables: { username: artistName },
 		fetchPolicy: "cache-first",
-		onCompleted: (data) => {
-			if (data?.user) {
-				setArtist(data.user);
-				setTracks(data.user?.tracks || []);
-			}
-		},
 	});
+
+	// Derive data directly from query result
+	const artist = data?.user || null;
+	const tracks = artist?.tracks || [];
 
 	const audio = useAudio();
 
@@ -52,7 +47,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	]);
 
 	const handlePlayToggle = useCallback(() => {
-		if (!tracks) return;
+		if (!tracks.length) return;
 
 		const allTracksInList = tracks;
 		const firstTrack = tracks[0];
@@ -76,10 +71,9 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 
 	if (loading) return <PageLoadingIndicator />;
 	if (error) return <NotFound />;
-	console.log("artist", artist);
-	return artist === null ? (
-		<NotFound />
-	) : (
+	if (artist === null) return <NotFound />;
+
+	return (
 		<div style={{ transition: "height 0.3s ease-in-out" }}>
 			<div className={style.artistViewWrapper}>
 				<title>Music | {artist?.username}</title>
@@ -99,9 +93,9 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 							<feColorMatrix
 								type="matrix"
 								values="0 0 0 0 0
-													0 0 0 0 0
-													0 0 0 0 0
-													0 0 0 1 0"
+                        0 0 0 0 0
+                        0 0 0 0 0
+                        0 0 0 1 0"
 							/>
 						</filter>
 						<rect
@@ -156,20 +150,6 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 					</div>
 					<div className={style.artistButtons}>
 						<FollowButton userToFollow={artist} />
-						{/* <Button
-								size="large"
-								variant="primary"
-								color={tokens.colors.primary}
-								style={{
-									width: "fit-content",
-									paddingLeft: "8px",
-									paddingRight: "8px",
-									backgroundColor: tokens.colors.backgroundSecondary,
-									border: `2px solid ${tokens.colors.backgroundSecondary}`,
-								}}
-							>
-								•••
-							</Button> */}
 					</div>
 				</header>
 				<div className={style.artistContentWrapper}>

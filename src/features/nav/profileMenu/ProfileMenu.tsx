@@ -61,6 +61,12 @@ const ProfileMenu = ({ me }: { me: User }) => {
 					</MenuItem>
 					<Separator className={styles.separator} />
 					<MenuItem>
+						<Link to={"/manage-tracks"} className={styles.menuItem}>
+							Manage tracks
+						</Link>
+					</MenuItem>
+					<Separator className={styles.separator} />
+					<MenuItem>
 						<Link to={"/profile"} className={styles.menuItem}>
 							Settings
 						</Link>

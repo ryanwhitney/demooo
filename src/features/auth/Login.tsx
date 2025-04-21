@@ -57,8 +57,8 @@ const Login = ({ onSuccess }: LoginProps) => {
 			if (data.login.success) {
 				setFormData({ username: "", password: "" });
 				setIsAuthenticated(true);
-				window.location.reload();
 				onSuccess();
+				// window.location.reload();
 			} else {
 				setErrorMessage(data.login.message || "Login failed");
 			}
