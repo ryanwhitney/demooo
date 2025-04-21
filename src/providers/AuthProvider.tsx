@@ -5,36 +5,52 @@ import type { AuthContextType, AuthProviderProps } from "../types/auth";
 import { AuthContext } from "./AuthContext";
 import { LOGOUT } from "@/apollo/mutations/userMutations";
 import type { User } from "@/types/user";
+import { fetchCsrfToken, getCsrfToken } from "@/utils/csrf";
 
 const API_BASE_URL =
 	import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const DEBUG = import.meta.env.DEV;
 
 export function AuthProvider({ children }: AuthProviderProps) {
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // Start with null to indicate unknown
 	const [user, setUser] = useState<User | null>(null);
 	const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 	const [csrfFetched, setCsrfFetched] = useState(false);
 
 	// Fetch CSRF token before any authentication operations
 	useEffect(() => {
-		const fetchCsrfToken = async () => {
+		const setupCsrf = async () => {
 			try {
-				const response = await fetch(`${API_BASE_URL}/api/csrf/`, {
-					method: "GET",
-					credentials: "include",
-				});
-
-				if (response.ok) {
+				if (DEBUG) console.log("AuthProvider: Setting up CSRF token");
+				const success = await fetchCsrfToken();
+				if (success) {
+					if (DEBUG)
+						console.log("AuthProvider: CSRF token fetched successfully");
 					setCsrfFetched(true);
 				} else {
-					console.error("Failed to fetch CSRF token:", response.statusText);
+					// Try one more time after a short delay
+					await new Promise((resolve) => setTimeout(resolve, 300));
+					const retrySuccess = await fetchCsrfToken();
+					if (retrySuccess || getCsrfToken()) {
+						if (DEBUG)
+							console.log("AuthProvider: CSRF token available after retry");
+						setCsrfFetched(true);
+					} else {
+						console.error(
+							"AuthProvider: Failed to fetch CSRF token after retry",
+						);
+						// Still set as fetched to proceed with auth check - we might have the token in memory
+						setCsrfFetched(true);
+					}
 				}
 			} catch (error) {
-				console.error("Error in CSRF flow:", error);
+				console.error("AuthProvider: Error in CSRF flow:", error);
+				// Still set csrfFetched to true to allow the auth query to proceed
+				setCsrfFetched(true);
 			}
 		};
 
-		fetchCsrfToken();
+		setupCsrf();
 	}, []);
 
 	// Get current user data - this will automatically include the session cookie
@@ -42,6 +58,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		fetchPolicy: "network-only", // Always check with server
 		skip: !csrfFetched, // Skip the query until CSRF token is fetched
 		onCompleted: (data) => {
+			if (DEBUG) console.log("AuthProvider: GET_ME completed", data);
 			if (data?.me) {
 				setUser(data.me);
 				setIsAuthenticated(true);
@@ -52,10 +69,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
 			setInitialLoadComplete(true);
 		},
 		onError: (error) => {
-			console.error("GET_ME query error:", error);
-			setIsAuthenticated(false);
-			setUser(null);
-			setInitialLoadComplete(true);
+			console.error("AuthProvider: GET_ME query error:", error);
+
+			// Check if this is a CSRF error or server unreachable
+			if (
+				error.message.includes("CSRF") ||
+				error.message.includes("Network error")
+			) {
+				// Don't immediately log out on CSRF errors - could be fixable
+				console.warn(
+					"AuthProvider: Authentication error may be temporary, retrying...",
+				);
+				// Try again after a brief delay
+				setTimeout(() => {
+					// Force Apollo to refetch
+					window.location.reload();
+				}, 500);
+			} else {
+				// For other errors, assume not authenticated
+				setIsAuthenticated(false);
+				setUser(null);
+				setInitialLoadComplete(true);
+			}
 		},
 	});
 
@@ -78,13 +113,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		}
 	};
 
-	// Context value with proper typing
+	// Context value with proper typing - treat null as loading state
 	const contextValue: AuthContextType = {
-		isAuthenticated,
+		isAuthenticated: isAuthenticated === null ? false : isAuthenticated,
 		setIsAuthenticated,
 		user,
 		logout,
-		loading: loading && !initialLoadComplete,
+		loading: loading || isAuthenticated === null || !initialLoadComplete,
 	};
 
 	return (
