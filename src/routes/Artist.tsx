@@ -1,15 +1,11 @@
 import { useParams } from "react-router";
 import ArtistProfile from "@/features/artistProfile/ArtistProfile";
-import NotFound from "@/features/notFound/notFound";
-
 const ArtistPage = () => {
 	const { artistName } = useParams();
-
-	return (
-		<>
-			{!artistName ? <ArtistProfile artistName={"artistName"} /> : <NotFound />}
-		</>
-	);
+	if (!artistName) {
+		return "404"; // should never happen as this would hit root route
+	}
+	return <ArtistProfile artistName={artistName} />;
 };
 
 export default ArtistPage;

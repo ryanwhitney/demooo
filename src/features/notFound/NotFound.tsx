@@ -1,4 +1,4 @@
-import * as style from "./notFound.css";
+import * as style from "./NotFound.css";
 
 const NotFound = ({
 	headerText,
