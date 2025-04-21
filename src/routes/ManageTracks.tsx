@@ -80,7 +80,7 @@ const ManageTracks = () => {
 													}}
 												>
 													{Array.from({ length: 12 }, (_, i) => (
-														<option key={`${track.id}_month`} value={i}>
+														<option key={`${track.id}_${i}_month`} value={i}>
 															{new Date(2023, i, 1).toLocaleString("default", {
 																month: "short",
 															})}
@@ -114,7 +114,10 @@ const ManageTracks = () => {
 													{Array.from({ length: 100 }, (_, i) => {
 														const year = new Date().getFullYear() - i;
 														return (
-															<option key={`${track.id}_year`} value={year}>
+															<option
+																key={`${track.id}_year_${year}`}
+																value={year}
+															>
 																{year}
 															</option>
 														);
