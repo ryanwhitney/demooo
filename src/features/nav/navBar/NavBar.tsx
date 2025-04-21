@@ -72,14 +72,14 @@ function NavBar() {
 			{showLoginModal &&
 				createPortal(
 					<Modal title="Log in" onClose={() => setShowLoginModal(false)}>
-						<Login onSuccess={() => setShowLoginModal(false)} />
+						<Login />
 					</Modal>,
 					document.body,
 				)}
 			{showSignUpModal &&
 				createPortal(
 					<Modal title="Join demooo" onClose={() => setShowSignUpModal(false)}>
-						<CreateAccount onSuccess={() => setShowSignUpModal(false)} />
+						<CreateAccount />
 					</Modal>,
 					document.body,
 				)}
