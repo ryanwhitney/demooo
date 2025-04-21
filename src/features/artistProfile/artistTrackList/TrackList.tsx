@@ -9,6 +9,7 @@ import PauseSVG from "@/components/svg/PauseSVG";
 import * as style from "./TrackList.css";
 import { Link } from "react-router";
 import { useFavorite } from "@/hooks/useFavorite";
+import { GridList, GridListItem } from "react-aria-components";
 
 const TrackRow = ({
 	track,
@@ -121,25 +122,36 @@ const TrackList = ({ tracks }: { tracks: Track[] }) => {
 						</h2>
 					</header>
 
-					<div className={style.allMonthsWrapper}>
+					<ul className={style.allMonthsWrapper}>
 						{Object.keys(groupedTracks[year])
 							.sort((a, b) => monthOrder.indexOf(b) - monthOrder.indexOf(a))
 							.map((month) => (
-								<article key={`${year}-${month}`}>
-									<h3 className={style.monthHeading}>{month}</h3>
-									<ul className={style.monthWrapper}>
+								<li key={`${year}-${month}`}>
+									<h3
+										id={`year-${year}-month-${month}`}
+										className={style.monthHeading}
+									>
+										{month}
+									</h3>
+									<GridList
+										aria-labelledby={`year-${year}-month-${month}`}
+										className={style.monthWrapper}
+									>
 										{groupedTracks[year][month].map((track, index) => (
-											<li key={`${track.id}-${index}`}>
+											<GridListItem
+												textValue={track.title}
+												key={`${track.id}-${index}`}
+											>
 												<TrackRow track={track} allTracksInList={allTracks} />
 												{index < groupedTracks[year][month].length - 1 && (
 													<hr className={style.trackDivider} />
 												)}
-											</li>
+											</GridListItem>
 										))}
-									</ul>
-								</article>
+									</GridList>
+								</li>
 							))}
-					</div>
+					</ul>
 				</section>
 			))}
 		</div>

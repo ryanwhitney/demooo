@@ -33,7 +33,8 @@ export const yearWrapper = style({
 export const allMonthsWrapper = style({
   display: "flex", 
   gap: tokens.space.lg, 
-  flexDirection: "column"
+  flexDirection: "column",
+  listStyle: 'none',
 });
 
 export const monthHeading = style({

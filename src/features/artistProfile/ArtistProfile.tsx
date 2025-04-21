@@ -10,7 +10,7 @@ import { useQuery } from "@apollo/client";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import NotFound from "@/components/notFound/NotFound";
 import PageLoadingIndicator from "./pageLoadingIndicator/PageLoadingIndicator";
-import { Track } from "@/types/track";
+import type { Track } from "@/types/track";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const { data, loading, error } = useQuery(GET_ARTIST, {
