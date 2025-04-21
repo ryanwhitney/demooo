@@ -3,27 +3,24 @@ import { UPLOAD_MULTIPLE_TRACKS } from "@/apollo/mutations/trackMutations";
 
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import ErrorBox from "@/components/errorBox/ErrorBox";
-import { tokens } from "@/styles/tokens";
-import type { UploadTrackFormInput } from "@/types/track";
 import { useMutation } from "@apollo/client";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Button, DropZone, FileTrigger } from "react-aria-components";
-import { dropping, notDropping } from "./UploadTracks.css";
 import TextInput from "@/components/textInput/TextInput";
+import * as style from "./UploadTracks.css";
 
-// Extended type to track upload status
-interface UploadTrackWithStatus extends UploadTrackFormInput {
-	id?: string; // ID will be set after successful upload
-	status?: "pending" | "success" | "error"; // Track upload status
-	errorMessage?: string; // Error message if upload failed
-	originalFileName: string; // Store original file name for display
-	originalFileDate: string; // Store original file date for display
+// Simplified track type
+interface UploadTrack {
+	title: string;
+	description: string;
+	file: File;
+	originalFileName: string;
 }
 
 const UploadTracks = () => {
 	const [dropped, setDropped] = useState(false);
-	const [tracks, setTracks] = useState<UploadTrackWithStatus[]>([]);
-	const [uploadErrors, setUploadErrors] = useState<string[]>([]);
+	const [tracks, setTracks] = useState<UploadTrack[]>([]);
+	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
 
 	const [uploadMultipleTracks, { loading }] = useMutation(
@@ -33,12 +30,11 @@ const UploadTracks = () => {
 		},
 	);
 
-	// Helper function to validate and process audio files
+	// Process audio files
 	const processAudioFiles = (files: File[]) => {
-		const validFiles: UploadTrackWithStatus[] = [];
+		const validFiles: UploadTrack[] = [];
 
 		for (const file of files) {
-			// Check if the file is an audio file
 			if (file.type.startsWith("audio/")) {
 				const fileName = file.name;
 				const fileNameWithoutExtension = fileName
@@ -50,9 +46,7 @@ const UploadTracks = () => {
 					title: fileNameWithoutExtension,
 					description: "",
 					file: file,
-					status: "pending",
 					originalFileName: fileName,
-					originalFileDate: new Date(file.lastModified).toLocaleDateString(),
 				});
 			}
 		}
@@ -74,7 +68,7 @@ const UploadTracks = () => {
 
 	const handleInputChange = (
 		index: number,
-		field: keyof Omit<UploadTrackFormInput, "file">,
+		field: "title" | "description",
 		value: string,
 	) => {
 		const updatedTracks = [...tracks];
@@ -96,15 +90,8 @@ const UploadTracks = () => {
 			return;
 		}
 
-		// Set all tracks to pending status
-		setTracks(
-			tracks.map((track) => ({
-				...track,
-				status: "pending" as const,
-			})),
-		);
-
 		setIsSubmitted(true);
+		setErrorMessage("");
 
 		try {
 			const { data } = await uploadMultipleTracks({
@@ -115,98 +102,19 @@ const UploadTracks = () => {
 				},
 			});
 
-			console.log("Tracks uploaded response:", data);
-
-			// If we get null response, all tracks failed
-			if (!data.uploadMultipleTracks) {
-				// Keep form editable when all uploads fail
-				setIsSubmitted(false);
-				throw new Error("Upload failed for all tracks");
-			}
-
-			// Track which files were successfully uploaded by comparing with response
-			const successfulTracks = data.uploadMultipleTracks.tracks || [];
-
-			// Update status for all tracks
-			const updatedTracks = [...tracks].map((track) => {
-				// Find this track in the successful uploads response
-				const uploadedTrack = successfulTracks.find(
-					(t: any) => t.title === track.title,
-				);
-
-				if (uploadedTrack) {
-					// Track was successfully uploaded
-					return {
-						...track,
-						id: uploadedTrack.id,
-						status: "success" as const,
-					};
-				} else {
-					// Track was not in the response, so it failed
-					return {
-						...track,
-						status: "error" as const,
-						errorMessage: "Upload failed",
-					};
-				}
-			});
-
-			setTracks(updatedTracks);
-
-			// Handle any failed uploads
-			if (data.uploadMultipleTracks.failedUploads?.length > 0) {
-				setUploadErrors(data.uploadMultipleTracks.failedUploads);
+			// If upload was successful, show success state
+			if (data.uploadMultipleTracks) {
+				console.log("Tracks uploaded successfully:", data);
 			} else {
-				setUploadErrors([]);
+				// If the upload failed, show error
+				setIsSubmitted(false);
+				setErrorMessage("Upload failed for all tracks");
 			}
 		} catch (err) {
-			// Extract duplicate title errors if present
+			// Handle errors
 			const errorMsg = err instanceof Error ? err.message : String(err);
-			const duplicateTitleMatches = errorMsg.match(
-				/You already have a track with title: '([^']+)'/g,
-			);
-
-			if (duplicateTitleMatches) {
-				// Parse out the duplicate titles
-				const duplicateTitles = duplicateTitleMatches
-					.map((match) => {
-						const titleMatch = match.match(
-							/You already have a track with title: '([^']+)'/,
-						);
-						return titleMatch ? titleMatch[1] : null;
-					})
-					.filter(Boolean);
-
-				// Mark only the duplicate titled tracks as errors
-				const updatedTracks = [...tracks].map((track) => {
-					if (duplicateTitles.includes(track.title)) {
-						return {
-							...track,
-							status: "error" as const,
-							errorMessage: `A track with this title already exists`,
-						};
-					}
-					return {
-						...track,
-						status: "pending" as const,
-					};
-				});
-
-				setTracks(updatedTracks);
-				// Keep form editable for duplicate title errors
-				setIsSubmitted(false);
-			} else {
-				// For other errors, mark all tracks as failed
-				setTracks(
-					tracks.map((track) => ({
-						...track,
-						status: "error" as const,
-						errorMessage: errorMsg,
-					})),
-				);
-			}
-
-			setUploadErrors([errorMsg]);
+			setErrorMessage(errorMsg);
+			setIsSubmitted(false);
 		}
 	};
 
@@ -218,36 +126,23 @@ const UploadTracks = () => {
 
 	const resetForm = () => {
 		setTracks([]);
-		setUploadErrors([]);
+		setErrorMessage("");
 		setDropped(false);
 		setIsSubmitted(false);
 	};
 
 	return (
-		<div style={{ maxWidth: "600px", margin: "0 auto", padding: "20px" }}>
+		<div className={style.container}>
 			<form onSubmit={handleSubmit}>
-				{uploadErrors.length > 0 && <ErrorBox text={uploadErrors.join("\n")} />}
+				{errorMessage && <ErrorBox text={errorMessage} />}
 
 				<div className="upload-page">
-					<h1 style={{ marginBottom: 40 }}>Upload Tracks</h1>
+					<h1 className={style.pageTitle}>Upload Tracks</h1>
 
 					{(!isSubmitted || tracks.length === 0) && (
 						<DropZone
-							style={{
-								width: "100%",
-								borderRadius: tokens.radii.xl,
-								padding: 20,
-								height: tracks.length > 0 ? 80 : 100,
-								border: ".5px dashed rgba(130,130,139,0.5)",
-								textAlign: "center",
-								display: "flex",
-								flexDirection: "column",
-								justifyContent: "center",
-								alignItems: "center",
-								transition: "filter 0.2s ease-in-out",
-							}}
 							className={({ isDropTarget }) =>
-								isDropTarget ? dropping : notDropping
+								`${tracks.length > 0 ? style.dropZoneWithFiles : ""} ${isDropTarget ? style.dropZoneDropping : ""} ${style.dropZone} `
 							}
 							getDropOperation={(types) =>
 								types.has("audio/*") ? "copy" : "cancel"
@@ -266,7 +161,7 @@ const UploadTracks = () => {
 						>
 							{dropped
 								? tracks.length > 0
-									? "Successful drop!"
+									? ""
 									: "Audio files only"
 								: "Drop files here"}
 							<FileTrigger
@@ -274,182 +169,90 @@ const UploadTracks = () => {
 								allowsMultiple={true}
 								onSelect={handleSelectFiles}
 							>
-								<Button
-									style={{
-										color: "white",
-										border: "none",
-										textDecoration: "underline",
-										borderRadius: "4px",
-										cursor: "pointer",
-										fontWeight: "bold",
-									}}
-								>
-									or click to add
+								<Button className={style.addFilesButton}>
+									{dropped && tracks.length > 0
+										? "add more"
+										: "or browse files"}
 								</Button>
 							</FileTrigger>
 						</DropZone>
 					)}
 
-					{tracks.length > 0 && (
-						<div className="file-list" style={{ marginTop: "20px" }}>
-							{tracks.map((track, index) => (
-								<div
-									key={track.id || `track-${index}`}
-									style={{
-										display: "flex",
-										gap: "16px",
-										alignItems: "center",
-										background:
-											track.status === "success"
-												? "rgba(0,255,0,0.1)"
-												: track.status === "error"
-													? "rgba(255,0,0,0.1)"
-													: "rgba(0,0,0,0.1)",
-										borderRadius: "8px",
-									}}
-								>
-									<div style={{ flex: "0 0 30%" }}>
-										{isSubmitted ? (
-											<div style={{ padding: "4px 8px", fontSize: "14px" }}>
-												{track.title}
-											</div>
-										) : (
-											<TextInput
-												type="text"
-												value={track.title}
-												onChange={(e: ChangeEvent<HTMLInputElement>) =>
-													handleInputChange(index, "title", e.target.value)
-												}
-												placeholder="Title"
-												style={{ padding: "6px 16px", margin: 0 }}
-												required
-											/>
-										)}
-									</div>
+					<div className={style.fileList}>
+						{tracks.length > 0 && (
+							<>
+								<h2 className={style.editHeader}>Edit titles and upload</h2>
+								{tracks.map((track, index) => (
 									<div
-										style={{
-											flex: "1",
-											fontSize: 12,
-											display: "flex",
-											flexDirection: "column",
-										}}
+										key={`track-upload-${style.fileItem}`}
+										className={style.fileItem}
 									>
-										<div>
-											{track.file && (
-												<span
-													style={{
-														color: tokens.colors.secondary,
-														paddingRight: 8,
-													}}
-												>
-													{track.originalFileName}
-												</span>
+										<div className={style.titleContainer}>
+											{isSubmitted ? (
+												<div className={style.titleText}>{track.title}</div>
+											) : (
+												<TextInput
+													type="text"
+													label={`${index + 1}.`}
+													value={track.title}
+													onChange={(e: ChangeEvent<HTMLInputElement>) =>
+														handleInputChange(index, "title", e.target.value)
+													}
+													placeholder="Title"
+													className={style.titleInput}
+													required
+												/>
 											)}
-											<span style={{ color: tokens.colors.tertiary }}>
-												({track.originalFileDate})
-											</span>
 										</div>
-										{track.status && (
-											<span
-												style={{
-													marginLeft: "auto",
-													color:
-														track.status === "success"
-															? "green"
-															: track.status === "error"
-																? "red"
-																: "gray",
-													fontWeight: "bold",
-												}}
+										<div className={style.fileInfoContainer}>
+											<div>
+												{track.file && (
+													<span className={style.fileName}>
+														{track.originalFileName}
+													</span>
+												)}
+											</div>
+										</div>
+										{!isSubmitted && (
+											<button
+												type="button"
+												onClick={() => removeTrack(index)}
+												className={style.removeButton}
 											>
-												{track.status === "success"
-													? "Success"
-													: track.status === "error"
-														? track.errorMessage || "Failed"
-														: ""}
-											</span>
+												×
+											</button>
 										)}
 									</div>
-									{!isSubmitted && (
-										<button
-											type="button"
-											onClick={() => removeTrack(index)}
-											style={{
-												background: tokens.colors.secondaryDark,
-												border: "none",
-												width: "20px",
-												height: "20px",
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "center",
-												cursor: "pointer",
-												fontSize: "16px",
-												borderRadius: tokens.radii.full,
-												color: tokens.colors.primary,
-											}}
-										>
-											×
-										</button>
-									)}
-								</div>
-							))}
+								))}
 
-							{isSubmitted &&
-							tracks.some((track) => track.status === "success") ? (
-								<Button
-									type="button"
-									onClick={resetForm}
-									style={{
-										marginTop: "20px",
-										padding: "10px 16px",
-										background: tokens.colors.backgroundSecondary,
-										color: "white",
-										border: "none",
-										borderRadius: "8px",
-										cursor: "pointer",
-										fontSize: "16px",
-										fontWeight: "bold",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										width: "100%",
-									}}
-								>
-									Upload More Tracks
-								</Button>
-							) : (
-								<Button
-									type="submit"
-									style={{
-										marginTop: "20px",
-										padding: "10px 16px",
-										background: tokens.colors.backgroundSecondary,
-										color: "white",
-										border: "none",
-										borderRadius: "8px",
-										cursor: "pointer",
-										fontSize: "16px",
-										fontWeight: "bold",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										width: "100%",
-									}}
-									isDisabled={
-										loading ||
-										tracks.length === 0 ||
-										tracks.some((track) => !track.title.trim())
-									}
-								>
-									{loading ? (
-										<ProgressIndicator />
-									) : (
-										`Upload ${tracks.length} ${tracks.length === 1 ? "Track" : "Tracks"}`
-									)}
-								</Button>
-							)}
-						</div>
-					)}
+								{isSubmitted ? (
+									<Button
+										type="button"
+										onClick={resetForm}
+										className={style.actionButton}
+									>
+										Upload More Tracks
+									</Button>
+								) : (
+									<Button
+										type="submit"
+										className={style.actionButton}
+										isDisabled={
+											loading ||
+											tracks.length === 0 ||
+											tracks.some((track) => !track.title.trim())
+										}
+									>
+										{loading ? (
+											<ProgressIndicator />
+										) : (
+											`Upload ${tracks.length} ${tracks.length === 1 ? "Track" : "Tracks"}`
+										)}
+									</Button>
+								)}
+							</>
+						)}
+					</div>
 				</div>
 			</form>
 		</div>

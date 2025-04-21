@@ -158,7 +158,7 @@ const TrackMultiUpload = () => {
 
 			{tracks.length > 0 && (
 				<Button
-					size="large"
+					// size=""
 					type="submit"
 					disabled={loading || tracks.some((track) => !track.title.trim())}
 				>

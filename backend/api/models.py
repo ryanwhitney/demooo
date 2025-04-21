@@ -175,7 +175,7 @@ class Track(models.Model):
         mp3_path = f"{self.audio_file}/320/{self.id}.mp3"
 
         # Debug output to check when this method is called
-        print(f"Track.audio_url called for: {self.title}, path: {mp3_path}")
+        # print(f"Track.audio_url called for: {self.title}, path: {mp3_path}")
 
         # Check if we're using R2 storage
         if settings.USE_CLOUDFLARE_R2:
