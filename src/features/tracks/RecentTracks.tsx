@@ -37,6 +37,7 @@ const RecentTracks = () => {
 				<p>{error.message}</p>
 			) : (
 				<GridList
+					aria-label="latest-tracks-heading"
 					style={{
 						display: "flex",
 						gap: 16,
@@ -49,7 +50,10 @@ const RecentTracks = () => {
 					}}
 				>
 					{data?.tracks?.map((track: Track) => (
-						<GridListItem key={`${track.id}`}>
+						<GridListItem
+							key={`${track.id}`}
+							textValue={`${track.title} by ${track.artist.profile.name || track.artist.username}`}
+						>
 							<TrackChip track={track} />
 						</GridListItem>
 					))}
