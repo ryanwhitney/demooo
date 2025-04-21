@@ -49,6 +49,7 @@ export const uploadButtonContainer = style({
   alignItems: 'center',
   overflow: 'hidden',
   transition: 'background 250ms ease-in-out',
+  zIndex: 1,
 });
 export const uploadButton = style({
   color: 'white',
