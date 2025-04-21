@@ -53,6 +53,7 @@ const RecentTracks = () => {
 						<GridListItem
 							key={`${track.id}`}
 							textValue={`${track.title} by ${track.artist.profile.name || track.artist.username}`}
+							style={{ borderRadius: tokens.radii.md }}
 						>
 							<TrackChip track={track} />
 						</GridListItem>

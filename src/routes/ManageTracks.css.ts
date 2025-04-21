@@ -71,5 +71,9 @@ export const selectField = style({
   border: `1px solid ${tokens.colors.secondaryDark}`,
   background: "transparent",
   outline: "none",
-  fontSize: "12px"
+  fontSize: "12px",
+  ":focus-visible": {
+			outline: `2px solid ${tokens.colors.focusRing}`,
+			outlineOffset: "2px",
+		},
 });

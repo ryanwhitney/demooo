@@ -35,7 +35,13 @@ const ProfileMenu = ({ me }: { me: User }) => {
 
 	return (
 		<MenuTrigger isOpen={isMenuOpen} onOpenChange={handleOpenChange}>
-			<Button type="button" aria-label="Menu">
+			<Button
+				type="button"
+				aria-label="profile menu"
+				style={{
+					borderRadius: "50%",
+				}}
+			>
 				<ProfilePhoto profile={me.profile} />
 			</Button>
 			<Popover

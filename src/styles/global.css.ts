@@ -28,3 +28,8 @@ globalStyle("main", {
 	flexDirection: "column",
 	alignItems: "center",
 });
+
+globalStyle("*:focus-visible", {
+			outline: `2px solid ${tokens.colors.focusRing}`,
+			outlineOffset: "2px"
+});

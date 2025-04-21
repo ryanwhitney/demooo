@@ -61,7 +61,10 @@ const ProfilePhoto = ({
 			height={toCssValue(height)}
 			src={getProfilePhotoUrl()}
 			alt="profile photo"
-			style={{ borderRadius: `${borderRadius}`, flexShrink: 0 }}
+			style={{
+				borderRadius: `${borderRadius}`,
+				flexShrink: 0,
+			}}
 			onError={() => setImageError(true)}
 			aria-hidden={ariaHidden}
 		/>

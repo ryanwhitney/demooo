@@ -15,6 +15,9 @@ export const navBar = style({
 export const logo = style({
 	cursor: "pointer",
 	transition: "all 250ms ease-in-out",
+	borderRadius: tokens.radii.md,
+	padding: tokens.space.sm,
+	marginLeft: -tokens.space.sm, //
 	":hover": {
 		opacity: 0.95,
 	},

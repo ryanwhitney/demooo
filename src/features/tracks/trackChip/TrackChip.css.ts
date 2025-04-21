@@ -36,8 +36,12 @@ export const trackChipPlayButton = style({
 	transition: 'opacity 150ms ease', 
 	zIndex: 4,
 	opacity: 0,
+	borderRadius: tokens.radii.full,
 	':focus':{
 		opacity: 1
+	},
+	':focus-visible':{
+		backgroundColor: tokens.colors.tintColor, // more obvious as the waveform doesn't dim like hover
 	},
 	'::before':{
 		content: '\ ',
@@ -66,6 +70,12 @@ globalStyle(`${waveformWrapper}:hover ${trackChipPlayButton}`, {
 // Add this globalStyle definition to create the group hover effect
 globalStyle(`${trackChipWrapper}:focus ${trackChipPlayButton}`, {
   opacity: 1,
+});
+
+// Add this globalStyle definition to create the group hover effect
+globalStyle(`${trackChipWrapper}:focus-visible ${trackChipPlayButton}`, {
+  backgroundColor: tokens.colors.primary,
+	
 });
 
 globalStyle(`${waveformWrapper}:hover ${waveformElement}`, {
@@ -106,6 +116,7 @@ export const trackTitle = style({
   WebkitBoxOrient: 'vertical',
 	textOverflow: 'ellipsis',
 	lineBreak: 'anywhere',
+	borderRadius: tokens.radii.sm,
 	overflow: 'hidden',
 	':hover':{
 		fontWeight: 600,
@@ -118,6 +129,7 @@ export const trackArtistContainer = style({
 	textDecoration: "none",
 	display: 'flex',
 	lineHeight: 1,
+	borderRadius: tokens.radii.sm,
 	// background: 'blue',
 	alignItems: 'center',
 	gap: 5,
