@@ -5,48 +5,21 @@ import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator.
 import TextInput from "@/components/textInput/TextInput";
 import { useAuth } from "@/hooks/useAuth";
 import type { LoginFormInput } from "@/types/auth";
+import { useCsrf } from "@/utils/csrf";
 import { useMutation } from "@apollo/client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-type LoginProps = {
-	onSuccess: () => void;
-};
+const DEBUG = false;
 
-const Login = ({ onSuccess }: LoginProps) => {
+const Login = () => {
 	const [formData, setFormData] = useState<LoginFormInput>({
 		username: "",
 		password: "",
 	});
 
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
-	const [csrfFetched, setCsrfFetched] = useState(false);
-
+	const { csrfFetched, error: csrfError, getToken } = useCsrf();
 	const { setIsAuthenticated } = useAuth();
-
-	// Fetch CSRF token on component mount
-	useEffect(() => {
-		const fetchCsrfToken = async () => {
-			try {
-				const response = await fetch(
-					`${import.meta.env.VITE_API_BASE_URL}/api/csrf/`,
-					{
-						method: "GET",
-						credentials: "include",
-					},
-				);
-
-				if (response.ok) {
-					setCsrfFetched(true);
-				} else {
-					setErrorMessage("Failed to fetch token. Please try again.");
-				}
-			} catch (error) {
-				setErrorMessage("Something went wrong. Please try again.");
-			}
-		};
-
-		fetchCsrfToken();
-	}, []);
 
 	const [login, { loading }] = useMutation(LOGIN, {
 		variables: {
@@ -54,17 +27,25 @@ const Login = ({ onSuccess }: LoginProps) => {
 			password: formData.password,
 		},
 		onCompleted: (data) => {
+			if (DEBUG) console.log("Login response:", data);
+
 			if (data.login.success) {
 				setFormData({ username: "", password: "" });
 				setIsAuthenticated(true);
-				onSuccess();
-				// window.location.reload();
+				window.location.reload();
 			} else {
 				setErrorMessage(data.login.message || "Login failed");
 			}
 		},
 		onError: (error) => {
-			setErrorMessage(error.message);
+			if (DEBUG) console.error("Login error:", error);
+			if (error.message.includes("CSRF")) {
+				setErrorMessage(
+					"CSRF token validation failed. Please refresh the page and try again.",
+				);
+			} else {
+				setErrorMessage(error.message);
+			}
 		},
 	});
 
@@ -72,9 +53,18 @@ const Login = ({ onSuccess }: LoginProps) => {
 		e.preventDefault();
 		setErrorMessage(null);
 
-		if (!csrfFetched) {
+		// Check if we should proceed even without full CSRF setup
+		// In private browsing, we might need to proceed anyway
+		const token = getToken();
+
+		if (!csrfFetched && !token) {
+			setErrorMessage(
+				"Setting up secure connection... Please try again in a moment.",
+			);
 			return;
 		}
+
+		if (DEBUG) console.log("Submitting login with:", formData);
 
 		login();
 	};
@@ -82,6 +72,8 @@ const Login = ({ onSuccess }: LoginProps) => {
 	return (
 		<>
 			{errorMessage && <ErrorBox text={errorMessage} />}
+			{csrfError && !errorMessage && <ErrorBox text={csrfError} />}
+
 			<form onSubmit={handleSubmit}>
 				<TextInput
 					label="Username"
@@ -109,7 +101,10 @@ const Login = ({ onSuccess }: LoginProps) => {
 					size="large"
 					type="submit"
 					disabled={
-						loading || !csrfFetched || !formData.username || !formData.password
+						loading ||
+						(!csrfFetched && !getToken()) ||
+						!formData.username ||
+						!formData.password
 					}
 				>
 					{loading ? <ProgressIndicator /> : "Login"}

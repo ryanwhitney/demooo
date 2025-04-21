@@ -1,34 +1,48 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
+import { getCsrfToken, fetchCsrfToken, setCSRFHeader } from "@/utils/csrf";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 // Enable debugging in development only
 const DEBUG = import.meta.env.DEV;
 
-// Immediately fetch CSRF token when this module loads
-async function preFetchCsrfToken() {
+// Flag to track if we're already fetching the token
+let fetchingCsrfPromise: Promise<boolean> | null = null;
+
+// Ensure CSRF token is available before any request
+const ensureCsrfToken = async (): Promise<boolean> => {
+  // If we're already fetching, return the existing promise
+  if (fetchingCsrfPromise) {
+    return fetchingCsrfPromise;
+  }
+  
+  // Check if we already have a token
+  if (getCsrfToken()) {
+    if (DEBUG) console.log("Apollo client: CSRF token already available");
+    return true;
+  }
+  
+  // Start fetching a new token
+  if (DEBUG) console.log("Apollo client: Fetching CSRF token");
+  fetchingCsrfPromise = fetchCsrfToken();
+  
   try {
-    if (DEBUG) console.log("Apollo client: Pre-fetching CSRF token");
-    
-    const response = await fetch(`${API_BASE_URL}/api/csrf/`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    
-    if (!response.ok) {
-      console.error("Failed to pre-fetch CSRF token:", response.statusText);
-    }
-    return response.ok;
+    // Wait for the fetch to complete
+    const result = await fetchingCsrfPromise;
+    // Reset the promise
+    fetchingCsrfPromise = null;
+    return result;
   } catch (error) {
-    console.error("Error pre-fetching CSRF token:", error);
+    // Reset the promise on error
+    fetchingCsrfPromise = null;
     return false;
   }
-}
+};
 
-// Start the pre-fetch process
-const csrfPromise = preFetchCsrfToken();
+// Immediately start fetching CSRF token when module loads
+const initPromise = ensureCsrfToken();
 
 // Create the upload link with credentials
 const uploadLink = createUploadLink({
@@ -39,28 +53,33 @@ const uploadLink = createUploadLink({
   },
 });
 
-// Get the CSRF token from cookies
-const getCsrfToken = (): string => {
-  const cookieValue = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('csrftoken='))
-    ?.split('=')[1] || '';
-  
-  return cookieValue;
-}
-
 // Add CSRF token to all headers
 const authLink = setContext(async (_operation, { headers }) => {
-  // Wait for the CSRF token to be pre-fetched
-  await csrfPromise;
+  // Wait for the initial token fetch
+  await initPromise;
   
-  const csrfToken = getCsrfToken();
-    
+  // Get the token - if not found, try fetching it again
+  let csrfToken = getCsrfToken();
+  
+  if (!csrfToken) {
+    if (DEBUG) console.log("No CSRF token found before request, fetching again...");
+    await ensureCsrfToken();
+    csrfToken = getCsrfToken();
+  }
+  
+  if (DEBUG) {
+    if (csrfToken) {
+      console.log("Using CSRF token for request");
+    } else {
+      console.warn("No CSRF token available for request - proceeding anyway");
+    }
+  }
+  
+  // Use our utility function to add the CSRF header
   return {
-    headers: {
-      ...headers,
-      'X-CSRFToken': csrfToken,
-    },
+    headers: setCSRFHeader({
+      ...headers
+    }),
   };
 });
 

@@ -192,7 +192,7 @@ class Track(models.Model):
         else:
             # Use default_storage for local files
             local_url = default_storage.url(mp3_path)
-            print(f"Using local URL: {local_url}")
+            # print(f"Using local URL: {local_url}")
             return local_url
 
     @property

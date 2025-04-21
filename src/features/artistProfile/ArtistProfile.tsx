@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import type { Track } from "@/types/track";
 import * as style from "./ArtistProfile.css";
 import TrackList from "@/features/artistProfile/artistTrackList/TrackList";
 import { useAudio } from "@/providers/AudioProvider";
@@ -7,11 +6,11 @@ import PlayButton from "@/components/audioPlayer/components/playButton/PlayButto
 import { tokens } from "@/styles/tokens";
 import ProfilePhoto from "@/features/nav/profilePhoto/ProfilePhoto";
 import FollowButton from "@/features/followButton/FollowButton";
-import type { User } from "@/types/user";
 import { useQuery } from "@apollo/client";
 import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import NotFound from "@/components/notFound/NotFound";
 import PageLoadingIndicator from "./pageLoadingIndicator/PageLoadingIndicator";
+import { Track } from "@/types/track";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const { data, loading, error } = useQuery(GET_ARTIST, {
@@ -28,7 +27,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const isTrackInCurrentTracksList = useCallback(
 		(trackId: string | undefined): boolean => {
 			if (!trackId || !tracks) return false;
-			return tracks.some((track) => track.id === trackId);
+			return tracks.some((track: Track) => track.id === trackId);
 		},
 		[tracks],
 	);

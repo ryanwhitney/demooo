@@ -6,20 +6,21 @@ import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator"
 import TextInput from "@/components/textInput/TextInput";
 import { useAuth } from "@/hooks/useAuth";
 import type { SignupFormInput } from "@/types/auth";
+import { useCsrf } from "@/utils/csrf";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { useEffect, useState, useRef } from "react";
 
-type CreateAccountProps = {
-	onSuccess: () => void;
-};
+const DEBUG = false;
 
-const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
+const CreateAccount = () => {
 	const [usernameError, setUsernameError] = useState("");
 	const [formData, setFormData] = useState<SignupFormInput>({
 		email: "",
 		username: "",
 		password: "",
 	});
+
+	const { csrfFetched, error: csrfError, getToken } = useCsrf();
 	const { setIsAuthenticated } = useAuth();
 
 	const [checkUsername, { loading: checkingUsername }] = useLazyQuery(
@@ -49,6 +50,9 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 				},
 			});
 		},
+		onError: (error) => {
+			if (DEBUG) console.error("Create account error:", error);
+		},
 	});
 
 	const [authenticateUser] = useMutation(LOGIN, {
@@ -56,13 +60,12 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 			if (data.login.success) {
 				setFormData({ ...formData, password: "" });
 				setIsAuthenticated(true);
-				onSuccess();
 				window.location.reload();
 			}
 		},
 		onError: (error) => {
 			setFormData({ ...formData, password: "" });
-			console.error("Atuh error after signup:", error);
+			console.error("Authentication error after signup:", error);
 		},
 	});
 
@@ -122,23 +125,34 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 
 	return (
 		<>
+			{csrfError && !error && <ErrorBox text={csrfError} />}
 			{error && <ErrorBox text={error.message} />}
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
 					if (usernameError) return; // Prevent submission if username is taken
-					console.log("About to send mutation with:", {
-						username: formData.username,
-						email: formData.email,
-						password: formData.password,
-					});
+
+					// Proceed even if CSRF token is in memory but not cookies (private browsing)
+					const token = getToken();
+					if (!csrfFetched && !token) {
+						console.error("Cannot submit form - CSRF token not available");
+						return;
+					}
+
+					if (DEBUG) {
+						console.log("About to send create account mutation with:", {
+							username: formData.username,
+							email: formData.email,
+							password: "********",
+						});
+					}
+
 					createAccount();
 				}}
 			>
 				<TextInput
 					label="Username"
 					type="text"
-					// placeholder="ryannn"
 					value={formData.username}
 					autoComplete="username"
 					debounceTime={750}
@@ -151,7 +165,6 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 				<TextInput
 					label="Email"
 					type="email"
-					// placeholder="ryan@sadbedroommusic.com"
 					value={formData.email}
 					autoComplete="email"
 					debounceTime={2000}
@@ -162,7 +175,6 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 				<TextInput
 					label="Password"
 					type="password"
-					// placeholder="Enter your password"
 					autoComplete="new-password"
 					value={formData.password}
 					onChange={(e) =>
@@ -178,6 +190,7 @@ const CreateAccount = ({ onSuccess }: CreateAccountProps) => {
 						!!usernameError ||
 						checkingUsername ||
 						loading ||
+						(!csrfFetched && !getToken()) ||
 						!formData.username ||
 						!formData.password ||
 						!formData.email

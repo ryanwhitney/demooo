@@ -30,11 +30,20 @@ def get_csrf_token(request):
     """
     This view sets the CSRF cookie and returns a 200 response.
     Used to ensure that the CSRF cookie is set before any POST requests.
+
+    Also includes the token in the response body and headers to support
+    private browsing modes where cookies might be restricted.
     """
     # Force cookie to be set
-    get_token(request)
+    csrf_token = get_token(request)
 
-    return JsonResponse({"detail": "CSRF cookie set"})
+    # Return the token in both response body and headers
+    response = JsonResponse({"detail": "CSRF cookie set", "csrfToken": csrf_token})
+
+    # Also set in header for clients that can't access cookies
+    response["X-CSRFToken"] = csrf_token
+
+    return response
 
 
 class CustomGraphQLView(FileUploadGraphQLView):

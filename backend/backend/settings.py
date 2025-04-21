@@ -63,12 +63,12 @@ if USE_CLOUDFLARE_R2:
     # Update MEDIA_URL to use the R2 endpoint
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
 
-    if DEBUG:
-        print(f"Using Cloudflare R2 storage with bucket: {AWS_STORAGE_BUCKET_NAME}")
+    # if DEBUG:
+    #     print(f"Using Cloudflare R2 storage with bucket: {AWS_STORAGE_BUCKET_NAME}")
 else:
     # Use default local file storage
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-    print(f"Using local file storage at: {MEDIA_ROOT}")
+    # print(f"Using local file storage at: {MEDIA_ROOT}")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
@@ -147,15 +147,15 @@ AUTHENTICATION_BACKENDS = [
 
 # Session settings
 SESSION_COOKIE_HTTPONLY = True
-# Only require secure cookies in production, not in development
+# Private browsing needs this to be False with SameSite=None
 SESSION_COOKIE_SECURE = False
-# Use 'None' for development to allow cross-site cookies
-SESSION_COOKIE_SAMESITE = "None" if DEBUG else "Lax"
+# Use Lax for better compatibility across browsers
+SESSION_COOKIE_SAMESITE = "Lax"
 
 # CSRF settings - extremely important for SPA + Django httpOnly cookies
 CSRF_COOKIE_HTTPONLY = False  # Must be False so JavaScript can access it
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_SAMESITE = "None" if DEBUG else "Lax"
+CSRF_COOKIE_SECURE = False  # Keep False for development/private browsing
+CSRF_COOKIE_SAMESITE = "Lax"  # Use Lax for better compatibility
 CSRF_USE_SESSIONS = False  # Store in cookie, not session
 CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"  # Match the X-CSRFToken header
 CSRF_TRUSTED_ORIGINS = [
