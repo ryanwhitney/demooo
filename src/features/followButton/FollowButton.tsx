@@ -18,23 +18,19 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 
 	return isSameUser ? (
 		<Button
-			size="large"
 			variant="primary"
-			color={tokens.colors.tintColor}
 			style={{ display: "flex", alignItems: "center", gap: 8 }}
 		>
 			Edit Profile
 		</Button>
 	) : (
 		<Button
-			size="large"
 			variant="primary"
 			color={tokens.colors.primary}
 			onClick={toggleFollow}
 			style={{
 				width: "fit-content",
 				minWidth: 140,
-				textAlign: "center",
 				backgroundColor: isFollowing
 					? tokens.colors.backgroundSecondary
 					: tokens.colors.tintColor,

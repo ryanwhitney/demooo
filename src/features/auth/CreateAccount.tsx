@@ -184,7 +184,6 @@ const CreateAccount = () => {
 				/>
 				<br />
 				<Button
-					size="large"
 					type="submit"
 					disabled={
 						!!usernameError ||

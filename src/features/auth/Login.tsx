@@ -98,7 +98,6 @@ const Login = () => {
 				/>
 				<br />
 				<Button
-					size="large"
 					type="submit"
 					disabled={
 						loading ||

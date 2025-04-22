@@ -34,7 +34,11 @@ export const buttonStyles = recipe({
 					filter: "brightness(1.15)",
 				},
 				':disabled': {
-					background: tokens.colors.backgroundSecondary,
+					color: 'rgba(255,255,255,0.3s)',
+					background: tokens.colors.background,
+					':hover': {
+					filter: "brightness(1)",
+				},
 				},
 			},
 			secondary: {

@@ -74,6 +74,8 @@ export const modalCard = recipe({
 export const modalButtonClose = style({
 	float: "right",
 	position: "absolute",
+	width: 24,
+	height: 24,
 	top: tokens.space.lg,
 	right: tokens.space.lg,
 });
