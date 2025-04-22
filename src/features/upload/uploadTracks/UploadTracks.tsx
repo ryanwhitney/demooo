@@ -282,7 +282,7 @@ const UploadTracks = () => {
 					<span style={{ fontSize: 6 }}>s</span>
 				</h1>
 				<p className={style.uploadHeaderDescription}>
-					Demos, experiments, sketches, whatever. Just share it.
+					Demos, experiments, sketches, etc. Just share it.
 				</p>
 			</header>
 			<form onSubmit={handleSubmit}>
