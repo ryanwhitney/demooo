@@ -9,8 +9,6 @@ export const artistViewWrapper = style({
   gap: tokens.space.xl,
   paddingTop: tokens.space.xl,
   paddingBottom: tokens.space.xl,
-  paddingLeft: tokens.space.lg,
-  paddingRight: tokens.space.lg,
   maxWidth: "100%",
   width: "100%",
   margin: "0 auto",
@@ -71,12 +69,6 @@ export const artistInfoAndPhoto = style({
  },
 
 });
-export const artistInfoContainer = style({
-  display: "flex",
-  flexDirection: "column",
-  width: '100%',
-});
-
 // Container for profile image and play button
 export const profileImageContainer = style({
   position: "relative",
@@ -107,10 +99,38 @@ export const artistPlayButton = style({
   
 });
 
+export const artistInfoContainer = style({
+  display: "grid",
+  width: '100%',
+  gridTemplateColumns: "1fr auto",
+  gridTemplateAreas: `
+    "title buttons"
+    "content ."
+  `,
+  gap: '16px',
+  '@media': {
+    'screen and (max-width: 479px)': {
+      gridTemplateColumns: "1fr",
+      gridTemplateAreas: `
+        "title"
+        "content"
+        "buttons"
+      `,
+    },
+    'screen and (max-width: 640px)': {
+      gridTemplateColumns: "1fr",
+      gridTemplateAreas: `
+        "title"
+        "buttons"
+        "content"
+      `,
+    },
+  },
+});
 
 export const artistTitle = style({
+  gridArea: "title",
   color: tokens.colors.primary,
-  // fontSize: 38,
   fontSize: 'clamp(16px, 5vw, 60px)',
   fontWeight: tokens.fontWeights.bold,
   lineHeight: 1,
@@ -120,17 +140,21 @@ export const artistTitle = style({
       // fontSize: 'clamp(16px, 5vw, 42px)',
     },
   },
-  
+});
+
+export const artistDetails = style({
+  gridArea: "content",
+  display: "grid",
+  gap: '8px',
 });
 
 export const artistLocation = style({
   color: tokens.colors.secondary,
   fontSize: tokens.fontSizes.md,
   marginBottom: 8,
-
   '@media': {
     'screen and (min-width: 480px)': {
-      marginBottom: 24,
+      // marginBottom: 24,
     },
   },
 });
@@ -142,20 +166,22 @@ export const artistBio = style({
 });
 
 export const artistButtons = style({
+  gridArea: "buttons",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  width: "100%",
   gap: "10px",
   '@media': {
     'screen and (min-width: 480px)': {
-      flexShrink: 100,
       width: "fit-content",
       justifyContent: "flex-end",
       alignSelf: "flex-start",
     },
+    'screen and (max-width: 479px)': {
+      width: "100%",
+    },
   },
-})
+});
 
 
 export const artistTrackViewInfo = style({

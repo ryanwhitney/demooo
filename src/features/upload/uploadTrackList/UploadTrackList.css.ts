@@ -2,20 +2,43 @@ import { inputContainer } from "@/components/textInput/TextInput.css"
 import { tokens } from "@/styles/tokens";
 import { globalStyle, style } from "@vanilla-extract/css";
 
-export const fileList = style({
+export const uploadTrackListContainer = style({
   display: 'flex',
   flexDirection: 'column',
   color: tokens.colors.secondary,
 });
 
-export const fileListRows = style({
+export const uploadTrackListHeader = style({
+  fontSize: tokens.fontSizes.md,
+  paddingLeft: tokens.space.lg,
+  color: tokens.colors.primary,
+  textAlign: "center",
+  fontWeight: 500,
+  marginBottom: 10,
+  marginTop: 16,
+});
+
+export const uploadTrackListDescription = style({
+  fontSize: tokens.fontSizes.md,
+  paddingLeft: tokens.space.lg,
+  fontWeight: 300,
+  textAlign: "center",
+  marginTop: -6,
+  marginBottom: 8,
+});
+
+
+
+export const uploadTrackListRowWrapper = style({
   display: "flex",
   flexDirection: "column",
   gap: 8,
 });
 
-export const fileItem = style({
+export const uploadTrackListRow = style({
   display: "flex",
+  flexDirection: 'row',
+  justifyContent: 'space-between',
   alignItems: "center",
   padding: '8px 16px',
   backgroundColor: tokens.colors.backgroundSecondary,
@@ -27,61 +50,68 @@ export const fileItemError = style({
   border: `1px dotted ${tokens.colors.error}`
 });
 
-export const titleContainer = style({
-  
+export const uploadTrackListTrackContainer = style({
+width:'100%'
 });
+
 
 // NOTE: this overrides a style imported from TextInput.css.ts
-globalStyle(`${titleContainer} ${inputContainer}`, {
+globalStyle(`${uploadTrackListTrackContainer} ${inputContainer}`, {
   display: "flex",
-  flexDirection: "row",
-  gap: 10,
-  alignItems: "center",
-  alignContent: "center",
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: 2,
+  textIndent: 16,
   margin: 0,
+  '@media': {
+		'screen and (min-width: 480px)': {
+      flexDirection: "row-reverse",
+      gap: 10,
+      textIndent: 0,
+      alignItems: "center",
+		}
+	},
+});
+globalStyle(`${uploadTrackListTrackContainer} ${inputContainer} input`, {
+  flex: 0.5
+});
+globalStyle(`${uploadTrackListTrackContainer} ${inputContainer} label`, {
+  flex: 0.5,
+  fontWeight: 400,
 });
 
-export const editHeader = style({
-  fontSize: tokens.fontSizes.md,
-  paddingLeft: tokens.space.lg,
-  color: tokens.colors.primary,
-  textAlign: "center",
-  fontWeight: 500,
-  marginBottom: 10,
-  marginTop: 16,
-});
-
-export const editHeaderDescription = style({
-  fontSize: tokens.fontSizes.md,
-  paddingLeft: tokens.space.lg,
-  fontWeight: 300,
-  textAlign: "center",
-  marginTop: -6,
-  marginBottom: 8,
-});
 
 export const errorText = style({
   color: tokens.colors.error,
 });
 
-export const uploadRowTitleInput = style({});
+export const uploadRowTitleInput = style({
+  
+});
 
 
 export const fileInfoContainer = style({
   flex: "1",
   fontSize: 12,
-  display: "flex",
-  flexDirection: "column",
+   display: 'flex',
+  flexDirection: 'column',
+  '@media': {
+		'screen and (min-width: 480px)': {
+			flexDirection: 'row'
+		}
+	},
 });
 
 export const fileName = style({
   color: tokens.colors.secondary,
   fontSize: 11,
+  paddingLeft: 40,
 });
 
 export const removeButton = style({
   background: tokens.colors.secondaryDark,
   border: "none",
+  flexShrink: 0,
   width: "20px",
   height: "20px",
   display: "flex",

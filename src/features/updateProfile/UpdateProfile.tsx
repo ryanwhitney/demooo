@@ -124,7 +124,7 @@ const UpdateProfile = () => {
 	return (
 		<>
 			{loading && <PageLoadingIndicator />}
-			<main className={style.main}>
+			<div className={style.updateProfileContainer}>
 				<button
 					className={style.imageContainer}
 					onClick={triggerFileUpload}
@@ -224,13 +224,12 @@ const UpdateProfile = () => {
 					<Button
 						type="submit"
 						disabled={updateLoading}
-						size="large"
 						className={style.submitButton}
 					>
 						{updateLoading ? <ProgressIndicator /> : "update profile"}
 					</Button>
 				</form>
-			</main>
+			</div>
 		</>
 	);
 };

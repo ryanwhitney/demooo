@@ -63,25 +63,36 @@ const UploadTrackList = ({
 	};
 
 	return (
-		<div className={style.fileList}>
-			<h2 className={style.editHeader}>{getHeaderText()} </h2>
+		<div className={style.uploadTrackListContainer}>
+			<h2 className={style.uploadTrackListHeader}>{getHeaderText()} </h2>
 			{!isSubmitted && (
 				<p
-					className={`${style.editHeaderDescription} ${errorMessage ? style.errorText : ""}`}
+					className={`${style.uploadTrackListDescription} ${errorMessage ? style.errorText : ""}`}
 				>
 					{!errorMessage ? "You can edit titles beforehand." : errorMessage}
 				</p>
 			)}
-			<div className={style.fileListRows}>
+			<div className={style.uploadTrackListRowWrapper}>
 				{tracks.map((track, index) => (
 					<div
 						key={`track-${track.originalFileName}-${index}`}
-						className={`${style.fileItem} ${track.hasValidationError ? style.fileItemError : ""}`}
+						className={`${style.uploadTrackListRow} ${track.hasValidationError ? style.fileItemError : ""}`}
 					>
-						<div className={style.titleContainer}>
+						<span
+							style={{
+								fontSize: 11,
+								opacity: 0.5,
+								marginLeft: -4,
+								marginRight: -4,
+							}}
+						>
+							{index + 1}.
+						</span>
+
+						<div className={style.uploadTrackListTrackContainer}>
 							<TextInput
 								type="text"
-								label={`${index + 1}.`}
+								label={track.originalFileName}
 								value={track.title}
 								disabled={isSubmitted}
 								onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -91,19 +102,13 @@ const UploadTrackList = ({
 								className={style.uploadRowTitleInput}
 								required
 							/>
-						</div>
-						<div className={style.fileInfoContainer}>
-							<div>
-								{track.file && (
-									<span className={style.fileName}>
-										{track.originalFileName}
-									</span>
-								)}
+							<div className={style.fileInfoContainer}>
 								{track.errorMessage && (
 									<span className={style.errorText}>{track.errorMessage}</span>
 								)}
 							</div>
 						</div>
+
 						{!isSubmitted ? (
 							<button
 								type="button"

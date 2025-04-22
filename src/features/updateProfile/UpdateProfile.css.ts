@@ -2,9 +2,10 @@ import { globalStyle, keyframes, style } from '@vanilla-extract/css';
 import { tokens } from "@/styles/tokens";
 
 // Main container
-export const main = style({
-  width: 400,
+export const updateProfileContainer = style({
+  maxWidth: 400,
   margin: '0 auto',
+  width: "100%",
 });
 
 // Profile image container

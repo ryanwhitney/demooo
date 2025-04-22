@@ -35,6 +35,7 @@ export const allMonthsWrapper = style({
   gap: tokens.space.lg, 
   flexDirection: "column",
   listStyle: 'none',
+  padding: 0 // remove ul padding
 });
 
 export const monthHeading = style({
@@ -68,6 +69,7 @@ export const trackRowWrapper = style({
   justifyContent: "space-between",
   fontSize: 12,
   alignItems: "center",
+  
 })
 
 export const trackLeftContent = style({

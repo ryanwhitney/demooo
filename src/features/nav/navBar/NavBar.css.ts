@@ -3,13 +3,19 @@ import { style } from "@vanilla-extract/css";
 
 export const navBar = style({
 	padding: tokens.space.lg,
-	paddingLeft: tokens.space.xl,
-	paddingRight: tokens.space.xl,
 	display: "flex",
+	paddingLeft: tokens.space.md,
+	paddingRight: tokens.space.md,
 	justifyContent: "space-between",
 	alignItems: "center",
 	width: '100vw',
 	maxWidth: 1200,
+	'@media': {
+    'screen and (min-width: 480px)': {
+			paddingLeft: tokens.space.xl,
+			paddingRight: tokens.space.xl,
+    }
+  },
 });
 
 export const logo = style({

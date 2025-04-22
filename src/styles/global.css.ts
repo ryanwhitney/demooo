@@ -23,10 +23,15 @@ globalStyle("html, body", {
 globalStyle("main", {
 	maxWidth: 960,
 	margin: "0 auto",
-	padding: "0 32px",
+	padding: "0 16px",
 	display: "flex",
 	flexDirection: "column",
 	alignItems: "center",
+	'@media': {
+    'screen and (min-width: 480px)': {
+			padding: "0 32px",
+    }
+  },
 });
 
 globalStyle("*:focus-visible", {

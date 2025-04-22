@@ -3,7 +3,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFollow } from "@/hooks/useFollow";
 import { tokens } from "@/styles/tokens";
 import type { User } from "@/types/user";
-import { Gear, Pencil } from "@phosphor-icons/react";
 
 const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 	const {
@@ -19,27 +18,32 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 	return isSameUser ? (
 		<Button
 			variant="primary"
-			style={{ display: "flex", alignItems: "center", gap: 8 }}
+			style={{
+				minWidth: 120,
+				borderRadius: 40,
+				fontSize: 11,
+				padding: " 6px 10px",
+				// transition: "background-color 0s",
+				border: `2px solid ${tokens.colors.backgroundSecondary}`,
+			}}
 		>
 			Edit Profile
 		</Button>
 	) : (
 		<Button
-			variant="primary"
-			color={tokens.colors.primary}
+			variant={isFollowing ? "secondary" : "primary"}
 			onClick={toggleFollow}
 			style={{
-				width: "fit-content",
-				minWidth: 140,
-				backgroundColor: isFollowing
-					? tokens.colors.backgroundSecondary
-					: tokens.colors.tintColor,
+				minWidth: 120,
+				borderRadius: 40,
+				fontSize: 11,
+				padding: " 6px 10px",
+				transition: "background-color 0s",
 				border: `2px solid ${tokens.colors.backgroundSecondary}`,
-				transition: "background-color 0.3s ease",
 			}}
 			disabled={isSameUser}
 		>
-			{isFollowing ? "✅ Following" : "Follow"}
+			{isFollowing ? "Following" : "+ Follow"}
 		</Button>
 	);
 };

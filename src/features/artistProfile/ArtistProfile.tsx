@@ -11,6 +11,7 @@ import { GET_ARTIST } from "@/apollo/queries/userQueries";
 import NotFound from "@/components/notFound/NotFound";
 import PageLoadingIndicator from "./pageLoadingIndicator/PageLoadingIndicator";
 import type { Track } from "@/types/track";
+import ProfileGrainSVG from "@/components/svg/ProfileGrainSVG";
 
 const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	const { data, loading, error } = useQuery(GET_ARTIST, {
@@ -73,37 +74,11 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	if (artist === null) return <NotFound />;
 
 	return (
-		<div style={{ transition: "height 0.3s ease-in-out" }}>
+		<div style={{ width: "100%" }}>
 			<div className={style.artistViewWrapper}>
 				<title>Music | {artist?.username}</title>
 				<div className={style.artistHeaderBackgroundGrain} aria-hidden>
-					<svg
-						viewBox="0 0 200 200"
-						xmlns="http://www.w3.org/2000/svg"
-						aria-hidden="true"
-					>
-						<filter id="noise">
-							<feTurbulence
-								type="fractalNoise"
-								baseFrequency="5"
-								numOctaves="10"
-								stitchTiles="stitch"
-							/>
-							<feColorMatrix
-								type="matrix"
-								values="0 0 0 0 0
-                        0 0 0 0 0
-                        0 0 0 0 0
-                        0 0 0 1 0"
-							/>
-						</filter>
-						<rect
-							width="100%"
-							height="100%"
-							filter="url(#noise)"
-							opacity="0.25"
-						/>
-					</svg>
+					<ProfileGrainSVG />
 				</div>
 				<div className={style.artistHeaderBackground} aria-hidden>
 					<ProfilePhoto
@@ -120,10 +95,15 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 							<h1 className={style.artistTitle}>
 								{artist?.profile?.name || artist?.username}
 							</h1>
-							<p className={style.artistLocation}>
-								{artist?.profile?.location}
-							</p>
-							<p className={style.artistBio}>{artist?.profile?.bio}</p>
+							<div className={style.artistButtons}>
+								<FollowButton userToFollow={artist} />
+							</div>
+							<div className={style.artistDetails}>
+								<p className={style.artistLocation}>
+									{artist?.profile?.location}
+								</p>
+								<p className={style.artistBio}>{artist?.profile?.bio}</p>
+							</div>
 						</div>
 						<div className={style.profileImageContainer}>
 							<PlayButton
@@ -146,9 +126,6 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 								borderRadius={tokens.radii.md}
 							/>
 						</div>
-					</div>
-					<div className={style.artistButtons}>
-						<FollowButton userToFollow={artist} />
 					</div>
 				</header>
 				<div className={style.artistContentWrapper}>

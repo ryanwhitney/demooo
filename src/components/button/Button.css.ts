@@ -16,6 +16,7 @@ export const buttonStyles = recipe({
 		textAlign: "center",
 		transition: "all 200ms ease",
 		transform: "translate3d(0,0,0)", 
+		border: `2px solid ${tokens.colors.backgroundSecondary}`,
 		":disabled": {
 			opacity: 0.6,
 			cursor: "not-allowed",
