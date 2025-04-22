@@ -1,8 +1,9 @@
 import { arraySample } from "@/utils/arraySample";
 import * as style from "../AudioPlayer.css";
+import { parseWaveformData } from "../utilities/parseWaveformData";
 
 interface WaveformProps {
-	data: number[];
+	data: string;
 	progress?: number;
 	width?: number;
 	height?: number;
@@ -25,8 +26,11 @@ const Waveform = ({
 	const progressWidth = progress * 100;
 	let xPosition = (barWidth + spacing) * -1;
 	const bars = width / (spacing + barWidth);
+
+	const parsedWaveformData = parseWaveformData(data);
+
 	const sampledWavelengthData = arraySample({
-		array: data,
+		array: parsedWaveformData,
 		sampleCount: Math.floor(bars),
 	});
 

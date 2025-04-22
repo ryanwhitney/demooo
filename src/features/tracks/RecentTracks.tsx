@@ -1,4 +1,4 @@
-import { GET_ALL_TRACKS } from "@/apollo/queries/trackQueries";
+import { GET_RECENT_TRACKS } from "@/apollo/queries/trackQueries";
 import { useQuery } from "@apollo/client";
 import TrackChip from "@/features/tracks/trackChip/TrackChip";
 import type { Track } from "@/types/track";
@@ -7,8 +7,9 @@ import PageLoadingIndicator from "../artistProfile/pageLoadingIndicator/PageLoad
 import { GridList, GridListItem } from "react-aria-components";
 
 const RecentTracks = () => {
-	const { data, loading, error } = useQuery(GET_ALL_TRACKS, {
+	const { data, loading, error } = useQuery(GET_RECENT_TRACKS, {
 		fetchPolicy: "cache-first",
+		variables: { limit: 12 }, // Limit to 12 tracks
 	});
 
 	return (
@@ -32,7 +33,7 @@ const RecentTracks = () => {
 				Latest
 			</h2>
 			{loading && !data?.tracks ? (
-				<PageLoadingIndicator height={400} />
+				<PageLoadingIndicator height={400} timeout={0} />
 			) : error ? (
 				<p>{error.message}</p>
 			) : (

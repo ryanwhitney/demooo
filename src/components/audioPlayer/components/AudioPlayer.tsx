@@ -75,8 +75,6 @@ const AudioPlayer = ({
 		onError: () => handleError(),
 	});
 
-	const waveformData = parseWaveformData(track.audioWaveformData);
-
 	// Use the audio_url from GraphQL which will be presigned when using R2 storage
 	// If audioUrl is missing, construct the URL based on audioFile
 	const audioFileUrl = (() => {
@@ -163,7 +161,7 @@ const AudioPlayer = ({
 						className={style.timelineSlider}
 					>
 						<Waveform
-							data={waveformData}
+							data={track.audioWaveformData}
 							progress={normalizedProgress}
 							isInteractive={true}
 						/>

@@ -1,4 +1,3 @@
-import type { HTMLAttributes } from "react";
 import type { Track } from "@/types/track";
 import { Link } from "react-router";
 import {
@@ -15,62 +14,12 @@ import PlayButton from "@/components/audioPlayer/components/playButton/PlayButto
 import { useAudio } from "@/providers/AudioProvider";
 import { memo, useCallback, useMemo } from "react";
 import ProfilePhoto from "@/features/nav/profilePhoto/ProfilePhoto";
-
-type WaveformProps = HTMLAttributes<SVGSVGElement> & {
-	width?: number;
-};
-
-// Memoize the Waveform component since it doesn't need to re-render
-const Waveform = memo(({ width = 60, ...rest }: WaveformProps) => {
-	const waveformBars = [
-		{ width: 1, height: 8, y: 10 },
-		{ width: 1, height: 13, y: 8 },
-		{ width: 1, height: 21, y: 4 },
-		{ width: 1, height: 29, y: 0 },
-	];
-
-	const count = Math.floor(width / 5);
-
-	// Pre-generate bars to avoid re-calculation
-	const bars = useMemo(() => {
-		return Array.from({ length: count }).map((_, index) => {
-			const waveform =
-				waveformBars[Math.floor(Math.random() * waveformBars.length)];
-			const uniqueKey = `${index}-${waveform.height}-${waveform.y}`;
-			return (
-				<rect
-					key={uniqueKey}
-					x={index * 5}
-					y={waveform.y}
-					width={waveform.width}
-					height={waveform.height}
-					fill="#D9D9D9"
-				/>
-			);
-		});
-	}, [count]);
-
-	return (
-		<svg
-			width={width}
-			height="29"
-			aria-hidden="true"
-			viewBox={`0 0 ${width} 29`}
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-			{...rest}
-		>
-			{bars}
-		</svg>
-	);
-});
-
-Waveform.displayName = "Waveform";
+import Waveform from "@/components/audioPlayer/components/waveform/Waveform";
 
 const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 	const audio = useAudio();
 
-	// Only subscribe to the state we need
+	// subscribe to the state we need
 	const isCurrentTrack = useMemo(() => {
 		return (
 			audio.currentTrack?.id === track.id && audio.activeSource === "global"
@@ -121,7 +70,16 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 					onClick={handleClick}
 					color="white"
 				/>
-				<Waveform className={waveformElement} width={91} />
+				<div className={waveformElement}>
+					<Waveform
+						data={track.audioWaveformData}
+						width={91}
+						height={29}
+						barWidth={1}
+						spacing={4}
+						progress={0}
+					/>
+				</div>
 			</div>
 		</article>
 	);
