@@ -110,7 +110,7 @@ export const statusIndicator = style({
 });
 
 export const successStatus = style({
-  color: "#4CAF50",
+  color: tokens.colors.success,
   fontSize: "16px",
 });
 

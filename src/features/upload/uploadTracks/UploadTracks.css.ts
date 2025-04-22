@@ -3,8 +3,6 @@ import { tokens } from "@/styles/tokens";
 import { globalStyle, style } from "@vanilla-extract/css";
 import { recipe } from "@vanilla-extract/recipes"
 
-
-
 // Container styles
 export const uploadPageContainer = style({
   maxWidth: "600px",
@@ -19,6 +17,7 @@ export const uploadPageTitle = style({
   textAlign: "center",
   marginBottom: 2
 });
+
 export const uploadHeaderDescription = style({
   fontSize: tokens.fontSizes.md,
   fontWeight: 300,
@@ -32,7 +31,7 @@ export const errorText = style({
 });
 
 // Dropzone styles
-export const dropZone = style({
+const dropZone = style({
   width: "100%",
   borderRadius: tokens.radii.xl,
   padding: 20,
@@ -54,19 +53,19 @@ export const dropZone = style({
   }
 });
 
-export const dropZoneDropping = style({
+const dropZoneDropping = style({
   background: tokens.colors.quaternary,
   opacity: 1,
   border: "1px dashed rgba(130,130,139,1)",
 });
 
-export const dropZoneWithFiles = style({
+const dropZoneWithFiles = style({
   opacity: 0.8,
   height: 60,
   marginBottom: 10
 });
 
-export const addFilesButton = style({
+const addFilesButton = style({
   color: tokens.colors.secondary,
   padding: "10px 16px",
   border: "none",
@@ -84,7 +83,6 @@ export const addFilesButton = style({
     bottom: 0,
     right: 0,
     content: '""',
-
   }
 });
 
@@ -108,13 +106,13 @@ export const fileList = recipe({
   },
 });
 
-export const fileListRows = style({
+const fileListRows = style({
   display: "flex",
   flexDirection: "column",
   gap: 8,
 });
 
-export const fileItem = style({
+const fileItem = style({
   display: "flex",
   alignItems: "center",
   padding: '8px 16px',
@@ -123,11 +121,11 @@ export const fileItem = style({
   gap: 10,
 });
 
-export const fileItemError = style({
+const fileItemError = style({
   border: `1px dotted ${tokens.colors.error}`
 });
 
-export const titleContainer  = style({
+const titleContainer = style({
   
 });
 
@@ -141,7 +139,7 @@ globalStyle(`${titleContainer} ${inputContainer}`, {
   margin: 0,
 });
 
-export const editHeader = style({
+const editHeader = style({
   fontSize: tokens.fontSizes.md,
   paddingLeft: tokens.space.lg,
   color: tokens.colors.primary,
@@ -150,7 +148,8 @@ export const editHeader = style({
   marginBottom: 10,
   marginTop: 16,
 });
-export const editHeaderDescription = style({
+
+const editHeaderDescription = style({
   fontSize: tokens.fontSizes.md,
   paddingLeft: tokens.space.lg,
   fontWeight: 300,
@@ -158,30 +157,30 @@ export const editHeaderDescription = style({
   marginTop: -6,
   marginBottom: 8,
 });
-export const uploadRowTitleText = style({
+
+const uploadRowTitleText = style({
   fontSize: "11px"
 });
 
-export const uploadRowTitleInput = style({
+const uploadRowTitleInput = style({});
+
+const titleInputError = style({
+  borderColor: tokens.colors.error,
 });
 
-export const titleInputError = style({
-  // borderColor: tokens.colors.error,
-});
-
-export const fileInfoContainer = style({
+const fileInfoContainer = style({
   flex: "1",
   fontSize: 12,
   display: "flex",
   flexDirection: "column",
 });
 
-export const fileName = style({
+const fileName = style({
   color: tokens.colors.secondary,
   fontSize: 11,
 });
 
-export const removeButton = style({
+const removeButton = style({
   background: tokens.colors.secondaryDark,
   border: "none",
   width: "20px",
@@ -197,7 +196,6 @@ export const removeButton = style({
   ':hover': {
     filter: "brightness(1.2)",
     color: tokens.colors.primary,
-
   }
 });
 
@@ -220,6 +218,7 @@ export const actionButton = style({
     filter: "brightness(1.2)",
   }
 });
+
 export const primaryActionButton = style([
   actionButton,
   {
@@ -228,7 +227,7 @@ export const primaryActionButton = style([
   }
 ]);
 
-export const statusIndicator = style({
+const statusIndicator = style({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -236,18 +235,48 @@ export const statusIndicator = style({
   height: "20px",
 });
 
-export const successStatus = style({
+const successStatus = style({
   color: "#4CAF50",
   fontSize: "16px",
 });
 
-export const errorStatus = style({
+const errorStatus = style({
   color: tokens.colors.error,
   fontSize: "16px",
 });
 
-export const trackError = style({
-  // color: tokens.colors.error,
+const trackError = style({
+  color: tokens.colors.error,
   fontSize: "11px",
   marginTop: "4px",
 });
+
+export default {
+  uploadPageContainer,
+  uploadPageTitle,
+  uploadHeaderDescription,
+  errorText,
+  dropZone,
+  dropZoneDropping,
+  dropZoneWithFiles,
+  addFilesButton,
+  fileList,
+  fileListRows,
+  fileItem,
+  fileItemError,
+  titleContainer,
+  editHeader,
+  editHeaderDescription,
+  uploadRowTitleText,
+  uploadRowTitleInput,
+  titleInputError,
+  fileInfoContainer,
+  fileName,
+  removeButton,
+  actionButton,
+  primaryActionButton,
+  statusIndicator,
+  successStatus,
+  errorStatus,
+  trackError
+};

@@ -1,7 +1,7 @@
 import { tokens } from "@/styles/tokens";
 import { style } from "@vanilla-extract/css";
+import { recipe } from "@vanilla-extract/recipes"
 
-// Dropzone styles
 export const dropZone = style({
   width: "100%",
   borderRadius: tokens.radii.xl,
@@ -36,23 +36,34 @@ export const dropZoneMinimized = style({
   marginBottom: 10
 });
 
-export const addFilesButton = style({
-  color: tokens.colors.secondary,
-  padding: "10px 16px",
-  border: "none",
-  borderRadius: 10,
-  cursor: "pointer",
-  fontWeight: "bold",
-  transition: "color 150ms ease",
-  ':hover':{
-    color: tokens.colors.primary,
+export const addFilesButton = recipe({
+  base: {
+    color: tokens.colors.secondary,
+    border: "none",
+    padding: "10px 16px",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontWeight: "bold",
+    transition: "color 150ms ease",
+    textDecoration: "underline",
+    ':hover':{
+      color: tokens.colors.primary,
+    },
+    ':after':{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+      content: '""',
+    }
   },
-  ':after':{
-    position: "absolute",
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    content: '""',
+  variants: {
+    isMinimized: {
+      true: {
+        textDecoration: "none",
+        fontWeight: 400,
+      }
+    }
   }
-}); 
+});

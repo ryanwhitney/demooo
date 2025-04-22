@@ -10,13 +10,11 @@ import DemoooLogo from "../AnimatedLogo/DemoooLogo";
 import { buttonStyles } from "@/components/button/Button.css";
 import { useQuery } from "@apollo/client";
 import { GET_ME } from "@/apollo/queries/userQueries";
-import TrackMultiUpload from "@/features/tracks/trackMultiUpload/TrackMultiUpload";
 import ProfileMenu from "@/features/nav/profileMenu/ProfileMenu";
 
 function NavBar() {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
 	const [showLoginModal, setShowLoginModal] = useState(false);
-	const [showUploadModal, setShowUploadModal] = useState(false);
 
 	const { data } = useQuery(GET_ME, {
 		fetchPolicy: "cache-and-network",
@@ -80,16 +78,6 @@ function NavBar() {
 				createPortal(
 					<Modal title="Join demooo" onClose={() => setShowSignUpModal(false)}>
 						<CreateAccount />
-					</Modal>,
-					document.body,
-				)}
-			{showUploadModal &&
-				createPortal(
-					<Modal
-						title="Upload a Track"
-						onClose={() => setShowUploadModal(false)}
-					>
-						<TrackMultiUpload />
 					</Modal>,
 					document.body,
 				)}

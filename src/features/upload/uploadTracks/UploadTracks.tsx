@@ -14,10 +14,10 @@ import * as style from "./UploadTracks.css";
 import { Link } from "react-router";
 
 // Import the new components
-import AudioDropzone from "@/components/audioDropzone/AudioDropzone";
-import TrackList from "@/components/trackList/TrackList";
-import type { AudioFile } from "@/components/audioDropzone/AudioDropzone";
-import type { Track } from "@/components/trackList/TrackList";
+import AudioDropzone from "@/features/upload/audioDropzone/AudioDropzone";
+import TrackList from "@/features/upload/uploadTrackList/UploadTrackList";
+import type { AudioFile } from "@/features/upload/audioDropzone/AudioDropzone";
+import type { TrackFile } from "@/features/upload/uploadTrackList/UploadTrackList";
 
 // Interface for track data from the API
 interface UserTrack {
@@ -26,7 +26,7 @@ interface UserTrack {
 }
 
 const UploadTracks = () => {
-	const [tracks, setTracks] = useState<Track[]>([]);
+	const [tracks, setTracks] = useState<TrackFile[]>([]);
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isDropZoneMinimized, setIsDropZoneMinimized] = useState(false);
@@ -66,7 +66,10 @@ const UploadTracks = () => {
 		setTracks(updatedTracks);
 	};
 
-	const uploadNextTrack = async (trackIndex: number, allTracks: Track[]) => {
+	const uploadNextTrack = async (
+		trackIndex: number,
+		allTracks: TrackFile[],
+	) => {
 		if (trackIndex >= allTracks.length) {
 			// All uploads complete
 			setIsUploading(false);

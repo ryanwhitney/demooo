@@ -1,9 +1,9 @@
-import { useState, type ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
 import TextInput from "@/components/textInput/TextInput";
-import * as style from "./TrackList.css";
+import * as style from "./UploadTrackList.css";
 import LoadIndicator from "@/components/loadIndicator/LoadIndicator";
 
-export interface Track {
+export interface TrackFile {
 	title: string;
 	file: File;
 	originalFileName: string;
@@ -12,22 +12,22 @@ export interface Track {
 	hasValidationError?: boolean;
 }
 
-interface TrackListProps {
-	tracks: Track[];
+interface UploadTrackListProps {
+	tracks: TrackFile[];
 	onTrackChange: (index: number, field: "title", value: string) => void;
 	onTrackRemove: (index: number) => void;
 	isSubmitted: boolean;
 	errorMessage?: string;
 }
 
-const TrackList = ({
+const UploadTrackList = ({
 	tracks,
 	onTrackChange,
 	onTrackRemove,
 	isSubmitted,
 	errorMessage,
-}: TrackListProps) => {
-	const getTrackStatusComponent = (track: Track) => {
+}: UploadTrackListProps) => {
+	const getTrackStatusComponent = (track: TrackFile) => {
 		switch (track.status) {
 			case "uploading":
 				return <LoadIndicator size={16} />;
@@ -125,4 +125,4 @@ const TrackList = ({
 	);
 };
 
-export default TrackList;
+export default UploadTrackList;

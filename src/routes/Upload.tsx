@@ -1,4 +1,4 @@
-import UploadTracks from "@/features/tracks/uploadTracks/UploadTracks";
+import UploadTracks from "@/features/upload/uploadTracks/UploadTracks";
 
 function Upload() {
 	return <UploadTracks />;
