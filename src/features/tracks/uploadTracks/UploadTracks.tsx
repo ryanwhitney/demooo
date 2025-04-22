@@ -4,7 +4,7 @@ import {
 	GET_USER_TRACKS,
 } from "@/apollo/queries/trackQueries";
 import { UPLOAD_TRACK } from "@/apollo/mutations/trackMutations";
-import { GET_ME } from "@/apollo/queries/userQueries";
+import { useAuth } from "@/hooks/useAuth";
 
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import { useMutation, useQuery } from "@apollo/client";
@@ -18,7 +18,6 @@ import { Link } from "react-router";
 
 interface UploadTrack {
 	title: string;
-	description: string;
 	file: File;
 	originalFileName: string;
 	status: "pending" | "uploading" | "success" | "error";
@@ -26,10 +25,14 @@ interface UploadTrack {
 	hasValidationError?: boolean;
 }
 
-// Interface for track data from the API
 interface UserTrack {
 	id: string;
 	title: string;
+}
+
+interface DropItem {
+	file?: File;
+	getFile?: () => Promise<File> | File;
 }
 
 const UploadTracks = () => {
@@ -40,17 +43,14 @@ const UploadTracks = () => {
 	const [isDropZoneMinimized, setIsDropZoneMinimized] = useState(false);
 	const [isLoadingFiles, setIsLoadingFiles] = useState(false);
 	const [isUploading, setIsUploading] = useState(false);
-	const [isValidating, setIsValidating] = useState(false);
 
-	// Fetch current user data
-	const { data: userData } = useQuery(GET_ME, {
-		fetchPolicy: "cache-and-network",
-	});
+	const { user } = useAuth();
+	const username = user?.username || "";
 
-	// Fetch only track titles for validation (optimized)
+	// Fetch track titles for validation
 	const { data: trackTitlesData } = useQuery(GET_TRACK_TITLES, {
-		variables: { username: userData?.me?.username || "" },
-		skip: !userData?.me?.username,
+		variables: { username },
+		skip: !username,
 		fetchPolicy: "cache-and-network",
 	});
 
@@ -76,7 +76,6 @@ const UploadTracks = () => {
 
 				validFiles.push({
 					title: fileNameWithoutExtension,
-					description: "",
 					file: file,
 					originalFileName: fileName,
 					status: "pending",
@@ -100,7 +99,6 @@ const UploadTracks = () => {
 		return false;
 	};
 
-	// Handle files selected via FileTrigger
 	const handleSelectFiles = (files: FileList | null) => {
 		console.log("Files selected via FileTrigger:", files);
 		if (!files) return;
@@ -144,11 +142,10 @@ const UploadTracks = () => {
 		});
 
 		try {
-			const { data } = await uploadTrack({
+			await uploadTrack({
 				variables: {
 					file: currentTrack.file,
 					title: currentTrack.title,
-					description: currentTrack.description || "",
 				},
 			});
 
@@ -183,11 +180,9 @@ const UploadTracks = () => {
 		}
 	};
 
-	// Validate track titles against existing user tracks
 	const validateTrackTitles = () => {
 		if (!trackTitlesData?.userTracks) return false;
 
-		setIsValidating(true);
 		setErrorMessage("");
 
 		const userTrackTitles = trackTitlesData.userTracks.map((track: UserTrack) =>
@@ -210,7 +205,6 @@ const UploadTracks = () => {
 			}
 		});
 
-		// Then check against existing tracks
 		tracks.forEach((track, index) => {
 			const normalizedTitle = track.title.toLowerCase().trim();
 
@@ -244,11 +238,9 @@ const UploadTracks = () => {
 						: `${tracksWithErrors.length} tracks need unique titles.`,
 			);
 
-			setIsValidating(false);
 			return false;
 		}
 
-		setIsValidating(false);
 		return true;
 	};
 
@@ -291,6 +283,7 @@ const UploadTracks = () => {
 		const updatedTracks = [...tracks];
 		updatedTracks.splice(index, 1);
 		setTracks(updatedTracks);
+		validateTrackTitles(); // Re-validate titles after removal
 	};
 
 	const resetForm = () => {
@@ -345,16 +338,16 @@ const UploadTracks = () => {
 
 					// Based on logs, items have a getFile method, not getAsFile
 					if (item && typeof item === "object") {
-						const itemObj = item as any;
+						const dropItem = item as DropItem;
 
 						// Try different ways to get the file
 						if (item instanceof File) {
 							files.push(item);
-						} else if (itemObj.file instanceof File) {
-							files.push(itemObj.file);
-						} else if (typeof itemObj.getFile === "function") {
+						} else if (dropItem.file instanceof File) {
+							files.push(dropItem.file);
+						} else if (typeof dropItem.getFile === "function") {
 							// getFile might return a Promise, so we need to handle it properly
-							const promise = Promise.resolve(itemObj.getFile())
+							const promise = Promise.resolve(dropItem.getFile())
 								.then((file) => {
 									console.log("Got file from getFile:", file);
 									if (file instanceof File) {
@@ -599,7 +592,7 @@ const UploadTracks = () => {
 								{isSubmitted && haveSuccessfulUploads ? (
 									<div>
 										<Link
-											to={`/${userData.me.username}`}
+											to={`/${username}`}
 											className={style.primaryActionButton}
 										>
 											Go to your profile &rarr;
