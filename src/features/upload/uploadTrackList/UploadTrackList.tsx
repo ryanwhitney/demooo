@@ -88,7 +88,7 @@ const UploadTrackList = ({
 									onTrackChange(index, "title", e.target.value)
 								}
 								placeholder="Title"
-								className={`${style.uploadRowTitleInput} ${track.hasValidationError ? style.titleInputError : ""}`}
+								className={style.uploadRowTitleInput}
 								required
 							/>
 						</div>

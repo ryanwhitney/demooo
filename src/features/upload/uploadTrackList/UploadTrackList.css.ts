@@ -66,9 +66,6 @@ export const errorText = style({
 
 export const uploadRowTitleInput = style({});
 
-export const titleInputError = style({
-  borderColor: tokens.colors.error,
-});
 
 export const fileInfoContainer = style({
   flex: "1",
