@@ -8,42 +8,31 @@ import { useAuth } from "@/hooks/useAuth";
 
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import { useMutation, useQuery } from "@apollo/client";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import { Button, DropZone, FileTrigger } from "react-aria-components";
-import TextInput from "@/components/textInput/TextInput";
+import { useEffect, useState, type FormEvent } from "react";
+import { Button } from "react-aria-components";
 import * as style from "./UploadTracks.css";
-import LoadIndicator from "@/components/loadIndicator/LoadIndicator";
-import { tokens } from "@/styles/tokens";
 import { Link } from "react-router";
 
-interface UploadTrack {
-	title: string;
-	file: File;
-	originalFileName: string;
-	status: "pending" | "uploading" | "success" | "error";
-	errorMessage?: string;
-	hasValidationError?: boolean;
-}
+// Import the new components
+import AudioDropzone from "@/components/audioDropzone/AudioDropzone";
+import TrackList from "@/components/trackList/TrackList";
+import type { AudioFile } from "@/components/audioDropzone/AudioDropzone";
+import type { Track } from "@/components/trackList/TrackList";
 
+// Interface for track data from the API
 interface UserTrack {
 	id: string;
 	title: string;
 }
 
-interface DropItem {
-	file?: File;
-	getFile?: () => Promise<File> | File;
-}
-
 const UploadTracks = () => {
-	const [dropped, setDropped] = useState(false);
-	const [tracks, setTracks] = useState<UploadTrack[]>([]);
+	const [tracks, setTracks] = useState<Track[]>([]);
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isDropZoneMinimized, setIsDropZoneMinimized] = useState(false);
-	const [isLoadingFiles, setIsLoadingFiles] = useState(false);
 	const [isUploading, setIsUploading] = useState(false);
 
+	// Use auth context to get current user instead of making an additional query
 	const { user } = useAuth();
 	const username = user?.username || "";
 
@@ -58,59 +47,17 @@ const UploadTracks = () => {
 		refetchQueries: [{ query: GET_USER_TRACKS }, { query: GET_ALL_TRACKS }],
 	});
 
-	const processAudioFiles = (files: File[]) => {
-		console.log("Processing audio files:", files.length);
-		setDropped(true);
-		setIsLoadingFiles(true);
-
-		const validFiles: UploadTrack[] = [];
-
-		for (const file of files) {
-			console.log("Processing file:", file.name, file.type);
-			if (file.type.startsWith("audio/")) {
-				const fileName = file.name;
-				const fileNameWithoutExtension = fileName
-					.split(".")
-					.slice(0, -1)
-					.join(".");
-
-				validFiles.push({
-					title: fileNameWithoutExtension,
-					file: file,
-					originalFileName: fileName,
-					status: "pending",
-				});
-			}
-		}
-
-		console.log("Valid audio files:", validFiles.length);
-		if (validFiles.length > 0) {
-			setTracks((prev) => [...prev, ...validFiles]);
-			return true;
-		}
-
-		setTimeout(() => {
-			setIsLoadingFiles(false);
-			if (dropped && tracks.length === 0) {
-				setDropped(false);
-			}
-		}, 500);
-
-		return false;
+	const handleFilesAdded = (audioFiles: AudioFile[]) => {
+		setTracks((prev) => [
+			...prev,
+			...audioFiles.map((file) => ({
+				...file,
+				status: "pending" as const,
+			})),
+		]);
 	};
 
-	const handleSelectFiles = (files: FileList | null) => {
-		console.log("Files selected via FileTrigger:", files);
-		if (!files) return;
-		const fileArray = Array.from(files);
-		processAudioFiles(fileArray);
-	};
-
-	const handleInputChange = (
-		index: number,
-		field: "title" | "description",
-		value: string,
-	) => {
+	const handleInputChange = (index: number, field: "title", value: string) => {
 		const updatedTracks = [...tracks];
 		updatedTracks[index] = {
 			...updatedTracks[index],
@@ -119,10 +66,7 @@ const UploadTracks = () => {
 		setTracks(updatedTracks);
 	};
 
-	const uploadNextTrack = async (
-		trackIndex: number,
-		allTracks: UploadTrack[],
-	) => {
+	const uploadNextTrack = async (trackIndex: number, allTracks: Track[]) => {
 		if (trackIndex >= allTracks.length) {
 			// All uploads complete
 			setIsUploading(false);
@@ -205,6 +149,7 @@ const UploadTracks = () => {
 			}
 		});
 
+		// Then check against existing tracks
 		tracks.forEach((track, index) => {
 			const normalizedTitle = track.title.toLowerCase().trim();
 
@@ -237,7 +182,6 @@ const UploadTracks = () => {
 						? "One track needs a unique title."
 						: `${tracksWithErrors.length} tracks need unique titles.`,
 			);
-
 			return false;
 		}
 
@@ -289,170 +233,18 @@ const UploadTracks = () => {
 	const resetForm = () => {
 		setTracks([]);
 		setErrorMessage("");
-		setDropped(false);
 		setIsSubmitted(false);
-		setIsLoadingFiles(false);
 		setIsUploading(false);
 	};
 
 	useEffect(() => {
 		if (tracks.length > 0) {
 			setIsDropZoneMinimized(true);
-			setIsLoadingFiles(false);
 		} else {
 			setErrorMessage("");
-			setDropped(false);
 			setIsDropZoneMinimized(false);
 		}
 	}, [tracks]);
-
-	// Using a more specific type instead of any
-	const handleDrop = (e: {
-		type: string;
-		items: Array<unknown>;
-		dropOperation?: string;
-		// For native drag events
-		dataTransfer?: DataTransfer;
-	}) => {
-		console.log("Drop event triggered:", e);
-		try {
-			// Check if we have a dataTransfer object (native HTML drag/drop)
-			if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-				console.log("Found files in dataTransfer:", e.dataTransfer.files);
-				const fileArray = Array.from(e.dataTransfer.files);
-				processAudioFiles(fileArray);
-				return;
-			}
-
-			// Directly look for DroppedFiles and extract them
-			// React Aria specific item structure inspection
-			if (e.items && e.items.length > 0) {
-				console.log("Inspecting drop items:", e.items);
-
-				// The items may be complex objects, extract any files
-				const files: File[] = [];
-				const promises: Promise<void>[] = [];
-
-				for (const item of e.items) {
-					console.log("Item:", item);
-
-					// Based on logs, items have a getFile method, not getAsFile
-					if (item && typeof item === "object") {
-						const dropItem = item as DropItem;
-
-						// Try different ways to get the file
-						if (item instanceof File) {
-							files.push(item);
-						} else if (dropItem.file instanceof File) {
-							files.push(dropItem.file);
-						} else if (typeof dropItem.getFile === "function") {
-							// getFile might return a Promise, so we need to handle it properly
-							const promise = Promise.resolve(dropItem.getFile())
-								.then((file) => {
-									console.log("Got file from getFile:", file);
-									if (file instanceof File) {
-										files.push(file);
-									}
-								})
-								.catch((err) => {
-									console.error("Error getting file:", err);
-								});
-
-							promises.push(promise);
-						}
-					}
-				}
-
-				// Wait for all getFile promises to resolve
-				if (promises.length > 0) {
-					Promise.all(promises).then(() => {
-						console.log("All getFile promises resolved, files:", files.length);
-						if (files.length > 0) {
-							processAudioFiles(files);
-						} else {
-							console.log("No files found after resolving promises");
-						}
-					});
-					return;
-				}
-
-				if (files.length > 0) {
-					console.log("Found files in items immediately:", files.length);
-					processAudioFiles(files);
-					return;
-				}
-			}
-
-			console.log("No files found in drop event", e);
-		} catch (error) {
-			console.error("Error handling drop:", error);
-		}
-	};
-
-	const GetDropZoneContents = ({ dropped }: { dropped: boolean }) => {
-		const getDisplayText = () => {
-			if (!dropped) {
-				return "or drop files here";
-			}
-
-			if (isLoadingFiles && !isDropZoneMinimized) {
-				return <LoadIndicator size={16} />;
-			}
-		};
-
-		const getButtonText = () => {
-			if (dropped && tracks.length > 0) {
-				return !isDropZoneMinimized ? "" : "Add more";
-			}
-			return "Browse to add";
-		};
-
-		const getInstructionText = () => {
-			if ((dropped && tracks.length > 0) || isDropZoneMinimized) return null;
-			return (
-				<small style={{ marginTop: 20, color: tokens.colors.secondary }}>
-					(supports most audio files, max 30mb each.)
-				</small>
-			);
-		};
-
-		return (
-			<>
-				<FileTrigger
-					acceptedFileTypes={["audio/*"]}
-					allowsMultiple={true}
-					onSelect={handleSelectFiles}
-				>
-					<Button
-						className={style.addFilesButton}
-						style={{
-							textDecoration: isDropZoneMinimized ? "none" : "underline",
-							fontWeight: isDropZoneMinimized ? 400 : 600,
-							width: "auto",
-							padding: "10px 16px",
-						}}
-					>
-						{getButtonText()}
-					</Button>
-				</FileTrigger>
-				{getDisplayText()}
-				{getInstructionText()}
-			</>
-		);
-	};
-
-	const getTrackStatusComponent = (track: UploadTrack) => {
-		switch (track.status) {
-			case "uploading":
-				return <LoadIndicator size={16} />;
-			case "success":
-				return <span className={style.successStatus}>✓</span>;
-			case "error":
-				return <span className={style.errorStatus}>✗</span>;
-			default:
-				return null;
-		}
-	};
 
 	// Determine if we need a general error message
 	useEffect(() => {
@@ -476,24 +268,6 @@ const UploadTracks = () => {
 		(track) => track.status === "success",
 	);
 
-	const getHeaderText = () => {
-		if (isSubmitted) {
-			if (haveSuccessfulUploads) {
-				// Case 1: Upload completed with some successful uploads
-				const successCount = tracks.filter(
-					(t) => t.status === "success",
-				).length;
-				return `Successfully uploaded ${successCount} of ${tracks.length} tracks`;
-			}
-			if (isUploading) {
-				return "Uploading...";
-			}
-		}
-
-		// Case 3: Ready to upload (default)
-		return `Ready to upload${tracks.length === 1 ? "." : ` ${tracks.length} tracks.`}`;
-	};
-
 	return (
 		<section className={style.uploadPageContainer}>
 			<header>
@@ -511,84 +285,23 @@ const UploadTracks = () => {
 			<form onSubmit={handleSubmit}>
 				<div>
 					{(!isSubmitted || tracks.length === 0) && (
-						<DropZone
-							className={({ isDropTarget }) =>
-								`${isDropZoneMinimized ? style.dropZoneWithFiles : ""} ${
-									isDropTarget ? style.dropZoneDropping : ""
-								} ${style.dropZone}`
-							}
-							getDropOperation={() => "copy"}
-							onDrop={handleDrop}
-							aria-label="Drop audio files here or click to select files"
-						>
-							<GetDropZoneContents dropped={dropped} />
-						</DropZone>
+						<AudioDropzone
+							onFilesAdded={handleFilesAdded}
+							isMinimized={isDropZoneMinimized}
+						/>
 					)}
 
 					<div className={style.fileList({ isShown: tracks.length > 0 })}>
 						{tracks.length > 0 && (
 							<>
-								<h2 className={style.editHeader}>{getHeaderText()} </h2>
-								{!isSubmitted && (
-									<p
-										className={`${style.editHeaderDescription} ${errorMessage ? style.errorText : ""}`}
-									>
-										{!errorMessage
-											? "You can edit titles beforehand."
-											: errorMessage}
-									</p>
-								)}
-								<div className={style.fileListRows}>
-									{tracks.map((track, index) => (
-										<div
-											key={`track-${track.originalFileName}-${index}`}
-											className={`${style.fileItem} ${track.hasValidationError ? style.fileItemError : ""}`}
-										>
-											<div className={style.titleContainer}>
-												<TextInput
-													type="text"
-													label={`${index + 1}.`}
-													value={track.title}
-													disabled={isSubmitted}
-													onChange={(e: ChangeEvent<HTMLInputElement>) =>
-														handleInputChange(index, "title", e.target.value)
-													}
-													placeholder="Title"
-													className={`${style.uploadRowTitleInput} ${track.hasValidationError ? style.titleInputError : ""}`}
-													required
-												/>
-											</div>
-											<div className={style.fileInfoContainer}>
-												<div>
-													{track.file && (
-														<span className={style.fileName}>
-															{track.originalFileName}
-														</span>
-													)}
-													{track.errorMessage && (
-														<span className={style.trackError}>
-															{track.errorMessage}
-														</span>
-													)}
-												</div>
-											</div>
-											{!isSubmitted ? (
-												<button
-													type="button"
-													onClick={() => removeTrack(index)}
-													className={style.removeButton}
-													aria-label={`Remove ${track.title}`}
-												>
-													×
-												</button>
-											) : (
-												<div className={style.statusIndicator}>
-													{getTrackStatusComponent(track)}
-												</div>
-											)}
-										</div>
-									))}
-								</div>
+								<TrackList
+									tracks={tracks}
+									onTrackChange={handleInputChange}
+									onTrackRemove={removeTrack}
+									isSubmitted={isSubmitted}
+									errorMessage={errorMessage}
+								/>
+
 								{isSubmitted && haveSuccessfulUploads ? (
 									<div>
 										<Link
