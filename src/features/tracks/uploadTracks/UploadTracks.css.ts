@@ -132,7 +132,6 @@ export const editHeader = style({
   paddingLeft: tokens.space.lg,
   textAlign: "center",
   fontWeight: 500,
-  marginBottom: -6,
 });
 export const editHeaderDescription = style({
   fontSize: tokens.fontSizes.md,
@@ -180,8 +179,8 @@ export const removeButton = style({
 });
 
 export const actionButton = style({
-  marginTop: "20px",
-  padding: "10px 16px",
+  marginTop: "12px",
+  padding: "12px 16px",
   background: tokens.colors.backgroundSecondary,
   color: "white",
   border: "none",
@@ -192,7 +191,11 @@ export const actionButton = style({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  width: "100%"
+  width: "100%",
+  transition: "filter 250ms ease",
+  ':hover': {
+    filter: "brightness(1.2)",
+  }
 });
 
 export const statusIndicator = style({

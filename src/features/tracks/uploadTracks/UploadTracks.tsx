@@ -14,6 +14,7 @@ import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UploadTracks.css";
 import LoadIndicator from "@/components/loadIndicator/LoadIndicator";
 import { tokens } from "@/styles/tokens";
+import { Link } from "react-router";
 
 interface UploadTrack {
 	title: string;
@@ -412,6 +413,23 @@ const UploadTracks = () => {
 		(track) => track.status === "success",
 	);
 
+	const getHeaderText = () => {
+		if (isSubmitted) {
+			if (haveSuccessfulUploads) {
+				// Case 1: Upload completed with some successful uploads
+				const successCount = tracks.filter(
+					(t) => t.status === "success",
+				).length;
+				return `Successfully uploaded ${successCount} of ${tracks.length} tracks`;
+			} else if (isUploading) {
+				return "Uploading...";
+			}
+		}
+
+		// Case 3: Ready to upload (default)
+		return `Nice! Ready to upload${tracks.length === 1 ? "." : ` ${tracks.length} tracks`}`;
+	};
+
 	return (
 		<section className={style.uploadPageContainer}>
 			<header>
@@ -446,48 +464,35 @@ const UploadTracks = () => {
 					<div className={style.fileList({ isShown: isDropZoneMinimized })}>
 						{tracks.length > 0 && (
 							<>
-								{isSubmitted && haveSuccessfulUploads ? (
-									<h2 className={style.editHeader}>
-										{`Successfully uploaded ${tracks.filter((t) => t.status === "success").length} of ${tracks.length} tracks`}
-									</h2>
+								<h2 className={style.editHeader}>{getHeaderText()} </h2>
+								{!errorMessage ? (
+									!isSubmitted && (
+										<p className={style.editHeaderDescription}>
+											You can edit titles beforehand.
+										</p>
+									)
 								) : (
-									<>
-										<h2 className={style.editHeader}>
-											Nice! Ready to upload
-											{tracks.length === 1 ? "." : `${tracks.length} tracks`}
-										</h2>
-										{!errorMessage ? (
-											<p className={style.editHeaderDescription}>
-												You can edit titles beforehand.
-											</p>
-										) : (
-											<p className={style.errorText}>{errorMessage}</p>
-										)}
-									</>
+									<p className={style.errorText}>{errorMessage}</p>
 								)}
+
 								{tracks.map((track, index) => (
 									<div
 										key={`track-${track.originalFileName}-${index}`}
 										className={`${style.fileItem} ${track.hasValidationError ? style.fileItemError : ""}`}
 									>
 										<div className={style.titleContainer}>
-											{isSubmitted ? (
-												<div className={style.uploadRowTitleText}>
-													{track.title}
-												</div>
-											) : (
-												<TextInput
-													type="text"
-													label={`${index + 1}.`}
-													value={track.title}
-													onChange={(e: ChangeEvent<HTMLInputElement>) =>
-														handleInputChange(index, "title", e.target.value)
-													}
-													placeholder="Title"
-													className={`${style.uploadRowTitleInput} ${track.hasValidationError ? style.titleInputError : ""}`}
-													required
-												/>
-											)}
+											<TextInput
+												type="text"
+												label={`${index + 1}.`}
+												value={track.title}
+												disabled={isSubmitted}
+												onChange={(e: ChangeEvent<HTMLInputElement>) =>
+													handleInputChange(index, "title", e.target.value)
+												}
+												placeholder="Title"
+												className={`${style.uploadRowTitleInput} ${track.hasValidationError ? style.titleInputError : ""}`}
+												required
+											/>
 										</div>
 										<div className={style.fileInfoContainer}>
 											<div>
@@ -520,13 +525,25 @@ const UploadTracks = () => {
 									</div>
 								))}
 								{isSubmitted && haveSuccessfulUploads ? (
-									<Button
-										type="button"
-										onClick={resetForm}
-										className={style.actionButton}
-									>
-										Upload More Tracks
-									</Button>
+									<div>
+										<Link
+											to={`/${userData.me.username}`}
+											className={style.actionButton}
+											style={{
+												background: tokens.colors.tintColor,
+												textDecoration: "none",
+											}}
+										>
+											Go to your profile
+										</Link>
+										<Button
+											type="button"
+											onClick={resetForm}
+											className={style.actionButton}
+										>
+											Upload More Tracks
+										</Button>
+									</div>
 								) : (
 									<Button
 										type="submit"
