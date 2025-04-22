@@ -1,21 +1,30 @@
 import { inputContainer } from "@/components/textInput/TextInput.css"
 import { tokens } from "@/styles/tokens";
 import { globalStyle, style } from "@vanilla-extract/css";
+import { recipe } from "@vanilla-extract/recipes"
 
 
 
 // Container styles
-export const container = style({
-  maxWidth: "520px",
+export const uploadPageContainer = style({
+  maxWidth: "600px",
   width: "100%",
-  margin: "0 auto",
   padding: "20px",
-  display: "flex",
-  flexDirection: "column",
+  minHeight: "70vh",
 });
 
-export const pageTitle = style({
-  marginBottom: 16
+export const uploadPageTitle = style({
+  fontSize: tokens.fontSizes.xl,
+  fontWeight: 500,
+  textAlign: "center",
+  marginBottom: 2
+});
+export const uploadHeaderDescription = style({
+  fontSize: tokens.fontSizes.md,
+  fontWeight: 300,
+  color: tokens.colors.secondary,
+  textAlign: "center",
+  marginBottom: 20,
 });
 
 // Dropzone styles
@@ -27,18 +36,25 @@ export const dropZone = style({
   textAlign: "center",
   display: "flex",
   flexDirection: "column",
+  position: "relative",
   justifyContent: "center",
   alignItems: "center",
   transition: "all 300ms ease-out",
   background: tokens.colors.backgroundSecondary,
   height: 180,
+  marginBottom: 30,
+  ':hover': {
+    opacity: 1,
+  }
 });
 
 export const dropZoneDropping = style({
   background: tokens.colors.quaternary,
+  opacity: 1,
 });
 
 export const dropZoneWithFiles = style({
+  opacity: 0.5,
   height: 40
 });
 
@@ -52,17 +68,36 @@ export const addFilesButton = style({
   transition: "color 150ms ease",
   ':hover':{
     color: tokens.colors.primary,
-  }
+  },
+  // ':after':{
+  //   position: "absolute",
+  //   top: 0,
+  //   left: 0,
+  //   bottom: 0,
+  //   right: 0,
+  //   content: '""',
+
+  // }
 });
 
 // File list styles
-export const fileList = style({
-  marginTop: 20,
-  gap: 8,
-  display: 'flex',
-  flexDirection: 'column',
-  height: "auto",
-  transition: "all 300ms ease-out",
+export const fileList = recipe({
+  base: {
+    gap: 8,
+    display: 'flex',
+    flexDirection: 'column',
+    height: 0,
+    opacity: 0,
+    transition: "all 300ms ease-in",
+  },
+  variants: {
+    isShown: {
+      true: {
+        height: "auto",
+        opacity: 1,
+      },
+    },
+  },
 });
 
 export const fileItem = style({
@@ -72,6 +107,10 @@ export const fileItem = style({
   backgroundColor: tokens.colors.backgroundSecondary,
   borderRadius: "8px",
   gap: 10,
+});
+
+export const fileItemError = style({
+  border: `1px dotted ${tokens.colors.error}`
 });
 
 export const titleContainer  = style({
@@ -92,25 +131,26 @@ export const editHeader = style({
   fontSize: tokens.fontSizes.md,
   paddingLeft: tokens.space.lg,
   textAlign: "center",
-  marginBottom: -8,
+  fontWeight: 500,
+  marginBottom: -6,
 });
 export const editHeaderDescription = style({
   fontSize: tokens.fontSizes.md,
   paddingLeft: tokens.space.lg,
-  fontWeight: 400,
+  fontWeight: 300,
   color: tokens.colors.secondary,
   textAlign: "center",
+  marginBottom: 4,
 });
-export const titleText = style({
-  // padding: "4px 8px", 
+export const uploadRowTitleText = style({
   fontSize: "11px"
 });
 
-export const titleInput = style({
-  // padding: "4px 16px", 
-  fontSize: 12, 
-  borderRadius: tokens.radii.md,
-  borderColor: tokens.colors.tertiaryDark,
+export const uploadRowTitleInput = style({
+});
+
+export const titleInputError = style({
+  // borderColor: tokens.colors.error,
 });
 
 export const fileInfoContainer = style({
@@ -153,4 +193,31 @@ export const actionButton = style({
   alignItems: "center",
   justifyContent: "center",
   width: "100%"
+});
+
+export const statusIndicator = style({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "20px",
+  height: "20px",
+});
+
+export const successStatus = style({
+  color: "#4CAF50",
+  fontSize: "16px",
+});
+export const errorText = style({
+  color: tokens.colors.error,
+  textAlign: "center",
+});
+export const errorStatus = style({
+  color: tokens.colors.error,
+  fontSize: "16px",
+});
+
+export const trackError = style({
+  // color: tokens.colors.error,
+  fontSize: "11px",
+  marginTop: "4px",
 });

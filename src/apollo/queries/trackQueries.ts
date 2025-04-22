@@ -68,6 +68,15 @@ export const GET_USER_TRACKS = gql`
   }
 `;
 
+export const GET_TRACK_TITLES = gql`
+  query GetTrackTitles($username: String!) {
+    userTracks(username: $username) {
+      id
+      title
+    }
+  }
+`;
+
 export const GET_TRACK_BY_SLUG = gql`
   query GetTrackBySlug($username: String!, $slug: String!) {
     trackBySlug(username: $username, slug: $slug) {
