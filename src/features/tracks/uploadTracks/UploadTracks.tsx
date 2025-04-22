@@ -59,12 +59,14 @@ const UploadTracks = () => {
 	});
 
 	const processAudioFiles = (files: File[]) => {
+		console.log("Processing audio files:", files.length);
 		setDropped(true);
 		setIsLoadingFiles(true);
 
 		const validFiles: UploadTrack[] = [];
 
 		for (const file of files) {
+			console.log("Processing file:", file.name, file.type);
 			if (file.type.startsWith("audio/")) {
 				const fileName = file.name;
 				const fileNameWithoutExtension = fileName
@@ -82,6 +84,7 @@ const UploadTracks = () => {
 			}
 		}
 
+		console.log("Valid audio files:", validFiles.length);
 		if (validFiles.length > 0) {
 			setTracks((prev) => [...prev, ...validFiles]);
 			return true;
@@ -99,6 +102,7 @@ const UploadTracks = () => {
 
 	// Handle files selected via FileTrigger
 	const handleSelectFiles = (files: FileList | null) => {
+		console.log("Files selected via FileTrigger:", files);
 		if (!files) return;
 		const fileArray = Array.from(files);
 		processAudioFiles(fileArray);
@@ -265,6 +269,16 @@ const UploadTracks = () => {
 			return;
 		}
 
+		// Clear all validation errors before submission
+		// This ensures that error styling is removed before upload starts
+		setTracks(
+			tracks.map((track) => ({
+				...track,
+				hasValidationError: false,
+				errorMessage: undefined,
+			})),
+		);
+
 		setIsSubmitted(true);
 		setErrorMessage("");
 		setIsUploading(true);
@@ -300,31 +314,86 @@ const UploadTracks = () => {
 		}
 	}, [tracks]);
 
-	const handleDrop = (e: any) => {
-		if (!e || !e.items || e.items.length === 0) return;
+	// Using a more specific type instead of any
+	const handleDrop = (e: {
+		type: string;
+		items: Array<unknown>;
+		dropOperation?: string;
+		// For native drag events
+		dataTransfer?: DataTransfer;
+	}) => {
+		console.log("Drop event triggered:", e);
+		try {
+			// Check if we have a dataTransfer object (native HTML drag/drop)
+			if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+				console.log("Found files in dataTransfer:", e.dataTransfer.files);
+				const fileArray = Array.from(e.dataTransfer.files);
+				processAudioFiles(fileArray);
+				return;
+			}
 
-		const droppedFiles: File[] = [];
+			// Directly look for DroppedFiles and extract them
+			// React Aria specific item structure inspection
+			if (e.items && e.items.length > 0) {
+				console.log("Inspecting drop items:", e.items);
 
-		// Loop through all dropped items
-		for (let i = 0; i < e.items.length; i++) {
-			const item = e.items[i];
+				// The items may be complex objects, extract any files
+				const files: File[] = [];
+				const promises: Promise<void>[] = [];
 
-			try {
-				// Handle file drop items
-				if (item.kind === "file") {
-					// Get the file from the item
-					const file = item.getAsFile();
-					if (file) {
-						droppedFiles.push(file);
+				for (const item of e.items) {
+					console.log("Item:", item);
+
+					// Based on logs, items have a getFile method, not getAsFile
+					if (item && typeof item === "object") {
+						const itemObj = item as any;
+
+						// Try different ways to get the file
+						if (item instanceof File) {
+							files.push(item);
+						} else if (itemObj.file instanceof File) {
+							files.push(itemObj.file);
+						} else if (typeof itemObj.getFile === "function") {
+							// getFile might return a Promise, so we need to handle it properly
+							const promise = Promise.resolve(itemObj.getFile())
+								.then((file) => {
+									console.log("Got file from getFile:", file);
+									if (file instanceof File) {
+										files.push(file);
+									}
+								})
+								.catch((err) => {
+									console.error("Error getting file:", err);
+								});
+
+							promises.push(promise);
+						}
 					}
 				}
-			} catch (error) {
-				console.error("Error processing dropped item:", error);
-			}
-		}
 
-		if (droppedFiles.length > 0) {
-			processAudioFiles(droppedFiles);
+				// Wait for all getFile promises to resolve
+				if (promises.length > 0) {
+					Promise.all(promises).then(() => {
+						console.log("All getFile promises resolved, files:", files.length);
+						if (files.length > 0) {
+							processAudioFiles(files);
+						} else {
+							console.log("No files found after resolving promises");
+						}
+					});
+					return;
+				}
+
+				if (files.length > 0) {
+					console.log("Found files in items immediately:", files.length);
+					processAudioFiles(files);
+					return;
+				}
+			}
+
+			console.log("No files found in drop event", e);
+		} catch (error) {
+			console.error("Error handling drop:", error);
 		}
 	};
 
@@ -367,6 +436,8 @@ const UploadTracks = () => {
 						style={{
 							textDecoration: isDropZoneMinimized ? "none" : "underline",
 							fontWeight: isDropZoneMinimized ? 400 : 600,
+							width: "auto",
+							padding: "10px 16px",
 						}}
 					>
 						{getButtonText()}
@@ -421,7 +492,8 @@ const UploadTracks = () => {
 					(t) => t.status === "success",
 				).length;
 				return `Successfully uploaded ${successCount} of ${tracks.length} tracks`;
-			} else if (isUploading) {
+			}
+			if (isUploading) {
 				return "Uploading...";
 			}
 		}
@@ -461,69 +533,70 @@ const UploadTracks = () => {
 						</DropZone>
 					)}
 
-					<div className={style.fileList({ isShown: isDropZoneMinimized })}>
+					<div className={style.fileList({ isShown: tracks.length > 0 })}>
 						{tracks.length > 0 && (
 							<>
 								<h2 className={style.editHeader}>{getHeaderText()} </h2>
-								{!errorMessage ? (
-									!isSubmitted && (
-										<p className={style.editHeaderDescription}>
-											You can edit titles beforehand.
-										</p>
-									)
-								) : (
-									<p className={style.errorText}>{errorMessage}</p>
-								)}
-
-								{tracks.map((track, index) => (
-									<div
-										key={`track-${track.originalFileName}-${index}`}
-										className={`${style.fileItem} ${track.hasValidationError ? style.fileItemError : ""}`}
+								{!isSubmitted && (
+									<p
+										className={`${style.editHeaderDescription} ${errorMessage ? style.errorText : ""}`}
 									>
-										<div className={style.titleContainer}>
-											<TextInput
-												type="text"
-												label={`${index + 1}.`}
-												value={track.title}
-												disabled={isSubmitted}
-												onChange={(e: ChangeEvent<HTMLInputElement>) =>
-													handleInputChange(index, "title", e.target.value)
-												}
-												placeholder="Title"
-												className={`${style.uploadRowTitleInput} ${track.hasValidationError ? style.titleInputError : ""}`}
-												required
-											/>
-										</div>
-										<div className={style.fileInfoContainer}>
-											<div>
-												{track.file && (
-													<span className={style.fileName}>
-														{track.originalFileName}
-													</span>
-												)}
-												{track.errorMessage && (
-													<span className={style.trackError}>
-														{track.errorMessage}
-													</span>
-												)}
+										{!errorMessage
+											? "You can edit titles beforehand."
+											: errorMessage}
+									</p>
+								)}
+								<div className={style.fileListRows}>
+									{tracks.map((track, index) => (
+										<div
+											key={`track-${track.originalFileName}-${index}`}
+											className={`${style.fileItem} ${track.hasValidationError ? style.fileItemError : ""}`}
+										>
+											<div className={style.titleContainer}>
+												<TextInput
+													type="text"
+													label={`${index + 1}.`}
+													value={track.title}
+													disabled={isSubmitted}
+													onChange={(e: ChangeEvent<HTMLInputElement>) =>
+														handleInputChange(index, "title", e.target.value)
+													}
+													placeholder="Title"
+													className={`${style.uploadRowTitleInput} ${track.hasValidationError ? style.titleInputError : ""}`}
+													required
+												/>
 											</div>
-										</div>
-										{!isSubmitted ? (
-											<button
-												type="button"
-												onClick={() => removeTrack(index)}
-												className={style.removeButton}
-												aria-label={`Remove ${track.title}`}
-											>
-												×
-											</button>
-										) : (
-											<div className={style.statusIndicator}>
-												{getTrackStatusComponent(track)}
+											<div className={style.fileInfoContainer}>
+												<div>
+													{track.file && (
+														<span className={style.fileName}>
+															{track.originalFileName}
+														</span>
+													)}
+													{track.errorMessage && (
+														<span className={style.trackError}>
+															{track.errorMessage}
+														</span>
+													)}
+												</div>
 											</div>
-										)}
-									</div>
-								))}
+											{!isSubmitted ? (
+												<button
+													type="button"
+													onClick={() => removeTrack(index)}
+													className={style.removeButton}
+													aria-label={`Remove ${track.title}`}
+												>
+													×
+												</button>
+											) : (
+												<div className={style.statusIndicator}>
+													{getTrackStatusComponent(track)}
+												</div>
+											)}
+										</div>
+									))}
+								</div>
 								{isSubmitted && haveSuccessfulUploads ? (
 									<div>
 										<Link

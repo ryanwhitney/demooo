@@ -27,6 +27,10 @@ export const uploadHeaderDescription = style({
   marginBottom: 20,
 });
 
+export const errorText = style({
+  color: tokens.colors.error,
+});
+
 // Dropzone styles
 export const dropZone = style({
   width: "100%",
@@ -43,19 +47,23 @@ export const dropZone = style({
   background: tokens.colors.backgroundSecondary,
   height: 180,
   marginBottom: 30,
+  opacity: 1,
   ':hover': {
     opacity: 1,
+    border: ".5px dashed rgba(130,130,139,0.8)",
   }
 });
 
 export const dropZoneDropping = style({
   background: tokens.colors.quaternary,
   opacity: 1,
+  border: "1px dashed rgba(130,130,139,1)",
 });
 
 export const dropZoneWithFiles = style({
-  opacity: 0.5,
-  height: 40
+  opacity: 0.8,
+  height: 60,
+  marginBottom: 10
 });
 
 export const addFilesButton = style({
@@ -83,12 +91,12 @@ export const addFilesButton = style({
 // File list styles
 export const fileList = recipe({
   base: {
-    gap: 8,
     display: 'flex',
     flexDirection: 'column',
     height: 0,
     opacity: 0,
     transition: "all 300ms ease-in",
+    color: tokens.colors.secondary,
   },
   variants: {
     isShown: {
@@ -98,6 +106,12 @@ export const fileList = recipe({
       },
     },
   },
+});
+
+export const fileListRows = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
 });
 
 export const fileItem = style({
@@ -130,16 +144,19 @@ globalStyle(`${titleContainer} ${inputContainer}`, {
 export const editHeader = style({
   fontSize: tokens.fontSizes.md,
   paddingLeft: tokens.space.lg,
+  color: tokens.colors.primary,
   textAlign: "center",
   fontWeight: 500,
+  marginBottom: 10,
+  marginTop: 16,
 });
 export const editHeaderDescription = style({
   fontSize: tokens.fontSizes.md,
   paddingLeft: tokens.space.lg,
   fontWeight: 300,
-  color: tokens.colors.secondary,
   textAlign: "center",
-  marginBottom: 4,
+  marginTop: -6,
+  marginBottom: 8,
 });
 export const uploadRowTitleText = style({
   fontSize: "11px"
@@ -210,10 +227,7 @@ export const successStatus = style({
   color: "#4CAF50",
   fontSize: "16px",
 });
-export const errorText = style({
-  color: tokens.colors.error,
-  textAlign: "center",
-});
+
 export const errorStatus = style({
   color: tokens.colors.error,
   fontSize: "16px",
