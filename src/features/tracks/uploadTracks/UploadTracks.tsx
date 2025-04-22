@@ -280,7 +280,6 @@ const UploadTracks = () => {
 		);
 
 		setIsSubmitted(true);
-		setErrorMessage("");
 		setIsUploading(true);
 
 		// Start uploading tracks sequentially
@@ -305,11 +304,11 @@ const UploadTracks = () => {
 
 	useEffect(() => {
 		if (tracks.length > 0) {
-			setTimeout(() => {
-				setIsDropZoneMinimized(true);
-				setIsLoadingFiles(false);
-			}, 1000);
+			setIsDropZoneMinimized(true);
+			setIsLoadingFiles(false);
 		} else {
+			setErrorMessage("");
+			setDropped(false);
 			setIsDropZoneMinimized(false);
 		}
 	}, [tracks]);
@@ -499,7 +498,7 @@ const UploadTracks = () => {
 		}
 
 		// Case 3: Ready to upload (default)
-		return `Nice! Ready to upload${tracks.length === 1 ? "." : ` ${tracks.length} tracks`}`;
+		return `Ready to upload${tracks.length === 1 ? "." : ` ${tracks.length} tracks.`}`;
 	};
 
 	return (

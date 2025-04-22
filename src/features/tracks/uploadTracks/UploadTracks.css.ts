@@ -77,15 +77,15 @@ export const addFilesButton = style({
   ':hover':{
     color: tokens.colors.primary,
   },
-  // ':after':{
-  //   position: "absolute",
-  //   top: 0,
-  //   left: 0,
-  //   bottom: 0,
-  //   right: 0,
-  //   content: '""',
+  ':after':{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    content: '""',
 
-  // }
+  }
 });
 
 // File list styles
