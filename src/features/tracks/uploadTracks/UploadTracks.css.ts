@@ -192,7 +192,13 @@ export const removeButton = style({
   cursor: "pointer",
   fontSize: "16px",
   borderRadius: tokens.radii.full,
-  color: tokens.colors.primary,
+  color: tokens.colors.secondary,
+  transition: "all 250ms ease",
+  ':hover': {
+    filter: "brightness(1.2)",
+    color: tokens.colors.primary,
+
+  }
 });
 
 export const actionButton = style({
@@ -214,6 +220,13 @@ export const actionButton = style({
     filter: "brightness(1.2)",
   }
 });
+export const primaryActionButton = style([
+  actionButton,
+  {
+    background: tokens.colors.tintColor,
+    textDecoration: "none",
+  }
+]);
 
 export const statusIndicator = style({
   display: "flex",

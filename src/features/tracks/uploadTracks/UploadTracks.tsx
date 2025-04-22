@@ -600,27 +600,22 @@ const UploadTracks = () => {
 									<div>
 										<Link
 											to={`/${userData.me.username}`}
-											className={style.actionButton}
-											style={{
-												background: tokens.colors.tintColor,
-												textDecoration: "none",
-											}}
+											className={style.primaryActionButton}
 										>
-											Go to your profile
+											Go to your profile &rarr;
 										</Link>
 										<Button
 											type="button"
 											onClick={resetForm}
 											className={style.actionButton}
 										>
-											Upload More Tracks
+											Upload more tracks
 										</Button>
 									</div>
 								) : (
 									<Button
 										type="submit"
-										className={style.actionButton}
-										style={{ background: tokens.colors.tintColor }}
+										className={style.primaryActionButton}
 										isDisabled={
 											isUploading ||
 											tracks.length === 0 ||
