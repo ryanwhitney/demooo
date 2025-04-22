@@ -11,13 +11,8 @@ const meta = {
 	argTypes: {
 		variant: {
 			control: { type: "select" },
-			options: ["primary", "icon"],
+			options: ["primary", "secondary", "nav", "icon"],
 			description: "The visual style of the button",
-		},
-		size: {
-			control: { type: "select" },
-			options: ["small", "medium", "large"],
-			description: "The size of the button",
 		},
 		disabled: {
 			control: "boolean",
@@ -30,12 +25,24 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof Button>;
 
-// Basic button story
 export const Primary: Story = {
 	args: {
 		variant: "primary",
-		size: "medium",
 		children: "Primary Button",
+	},
+};
+
+export const Secondary: Story = {
+	args: {
+		variant: "secondary",
+		children: "Secondary Button",
+	},
+};
+
+export const Nav: Story = {
+	args: {
+		variant: "nav",
+		children: "nav Button",
 	},
 };
 
@@ -43,37 +50,8 @@ export const Primary: Story = {
 export const IconButton: Story = {
 	args: {
 		variant: "icon",
-		size: "medium",
 		children: "✕",
 		"aria-label": "Close",
-	},
-};
-
-// Small button story
-export const Small: Story = {
-	args: {
-		variant: "primary",
-		size: "small",
-		children: "Small Button",
-	},
-};
-
-// Large button story
-export const Large: Story = {
-	args: {
-		variant: "primary",
-		size: "large",
-		children: "Large Button",
-	},
-};
-
-// Disabled button story
-export const Disabled: Story = {
-	args: {
-		variant: "primary",
-		size: "medium",
-		children: "Disabled Button",
-		disabled: true,
 	},
 };
 
@@ -81,22 +59,21 @@ export const Disabled: Story = {
 export const AllVariants: Story = {
 	render: () => (
 		<div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-			<Button variant="primary" size="small">
+			<Button variant="primary">Small Primary</Button>
+			<Button variant="secondary">Medium Primary</Button>
+			<Button variant="nav">Log in</Button>
+			<Button variant="icon">✕</Button>
+			<Button variant="primary" disabled>
 				Small Primary
 			</Button>
-			<Button variant="primary" size="medium">
+			<Button variant="secondary" disabled>
 				Medium Primary
 			</Button>
-			<Button variant="primary" size="large">
-				Large Primary
+			<Button variant="nav" disabled>
+				Log in
 			</Button>
-			<Button variant="icon" size="small">
-				✕
-			</Button>
-			<Button variant="icon" size="medium">
-				✕
-			</Button>
-			<Button variant="icon" size="large">
+
+			<Button variant="icon" disabled>
 				✕
 			</Button>
 		</div>
@@ -114,7 +91,7 @@ export const FocusState: Story = {
 	},
 	render: () => (
 		<div style={{ display: "flex", gap: "12px" }}>
-			<Button variant="primary">Tab to Focus</Button>
+			<Button>Tab to Focus</Button>
 		</div>
 	),
 };

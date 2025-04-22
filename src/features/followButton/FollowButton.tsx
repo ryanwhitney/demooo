@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFollow } from "@/hooks/useFollow";
 import { tokens } from "@/styles/tokens";
 import type { User } from "@/types/user";
+import { Gear, Pencil } from "@phosphor-icons/react";
 
 const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 	const {
@@ -16,8 +17,13 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 	const isSameUser = user?.username === userToFollow.username;
 
 	return isSameUser ? (
-		<Button size="large" variant="primary" color={tokens.colors.primary}>
-			it's you :-)
+		<Button
+			size="large"
+			variant="primary"
+			color={tokens.colors.tintColor}
+			style={{ display: "flex", alignItems: "center", gap: 8 }}
+		>
+			Edit Profile
 		</Button>
 	) : (
 		<Button

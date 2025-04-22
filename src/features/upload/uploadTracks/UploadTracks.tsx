@@ -9,7 +9,6 @@ import { useAuth } from "@/hooks/useAuth";
 import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState, type FormEvent } from "react";
-import { Button } from "react-aria-components";
 import * as style from "./UploadTracks.css";
 import { Link } from "react-router";
 
@@ -18,6 +17,8 @@ import AudioDropzone from "@/features/upload/audioDropzone/AudioDropzone";
 import TrackList from "@/features/upload/uploadTrackList/UploadTrackList";
 import type { AudioFile } from "@/features/upload/audioDropzone/AudioDropzone";
 import type { TrackFile } from "@/features/upload/uploadTrackList/UploadTrackList";
+import Button from "@/components/button/Button";
+import { buttonStyles } from "@/components/button/Button.css";
 
 // Interface for track data from the API
 interface UserTrack {
@@ -315,23 +316,27 @@ const UploadTracks = () => {
 									<div>
 										<Link
 											to={`/${username}`}
-											className={style.primaryActionButton}
+											className={`${buttonStyles({
+												variant: "primary",
+											})} ${style.uploadCtaButton}`}
 										>
 											Go to your profile &rarr;
 										</Link>
 										<Button
 											type="button"
+											className={style.uploadCtaButton}
+											variant="secondary"
 											onClick={resetForm}
-											className={style.actionButton}
 										>
-											Upload more tracks
+											Upload more
 										</Button>
 									</div>
 								) : (
 									<Button
 										type="submit"
-										className={style.primaryActionButton}
-										isDisabled={
+										className={style.uploadCtaButton}
+										variant="primary"
+										disabled={
 											isUploading ||
 											tracks.length === 0 ||
 											tracks.some((track) => !track.title.trim())

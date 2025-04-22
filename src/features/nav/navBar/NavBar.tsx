@@ -30,16 +30,7 @@ function NavBar() {
 					{data?.me?.username ? (
 						<>
 							<li>
-								<Link
-									className={buttonStyles({})}
-									style={{
-										textDecoration: "none",
-										display: "flex",
-										alignItems: "center",
-										gap: 8,
-									}}
-									to="/upload"
-								>
+								<Link className={buttonStyles({ variant: "nav" })} to="/upload">
 									upload
 								</Link>
 							</li>
@@ -48,18 +39,12 @@ function NavBar() {
 					) : (
 						<>
 							<li>
-								<Button
-									variant="primary"
-									onClick={() => setShowLoginModal(true)}
-								>
+								<Button variant="nav" onClick={() => setShowLoginModal(true)}>
 									log in
 								</Button>
 							</li>
 							<li>
-								<Button
-									variant="primary"
-									onClick={() => setShowSignUpModal(true)}
-								>
+								<Button variant="nav" onClick={() => setShowSignUpModal(true)}>
 									join
 								</Button>
 							</li>

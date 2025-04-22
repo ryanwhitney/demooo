@@ -68,33 +68,9 @@ export const removeButton = style({
   }
 });
 
-export const actionButton = style({
+export const uploadCtaButton = style({
   marginTop: "12px",
-  padding: "12px 16px",
-  background: tokens.colors.backgroundSecondary,
-  color: "white",
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer",
-  fontSize: "12x",
-  fontWeight: "bold",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "100%",
-  transition: "filter 250ms ease",
-  ':hover': {
-    filter: "brightness(1.2)",
-  }
 });
-
-export const primaryActionButton = style([
-  actionButton,
-  {
-    background: tokens.colors.tintColor,
-    textDecoration: "none",
-  }
-]);
 
 export const statusIndicator = style({
   display: "flex",

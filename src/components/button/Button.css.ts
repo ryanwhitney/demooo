@@ -3,13 +3,19 @@ import { type RecipeVariants, recipe } from "@vanilla-extract/recipes";
 
 export const buttonStyles = recipe({
 	base: {
+		width: "100%",
 		fontFamily: tokens.fonts.monospace,
-		borderRadius: tokens.radii.md,
-		border: "1px solid transparent",
-		cursor: "pointer",
-		transition: "all 200ms ease-in-out",
 		color: tokens.colors.primary,
-		backgroundColor: tokens.colors.background,
+		cursor: "pointer",
+		fontSize: tokens.fontSizes.md,
+		fontWeight: tokens.fontWeights.semibold,
+		padding: "12px 16px",
+		borderRadius: tokens.radii.md,
+		textDecoration: "none",
+		display: "block",
+		textAlign: "center",
+		transition: "all 200ms ease",
+		transform: "translate3d(0,0,0)", 
 		":disabled": {
 			opacity: 0.6,
 			cursor: "not-allowed",
@@ -22,13 +28,31 @@ export const buttonStyles = recipe({
 
 	variants: {
 		variant: {
-			// base variants
 			primary: {
-				width: "100%",
-				":hover": {
-					borderColor: tokens.colors.focusRing,
+				background: tokens.colors.tintColor,
+				':hover': {
+					filter: "brightness(1.15)",
+				},
+				':disabled': {
+					background: tokens.colors.backgroundSecondary,
+				},
+			},
+			secondary: {
+				background: tokens.colors.backgroundSecondary,
+				borderRadius: "8px",
+				':hover': {
+					filter: "brightness(1.4)",
 				},
 				":active": {
+					borderColor: tokens.colors.focusRing,
+				},
+			},
+			nav: {
+				border: "1px solid transparent",
+				backgroundColor: tokens.colors.background,
+				fontSize: tokens.fontSizes.sm,
+				padding: `${tokens.space.sm} ${tokens.space.md}`,
+				":hover": {
 					borderColor: tokens.colors.focusRing,
 				},
 			},
@@ -53,26 +77,10 @@ export const buttonStyles = recipe({
 			},
 		},
 
-		// size variants
-		size: {
-			small: {
-				padding: `${tokens.space.xs} ${tokens.space.sm}`,
-				fontSize: tokens.fontSizes.xs,
-			},
-			medium: {
-				padding: `${tokens.space.sm} ${tokens.space.md}`,
-				fontSize: tokens.fontSizes.sm,
-			},
-			large: {
-				padding: `${tokens.space.md} ${tokens.space.lg}`,
-				fontSize: tokens.fontSizes.md,
-			},
-		},
 	},
 
 	defaultVariants: {
 		variant: "primary",
-		size: "medium",
 	},
 });
 
