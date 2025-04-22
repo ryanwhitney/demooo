@@ -44,7 +44,13 @@ const UploadTracks = () => {
 	});
 
 	const [uploadTrack] = useMutation(UPLOAD_TRACK, {
-		refetchQueries: [{ query: GET_USER_TRACKS }, { query: GET_ALL_TRACKS }],
+		refetchQueries: [
+			{
+				query: GET_USER_TRACKS,
+				variables: { username },
+			},
+			{ query: GET_ALL_TRACKS },
+		],
 	});
 
 	const handleFilesAdded = (audioFiles: AudioFile[]) => {
