@@ -70,6 +70,8 @@ h6 {
 	isolation: isolate;
 }
 
+/* individual elements */
+
 button {
 	-webkit-appearance: none;
 	appearance: none;

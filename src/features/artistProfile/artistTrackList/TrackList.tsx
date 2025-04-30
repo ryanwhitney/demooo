@@ -20,6 +20,7 @@ const TrackRow = ({
 		isFavorited,
 		// loading: loadingFavorite,
 		toggleFavorite,
+		favoritesCount = track.favoritesCount || 0,
 	} = useFavorite(track.id);
 
 	// subscribe to the states we need
@@ -61,15 +62,20 @@ const TrackRow = ({
 				<p>{formatTime(track.audioLength)}</p>
 			</div>
 			<div className={style.trackRightContent}>
-				<IconToggleButton
-					iconOne={<HeartSVG />}
-					iconOneTitle="Add to favorites"
-					iconTwo={<HeartSVG />}
-					iconTwoTitle="Remove from favorites"
-					defaultToggled={isFavorited}
-					onToggle={toggleFavorite}
-					className={`${style.favoriteIconToggle({ isActive: isFavorited })}`}
-				/>
+				<div className={style.favoriteCountWrapper}>
+					<IconToggleButton
+						iconOne={<HeartSVG />}
+						iconOneTitle="Add to favorites"
+						iconTwo={<HeartSVG />}
+						iconTwoTitle="Remove from favorites"
+						defaultToggled={isFavorited}
+						onToggle={toggleFavorite}
+						className={`${style.favoriteIconToggle({ isActive: isFavorited })}`}
+					/>
+					<span className={style.favoriteCount({ isActive: isFavorited })}>
+						{favoritesCount > 0 ? favoritesCount : ""}
+					</span>
+				</div>
 				<IconToggleButton
 					iconOne={<PlaySVG />}
 					iconOneTitle="Play"

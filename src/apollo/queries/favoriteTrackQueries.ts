@@ -4,5 +4,9 @@ import { gql } from "@apollo/client"
 export const IS_TRACK_FAVORITED = gql`
   query IsTrackFavorited($trackId: ID!) {
     isTrackFavorited(trackId: $trackId)
+    track(id: $trackId) {
+      id
+      favoritesCount
+    }
   }
 `;

@@ -1,28 +1,29 @@
-import type { Profile, User } from "./user"
+import type { Profile, User } from './user'
 
 export interface Track {
-	audioFile: string | undefined
-	audioUrl: string | undefined
-	id: string;
-	title: string; // A Great Song 
-	titleSlug: string; // a-great-song
-	description: string; // this is a song i made
-	audioWaveformData: string;
-	audioWaveformResolution: number;
-	artist: User; // foreignKey, user.id
-	audioLength: number;
-	createdAt: string;
-	recordedAt: string;
+  audioFile: string | undefined
+  audioUrl: string | undefined
+  id: string
+  title: string
+  titleSlug: string
+  description: string
+  audioWaveformData: string
+  audioWaveformResolution: number
+  artist: User
+  audioLength: number
+  createdAt: string
+  recordedAt: string
+  favoritesCount?: number
 }
 
 export interface TrackUser {
-	username: string;
-	id: string;
-	profile: Profile
+  username: string
+  id: string
+  profile: Profile
 }
 
 export interface UploadTrackFormInput {
-	title: string;
-	description: string;
-	file: File | null;
+  title: string
+  description: string
+  file: File | null
 }

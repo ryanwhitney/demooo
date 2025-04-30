@@ -14,6 +14,7 @@ export const GET_TRACK = gql`
       audioWaveformResolution
       createdAt
       updatedAt
+      favoritesCount
       artist {
         username
         id
@@ -32,6 +33,7 @@ export const GET_ALL_TRACKS = gql`
       audioLength
       audioWaveformData
       createdAt
+      favoritesCount
       artist {
         username
         id
@@ -55,6 +57,7 @@ export const GET_RECENT_TRACKS = gql`
       audioLength
       audioWaveformData
       createdAt
+      favoritesCount
       artist {
         username
         id
@@ -86,6 +89,7 @@ export const GET_USER_TRACKS = gql`
       audioWaveformResolution
       createdAt
       updatedAt
+      favoritesCount
     }
   }
 `;
@@ -112,6 +116,7 @@ export const GET_TRACK_BY_SLUG = gql`
       audioWaveformData
       createdAt
       updatedAt
+      favoritesCount
       artist {
         username
         id
