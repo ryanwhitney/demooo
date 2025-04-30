@@ -1,7 +1,6 @@
 import type { Track } from "@/types/track";
 import { formatTime } from "@/utils/timeAndDate";
 import PlayButton from "./playButton/PlayButton";
-import { parseWaveformData } from "./utilities/parseWaveformData";
 import * as style from "./AudioPlayer.css";
 import Waveform from "./waveform/Waveform";
 import TimelineSlider from "./timeline/TimelineSlider";
