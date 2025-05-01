@@ -6,6 +6,7 @@ import Waveform from "./waveform/Waveform";
 import TimelineSlider from "./timeline/TimelineSlider";
 import { useAudioPlayback } from "../hooks/useAudioPlayback";
 import { useAudioEvents } from "../hooks/useAudioEvents";
+import { useCallback } from "react";
 
 interface AudioPlayerProps {
 	track: Track;
@@ -74,21 +75,15 @@ const AudioPlayer = ({
 		onError: () => handleError(),
 	});
 
-	// Use the audio_url from GraphQL which will be presigned when using R2 storage
-	// If audioUrl is missing, construct the URL based on audioFile
-	const audioFileUrl = (() => {
-		// If we have a presigned URL from the backend, use it
+	const audioFileUrl = useCallback(() => {
 		if (track.audioUrl) {
-			console.log("Using presigned URL:", track.audioUrl);
-			return track.audioUrl;
+			if (track.audioUrl.startsWith("http")) {
+				return track.audioUrl;
+			}
+			return `${import.meta.env.VITE_API_BASE_URL}${track.audioUrl}`;
 		}
-
-		// Otherwise, construct the URL based on audioFile
-		if (track.audioFile?.startsWith("http")) {
-			console.log("Using direct URL:", `${track.audioFile}/320.mp3`);
-			return `${track.audioFile}/320.mp3`;
-		}
-	})();
+		return undefined;
+	}, [track.audioUrl]);
 
 	const normalizedProgress = duration > 0 ? currentTime / duration : 0;
 
@@ -137,7 +132,7 @@ const AudioPlayer = ({
 					onPlay={audioEvents.handlePlay}
 					onPause={audioEvents.handlePause}
 					preload="auto"
-					src={audioFileUrl}
+					src={audioFileUrl()}
 					className={style.audioElement}
 					aria-hidden="true"
 				/>

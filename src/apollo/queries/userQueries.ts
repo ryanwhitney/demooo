@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client'
 
 export const GET_ME = gql`
   query Whom {
@@ -16,7 +16,7 @@ export const GET_ME = gql`
       }
     }
   }
-`;
+`
 
 export const GET_USERNAME = gql`
   query CheckUsernameAvailability($username: String!) {
@@ -25,7 +25,7 @@ export const GET_USERNAME = gql`
       username
     }
   }
-`;
+`
 
 export const GET_ARTIST = gql`
   query GetArtist($username: String!) {
@@ -47,7 +47,7 @@ export const GET_ARTIST = gql`
         createdAt
         updatedAt
         description
-        audioFile
+        audioUrl
         audioLength
         audioWaveformData
         artist {
@@ -57,4 +57,4 @@ export const GET_ARTIST = gql`
       }
     }
   }
-`;
+`

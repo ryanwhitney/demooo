@@ -1,7 +1,6 @@
 import type { Profile, User } from './user'
 
 export interface Track {
-  audioFile: string | undefined
   audioUrl: string | undefined
   id: string
   title: string
