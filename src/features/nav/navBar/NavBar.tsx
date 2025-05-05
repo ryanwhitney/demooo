@@ -1,5 +1,5 @@
 import Button from "@/components/button/Button";
-import Modal from "@/components/modal/Modal";
+import Modal from "@/components/modal/ModalForm";
 import CreateAccount from "@/features/auth/CreateAccount";
 import Login from "@/features/auth/Login";
 import { useState } from "react";

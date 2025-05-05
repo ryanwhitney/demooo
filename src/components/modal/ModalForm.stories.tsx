@@ -1,10 +1,10 @@
 import type { StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-import Modal from "./Modal";
+import ModalForm from "./ModalForm";
 
 const meta = {
 	title: "Components/Modal",
-	component: Modal,
+	component: ModalForm,
 	tags: ["autodocs"],
 };
 
@@ -26,12 +26,12 @@ export const WithTitle: Story = {
 		children: (
 			<form>
 				<div>
-					<label>Username:</label>
-					<input type="text" />
+					<label htmlFor="username">Username:</label>
+					<input id="username" name="username" type="text" />
 				</div>
 				<div>
-					<label>Password:</label>
-					<input type="password" />
+					<label htmlFor="pass">Password:</label>
+					<input id="pass" name="pass" type="password" />
 				</div>
 				<button type="submit">Submit</button>
 			</form>
