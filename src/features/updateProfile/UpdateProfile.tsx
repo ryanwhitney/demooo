@@ -8,7 +8,6 @@ import ProgressIndicator from "@/components/dotLoadIndicator/DotLoadIndicator";
 import TextArea from "@/components/textArea/TextArea";
 import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UpdateProfile.css";
-import PageLoadingIndicator from "../artistProfile/pageLoadingIndicator/PageLoadingIndicator";
 import { toastQueue } from "../toastSystem/ToastSystem";
 
 interface FormData {
@@ -32,8 +31,8 @@ const UpdateProfile = () => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// Query to fetch user data
-	// TODO: HANDLE ERROR STATES
-	const { data, loading, refetch } = useQuery(GET_ME, {
+	// TODO: HANDLE LOAD, ERROR STATES
+	const { data, refetch } = useQuery(GET_ME, {
 		onCompleted: (data) => {
 			if (data?.me) {
 				setFormData({
@@ -61,15 +60,14 @@ const UpdateProfile = () => {
 					},
 				);
 			},
-			refetchQueries: ["Whom"], // Refresh the profile data
+			refetchQueries: ["Whom"],
 		});
 
-	// Refresh data on component mount
 	useEffect(() => {
 		refetch();
 	}, [refetch]);
 
-	// Clean up image preview URL when component unmounts
+	// Clean up image preview URL on unmount
 	useEffect(() => {
 		return () => {
 			if (imagePreview) URL.revokeObjectURL(imagePreview);
@@ -105,7 +103,7 @@ const UpdateProfile = () => {
 			location: formData.location,
 		};
 
-		// Only add profilePicture if a file is selected
+		// Only add if a file is selected
 		if (formData.profilePicture) {
 			variables.profilePicture = formData.profilePicture;
 		}
@@ -131,7 +129,6 @@ const UpdateProfile = () => {
 
 	return (
 		<>
-			{loading && <PageLoadingIndicator />}
 			<div className={style.updateProfileContainer}>
 				<button
 					className={style.imageContainer}
@@ -187,7 +184,6 @@ const UpdateProfile = () => {
 					</div>
 				</button>
 
-				{/* Form Section */}
 				{updateError && <ErrorBox text={updateError.message} />}
 				<form onSubmit={handleSubmit}>
 					{/* Hidden file input */}
