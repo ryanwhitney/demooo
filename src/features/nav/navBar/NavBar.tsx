@@ -12,7 +12,7 @@ import { useQuery } from "@apollo/client";
 import { GET_ME } from "@/apollo/queries/userQueries";
 import ProfileMenu from "@/features/nav/profileMenu/ProfileMenu";
 
-function NavBar() {
+const NavBar = () => {
 	const [showSignUpModal, setShowSignUpModal] = useState(false);
 	const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -68,6 +68,6 @@ function NavBar() {
 				)}
 		</>
 	);
-}
+};
 
 export default NavBar;

@@ -9,7 +9,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
 /**
  * A styled button component that preserves all native button functionality and accessibility.
  */
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 	({ children, variant, className, ...props }, ref) => {
 		// Combine recipe styles with any additional className
 		const buttonClassName = [buttonStyles({ variant }), className]

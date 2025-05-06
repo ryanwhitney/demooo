@@ -67,4 +67,5 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 		</>
 	);
 };
+
 export default FollowButton;

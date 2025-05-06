@@ -26,7 +26,7 @@ export type TextInputProps = InputHTMLAttributes<HTMLInputElement> &
 		onValidated?: (isValid: boolean) => void;
 	};
 
-export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
+const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 	(
 		{
 			label,
