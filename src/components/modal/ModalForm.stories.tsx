@@ -1,29 +1,76 @@
-import type { StoryObj } from "@storybook/react";
-import { fn } from "@storybook/test";
+import type { Meta, StoryFn } from "@storybook/react";
+import type { ReactNode } from "react";
 import ModalForm from "./ModalForm";
+import { useState } from "react";
 
 const meta = {
-	title: "Components/Modal",
+	title: "Components/ModalForm",
 	component: ModalForm,
 	tags: ["autodocs"],
-};
+} satisfies Meta<typeof ModalForm>;
 
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+type Story = {
+	render: StoryFn<typeof ModalForm>;
+	parameters?: {
+		docs?: {
+			story?: {
+				inline?: boolean;
+			};
+		};
+	};
+};
+
+// Wrapper for stories
+const ModalWrapper = ({
+	children,
+	title,
+	description,
+	minWidth,
+}: {
+	children: ReactNode;
+	title?: string;
+	description?: string;
+	minWidth?: string;
+}) => {
+	const [isOpen, setIsOpen] = useState(false);
+
+	return (
+		<div>
+			<button type="button" onClick={() => setIsOpen(true)}>
+				Open Modal
+			</button>
+			{isOpen && (
+				<ModalForm
+					onClose={() => setIsOpen(false)}
+					title={title}
+					description={description}
+					minWidth={minWidth}
+				>
+					{children}
+				</ModalForm>
+			)}
+		</div>
+	);
+};
 
 export const Default: Story = {
-	args: {
-		children: <div>This is a modal with some content</div>,
-		onClose: fn(),
+	render: () => (
+		<ModalWrapper>
+			<div>This is a modal with some content</div>
+		</ModalWrapper>
+	),
+	parameters: {
+		docs: {
+			story: { inline: true },
+		},
 	},
 };
 
 export const WithTitle: Story = {
-	args: {
-		title: "Login",
-		description: "Please enter your credentials",
-		children: (
+	render: () => (
+		<ModalWrapper title="Login" description="Please enter your credentials">
 			<form>
 				<div>
 					<label htmlFor="username">Username:</label>
@@ -35,23 +82,32 @@ export const WithTitle: Story = {
 				</div>
 				<button type="submit">Submit</button>
 			</form>
-		),
-		onClose: () => console.log("Modal closed"),
+		</ModalWrapper>
+	),
+	parameters: {
+		docs: {
+			story: { inline: true },
+		},
 	},
 };
 
 export const WithTitleAndDescription: Story = {
-	args: {
-		title: "Long Content",
-		description: "This modal contains a lot of text",
-		children: (
+	render: () => (
+		<ModalWrapper
+			title="Long Content"
+			description="This modal contains a lot of text"
+		>
 			<div>
 				<p>This is a paragraph of text.</p>
 				<p>This is another paragraph of text.</p>
 				<p>This is yet another paragraph of text.</p>
 				<p>This is the last paragraph of text.</p>
 			</div>
-		),
-		onClose: () => console.log("Modal closed"),
+		</ModalWrapper>
+	),
+	parameters: {
+		docs: {
+			story: { inline: true },
+		},
 	},
 };
