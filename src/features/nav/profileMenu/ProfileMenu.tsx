@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router";
-import * as styles from "./ProfileMenu.css";
+import * as style from "./ProfileMenu.css";
 
 const ProfileMenu = ({ me }: { me: User }) => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,41 +45,35 @@ const ProfileMenu = ({ me }: { me: User }) => {
 				<ProfilePhoto profile={me.profile} />
 			</Button>
 			<Popover
-				className={styles.popover}
+				className={style.popover}
 				style={{
 					transition: `opacity ${TRANSITION_SPEED}ms cubic-bezier(.05, .69, .14, 1)`,
 					opacity: opacity,
 				}}
 			>
-				<div className={styles.profileContainer}>
+				<div className={style.profileContainer}>
 					<ProfilePhoto profile={me.profile} width={60} height={60} />
-					<div className={styles.profileInfoContainer}>
-						<span className={styles.profileName}>{me.profile.name}</span>
-						<span className={styles.profileUsername}>{me.username}</span>
+					<div className={style.profileInfoContainer}>
+						<span className={style.profileName}>{me.profile.name}</span>
+						<span className={style.profileUsername}>{me.username}</span>
 					</div>
 				</div>
-				<Separator className={styles.separator} />
-				<Menu className={styles.menuContainer}>
+				<Separator className={style.separator} />
+				<Menu className={style.menuContainer}>
 					<MenuItem>
-						<Link to={`/${me.username}`} className={styles.menuItem}>
+						<Link to={`/${me.username}`} className={style.menuItem}>
 							Your profile
 						</Link>
 					</MenuItem>
-					<Separator className={styles.separator} />
+					<Separator className={style.separator} />
 					<MenuItem>
-						<Link to={"/manage-tracks"} className={styles.menuItem}>
+						<Link to={"/manage-tracks"} className={style.menuItem}>
 							Manage tracks
 						</Link>
 					</MenuItem>
-					<Separator className={styles.separator} />
+					<Separator className={style.separator} />
 					<MenuItem>
-						<Link to={"/profile"} className={styles.menuItem}>
-							Settings
-						</Link>
-					</MenuItem>
-					<Separator className={styles.separator} />
-					<MenuItem>
-						<Button onPress={auth.logout} className={styles.menuItem}>
+						<Button onPress={auth.logout} className={style.menuItem}>
 							Log out
 						</Button>
 					</MenuItem>
