@@ -10,34 +10,41 @@ const ModalForm = ({
 	title,
 	description,
 	minWidth = "400px", // only applies at screen width > 480px
+	isOpen = true,
 }: {
 	children: React.ReactNode;
 	onClose: () => void;
 	title?: string;
 	description?: string;
 	minWidth?: string;
+	isOpen?: boolean;
 }) => {
-	const [isOpen, setIsOpen] = useState(true);
 	const [isVisible, setIsVisible] = useState(false);
-
 	const TRANSITION_DURATION = 150;
 
 	const handleClose = () => {
 		setIsVisible(false);
 		setTimeout(() => {
-			setIsOpen(false);
 			onClose();
 		}, TRANSITION_DURATION);
 	};
 
 	useEffect(() => {
-		setIsVisible(true);
-	}, []);
+		if (isOpen) {
+			setIsVisible(true);
+		} else {
+			setIsVisible(false);
+		}
+	}, [isOpen]);
 
 	return (
 		<Modal
 			isOpen={isOpen}
-			// onOpenChange={setIsOpen}
+			onOpenChange={(open) => {
+				if (!open) {
+					handleClose();
+				}
+			}}
 			className={style.modalBackdropContainer({ isActive: isVisible })}
 			style={{
 				...assignInlineVars({

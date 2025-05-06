@@ -22,17 +22,15 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 
 	return (
 		<>
-			{showEditProfileModal &&
-				createPortal(
-					<Modal
-						onClose={() => {
-							setShowEditProfileModal(false);
-						}}
-					>
-						<UpdateProfile />
-					</Modal>,
-					document.body,
-				)}
+			{createPortal(
+				<Modal
+					onClose={() => setShowEditProfileModal(false)}
+					isOpen={showEditProfileModal}
+				>
+					<UpdateProfile />
+				</Modal>,
+				document.body,
+			)}
 			{isSameUser ? (
 				<Button
 					variant="primary"

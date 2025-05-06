@@ -32,8 +32,7 @@ const UpdateProfile = () => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// Query to fetch user data
-	// TODO: HANDLE LOAD, ERROR STATES
-	const { data, refetch } = useQuery(GET_ME, {
+	const { data } = useQuery(GET_ME, {
 		onCompleted: (data) => {
 			if (data?.me) {
 				setFormData({
@@ -45,6 +44,7 @@ const UpdateProfile = () => {
 				});
 			}
 		},
+		fetchPolicy: "cache-first",
 	});
 
 	const [updateProfile, { error: updateError, loading: updateLoading }] =
@@ -61,12 +61,8 @@ const UpdateProfile = () => {
 					},
 				);
 			},
-			refetchQueries: ["Whom"],
+			refetchQueries: ["GetMe", "Whom"],
 		});
-
-	useEffect(() => {
-		refetch();
-	}, [refetch]);
 
 	// Clean up image preview URL on unmount
 	useEffect(() => {
