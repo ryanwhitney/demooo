@@ -28,7 +28,7 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parent / env_file, override=Tru
 
 # Environment settings
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
-DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 USE_CLOUDFLARE_R2 = os.environ.get("USE_CLOUDFLARE_R2", "false").lower() == "true"
 
 # Log environment settings for debugging
@@ -42,7 +42,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Configure R2 storage if enabled
 if USE_CLOUDFLARE_R2:
-    # Use custom storage class for R2
+
+    # Use custom storage class
     DEFAULT_FILE_STORAGE = "api.storage.CloudflareR2Storage"
 
     # R2 connection settings
@@ -60,15 +61,11 @@ if USE_CLOUDFLARE_R2:
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_QUERYSTRING_AUTH = True  # Enable query string auth for URLs
 
-    # Update MEDIA_URL to use the R2 endpoint
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
 
-    # if DEBUG:
-    #     print(f"Using Cloudflare R2 storage with bucket: {AWS_STORAGE_BUCKET_NAME}")
 else:
     # Use default local file storage
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-    # print(f"Using local file storage at: {MEDIA_ROOT}")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
@@ -128,6 +125,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+            "debug": False,
         },
     },
 ]
@@ -147,15 +145,13 @@ AUTHENTICATION_BACKENDS = [
 
 # Session settings
 SESSION_COOKIE_HTTPONLY = True
-# Private browsing needs this to be False with SameSite=None
 SESSION_COOKIE_SECURE = False
-# Use Lax for better compatibility across browsers
 SESSION_COOKIE_SAMESITE = "Lax"
 
-# CSRF settings - extremely important for SPA + Django httpOnly cookies
-CSRF_COOKIE_HTTPONLY = False  # Must be False so JavaScript can access it
-CSRF_COOKIE_SECURE = False  # Keep False for development/private browsing
-CSRF_COOKIE_SAMESITE = "Lax"  # Use Lax for better compatibility
+# CSRF settings
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_USE_SESSIONS = False  # Store in cookie, not session
 CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"  # Match the X-CSRFToken header
 CSRF_TRUSTED_ORIGINS = [
@@ -202,11 +198,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -227,16 +220,9 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Ensure these match the cookie settings above (comment out for development)
-# SECURE_SSL_REDIRECT = False
-# SESSION_COOKIE_SECURE = True  # Already set above
-# CSRF_COOKIE_SECURE = True  # Already set above
-# SECURE_HSTS_SECONDS = 31536000  # 1 year
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
 
+# Enable logging to console in production
 if ENVIRONMENT == "production":
-    # Add this to your existing production settings
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
