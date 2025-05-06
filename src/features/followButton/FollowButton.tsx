@@ -24,8 +24,8 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 		<>
 			{createPortal(
 				<Modal
-					onClose={() => setShowEditProfileModal(false)}
 					isOpen={showEditProfileModal}
+					onOpenChange={(isOpen) => setShowEditProfileModal(isOpen)}
 				>
 					<UpdateProfile />
 				</Modal>,

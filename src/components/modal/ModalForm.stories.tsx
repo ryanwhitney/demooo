@@ -43,7 +43,7 @@ const ModalWrapper = ({
 			</button>
 			{isOpen && (
 				<ModalForm
-					onClose={() => setIsOpen(false)}
+					onOpenChange={(isOpen) => setIsOpen(isOpen)}
 					title={title}
 					description={description}
 					minWidth={minWidth}

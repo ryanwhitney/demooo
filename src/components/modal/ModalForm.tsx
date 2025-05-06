@@ -6,14 +6,14 @@ import { assignInlineVars } from "@vanilla-extract/dynamic";
 
 const ModalForm = ({
 	children,
-	onClose,
+	onOpenChange,
 	title,
 	description,
 	minWidth = "400px", // only applies at screen width > 480px
 	isOpen = true,
 }: {
 	children: React.ReactNode;
-	onClose: () => void;
+	onOpenChange?: (isOpen: boolean) => void;
 	title?: string;
 	description?: string;
 	minWidth?: string;
@@ -25,7 +25,7 @@ const ModalForm = ({
 	const handleClose = () => {
 		setIsVisible(false);
 		setTimeout(() => {
-			onClose();
+			if (onOpenChange) onOpenChange(false);
 		}, TRANSITION_DURATION);
 	};
 
@@ -43,6 +43,8 @@ const ModalForm = ({
 			onOpenChange={(open) => {
 				if (!open) {
 					handleClose();
+				} else if (onOpenChange) {
+					onOpenChange(true);
 				}
 			}}
 			className={style.modalBackdropContainer({ isActive: isVisible })}

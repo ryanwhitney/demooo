@@ -12,9 +12,10 @@ import { useQuery } from "@apollo/client";
 import { GET_ME } from "@/apollo/queries/userQueries";
 import ProfileMenu from "@/features/nav/profileMenu/ProfileMenu";
 
+type ActiveModal = "login" | "signup" | null;
+
 const NavBar = () => {
-	const [showSignUpModal, setShowSignUpModal] = useState(false);
-	const [showLoginModal, setShowLoginModal] = useState(false);
+	const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
 	const { data } = useQuery(GET_ME, {
 		fetchPolicy: "cache-and-network",
@@ -39,12 +40,12 @@ const NavBar = () => {
 					) : (
 						<>
 							<li>
-								<Button variant="nav" onClick={() => setShowLoginModal(true)}>
+								<Button variant="nav" onClick={() => setActiveModal("login")}>
 									log in
 								</Button>
 							</li>
 							<li>
-								<Button variant="nav" onClick={() => setShowSignUpModal(true)}>
+								<Button variant="nav" onClick={() => setActiveModal("signup")}>
 									join
 								</Button>
 							</li>
@@ -52,20 +53,30 @@ const NavBar = () => {
 					)}
 				</ul>
 			</nav>
-			{showLoginModal &&
-				createPortal(
-					<Modal title="Log in" onClose={() => setShowLoginModal(false)}>
-						<Login />
-					</Modal>,
-					document.body,
-				)}
-			{showSignUpModal &&
-				createPortal(
-					<Modal title="Join demooo" onClose={() => setShowSignUpModal(false)}>
-						<CreateAccount />
-					</Modal>,
-					document.body,
-				)}
+			{createPortal(
+				<Modal
+					title="Log in"
+					isOpen={activeModal === "login"}
+					onOpenChange={(isOpen) => {
+						if (!isOpen) setActiveModal(null);
+					}}
+				>
+					<Login />
+				</Modal>,
+				document.body,
+			)}
+			{createPortal(
+				<Modal
+					title="Join demooo"
+					isOpen={activeModal === "signup"}
+					onOpenChange={(isOpen) => {
+						if (!isOpen) setActiveModal(null);
+					}}
+				>
+					<CreateAccount />
+				</Modal>,
+				document.body,
+			)}
 		</>
 	);
 };
