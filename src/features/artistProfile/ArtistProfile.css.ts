@@ -1,79 +1,80 @@
-import { tokens } from "@/styles/tokens";
-import { style } from "@vanilla-extract/css";
+import { tokens } from '@/styles/tokens'
+import { style } from '@vanilla-extract/css'
 
 export const artistViewWrapper = style({
-  display: "flex",
+  display: 'flex',
   flexDirection: 'column',
-  justifyContent: "space-around",
+  justifyContent: 'space-around',
   alignItems: 'center',
   gap: tokens.space.xl,
   paddingTop: tokens.space.xl,
   paddingBottom: tokens.space.xl,
-  maxWidth: "100%",
-  width: "100%",
-  margin: "0 auto",
+  maxWidth: '100%',
+  width: '100%',
+  margin: '0 auto',
   '@media': {
     'screen and (min-width: 480px)': {
       maxWidth: 768,
       gap: tokens.space.xxl,
-    }
+    },
   },
 })
 export const artistHeaderBackgroundGrain = style({
-  width: "100%",
-  height: "300px",
-  position: "absolute",
+  width: '100%',
+  height: '300px',
+  position: 'absolute',
   top: 0,
   zIndex: -1,
-  overflow: "hidden",
-  userSelect: "none",
-});
+  overflow: 'hidden',
+  userSelect: 'none',
+  transform: 'translate3d(0, 0, 0)',
+  WebkitBackdropFilter: 'blur(10px)',
+  backdropFilter: 'blur(10px)',
+})
 
 // Background blur effect for artist header
 export const artistHeaderBackground = style({
-  width: "100%",
-  height: "200px",
-  position: "absolute",
+  width: '100%',
+  height: '200px',
+  position: 'absolute',
   top: 0,
   zIndex: -2,
-  filter: "blur(50px) saturate(1) ",
-  userSelect: "none",
-});
+  userSelect: 'none',
+})
 
 export const artistHeaderContainer = style({
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "flex-start",
-  alignItems: "center",
-  width: "100%",
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  width: '100%',
   flexWrap: 'wrap',
   '@media': {
     'screen and (min-width: 480px)': {
-      flexDirection: "row",
+      flexDirection: 'row',
       gap: tokens.space.xl,
     },
   },
-});
+})
 export const artistInfoAndPhoto = style({
- display: 'flex',
- flexDirection: 'column-reverse',
- gap: tokens.space.xl,
- alignItems: 'center',
- textAlign: 'center',
- '@media': {
-   'screen and (min-width: 480px)': {
-    flexDirection: 'row-reverse',
-    textAlign: 'left',
-    flexGrow: 1,
-   },
- },
-
-});
+  display: 'flex',
+  flexDirection: 'column-reverse',
+  gap: tokens.space.xl,
+  alignItems: 'center',
+  textAlign: 'center',
+  '@media': {
+    'screen and (min-width: 480px)': {
+      flexDirection: 'row-reverse',
+      textAlign: 'left',
+      flexGrow: 1,
+    },
+  },
+})
 // Container for profile image and play button
 export const profileImageContainer = style({
-  position: "relative",
+  position: 'relative',
   flexShrink: 0,
-});
+})
 
 // Play button styles
 export const artistPlayButton = style({
@@ -81,28 +82,27 @@ export const artistPlayButton = style({
   height: 44,
   padding: 0,
   paddingLeft: 2,
-  border: "2px solid black",
+  border: '2px solid black',
   background: tokens.colors.tintColor,
   borderRadius: tokens.radii.full,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  cursor: "pointer",
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  cursor: 'pointer',
   color: tokens.colors.primary,
-  position: "absolute",
+  position: 'absolute',
   bottom: -14,
   right: -14,
-  transition: "background 250ms ease-in-out",
+  transition: 'background 250ms ease-in-out',
   ':hover': {
     background: tokens.colors.tintColorHover,
   },
-  
-});
+})
 
 export const artistInfoContainer = style({
-  display: "grid",
+  display: 'grid',
   width: '100%',
-  gridTemplateColumns: "1fr auto",
+  gridTemplateColumns: '1fr auto',
   gridTemplateAreas: `
     "title buttons"
     "content ."
@@ -110,7 +110,7 @@ export const artistInfoContainer = style({
   gap: '16px',
   '@media': {
     'screen and (max-width: 479px)': {
-      gridTemplateColumns: "1fr",
+      gridTemplateColumns: '1fr',
       gridTemplateAreas: `
         "title"
         "content"
@@ -118,7 +118,7 @@ export const artistInfoContainer = style({
       `,
     },
     'screen and (max-width: 640px)': {
-      gridTemplateColumns: "1fr",
+      gridTemplateColumns: '1fr',
       gridTemplateAreas: `
         "title"
         "buttons"
@@ -126,10 +126,10 @@ export const artistInfoContainer = style({
       `,
     },
   },
-});
+})
 
 export const artistTitle = style({
-  gridArea: "title",
+  gridArea: 'title',
   color: tokens.colors.primary,
   fontSize: 'clamp(16px, 5vw, 60px)',
   fontWeight: tokens.fontWeights.bold,
@@ -140,13 +140,13 @@ export const artistTitle = style({
       // fontSize: 'clamp(16px, 5vw, 42px)',
     },
   },
-});
+})
 
 export const artistDetails = style({
-  gridArea: "content",
-  display: "grid",
+  gridArea: 'content',
+  display: 'grid',
   gap: '8px',
-});
+})
 
 export const artistLocation = style({
   color: tokens.colors.secondary,
@@ -157,47 +157,45 @@ export const artistLocation = style({
       // marginBottom: 24,
     },
   },
-});
+})
 
 export const artistBio = style({
   color: tokens.colors.primary,
   fontSize: tokens.fontSizes.md,
   marginBottom: 16,
-});
+})
 
 export const artistButtons = style({
-  gridArea: "buttons",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "10px",
+  gridArea: 'buttons',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: '10px',
   '@media': {
     'screen and (min-width: 480px)': {
-      width: "fit-content",
-      justifyContent: "flex-end",
-      alignSelf: "flex-start",
+      width: 'fit-content',
+      justifyContent: 'flex-end',
+      alignSelf: 'flex-start',
     },
     'screen and (max-width: 479px)': {
-      width: "100%",
+      width: '100%',
     },
   },
-});
-
+})
 
 export const artistTrackViewInfo = style({
-  display: "flex",
-  flexDirection: "column",
+  display: 'flex',
+  flexDirection: 'column',
   gap: tokens.space.lg,
   fontSize: tokens.fontSizes.md,
   fontWeight: tokens.fontWeights.normal,
   color: tokens.colors.secondary,
   width: '100%',
   maxWidth: '400px',
-});
-
+})
 
 export const artistContentWrapper = style({
-  display: "flex",
-  justifyContent: "center",
-  width: "100%",
-});
+  display: 'flex',
+  justifyContent: 'center',
+  width: '100%',
+})
