@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { useQuery } from "@apollo/client";
 import { GET_TRACK_BY_SLUG } from "@/apollo/queries/trackQueries";
 import TrackView from "@/features/tracks/singleTrackView/SingleTrackView";
-import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
+import ProgressIndicator from "@/components/dotLoadIndicator/DotLoadIndicator";
 
 function TrackPage() {
 	const { artistName, titleSlug } = useParams();

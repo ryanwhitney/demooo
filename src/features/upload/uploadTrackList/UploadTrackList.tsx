@@ -1,7 +1,7 @@
 import type { ChangeEvent } from "react";
 import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UploadTrackList.css";
-import LoadIndicator from "@/components/loadIndicator/LoadIndicator";
+import LoadIndicator from "@/components/spinnerLoadIndicator/SpinnerLoadIndicator";
 
 export interface TrackFile {
 	title: string;

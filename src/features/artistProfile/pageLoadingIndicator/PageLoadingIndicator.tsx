@@ -1,4 +1,4 @@
-import LoadIndicator from "@/components/loadIndicator/LoadIndicator";
+import LoadIndicator from "@/components/spinnerLoadIndicator/SpinnerLoadIndicator";
 import { useEffect, useState } from "react";
 import { pageLoadingIndicatorContainer } from "./PageLoadingIndicator.css";
 

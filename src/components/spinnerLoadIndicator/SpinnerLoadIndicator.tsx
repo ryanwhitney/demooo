@@ -4,20 +4,18 @@ import {
 	sizeVar,
 	durationVar,
 	primaryColorVar,
-} from "./LoadIndicator.css";
+} from "./SpinnerLoadIndicator.css";
 import { assignInlineVars } from "@vanilla-extract/dynamic";
 
-type SpinnerProps = {
-	size?: number;
-	color?: string;
-	duration?: number;
-};
-
-const LoadIndicator = ({
+const SpinnerLoadIndicator = ({
 	size = 40,
 	color = tokens.colors.secondary,
 	duration = 1000,
-}: SpinnerProps) => {
+}: {
+	size?: number;
+	color?: string;
+	duration?: number;
+}) => {
 	return (
 		<div
 			className={spinner}
@@ -30,4 +28,4 @@ const LoadIndicator = ({
 	);
 };
 
-export default LoadIndicator;
+export default SpinnerLoadIndicator;

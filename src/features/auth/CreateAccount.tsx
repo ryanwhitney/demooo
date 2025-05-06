@@ -2,7 +2,7 @@ import { GET_USERNAME } from "@/apollo/queries/userQueries";
 import { LOGIN, CREATE_USER } from "@/apollo/mutations/userMutations";
 import Button from "@/components/button/Button";
 import ErrorBox from "@/components/errorBox/ErrorBox";
-import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
+import ProgressIndicator from "@/components/dotLoadIndicator/DotLoadIndicator";
 import TextInput from "@/components/textInput/TextInput";
 import { useAuth } from "@/hooks/useAuth";
 import type { SignupFormInput } from "@/types/auth";

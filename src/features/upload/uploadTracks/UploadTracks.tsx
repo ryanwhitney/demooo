@@ -6,7 +6,7 @@ import {
 import { UPLOAD_TRACK } from "@/apollo/mutations/trackMutations";
 import { useAuth } from "@/hooks/useAuth";
 
-import ProgressIndicator from "@/components/progressIndicator/ProgressIndicator";
+import ProgressIndicator from "@/components/dotLoadIndicator/DotLoadIndicator";
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState, type FormEvent } from "react";
 import * as style from "./UploadTracks.css";
