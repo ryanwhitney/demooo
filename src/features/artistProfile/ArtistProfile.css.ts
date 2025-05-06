@@ -21,18 +21,17 @@ export const artistViewWrapper = style({
 })
 export const artistHeaderBackgroundGrain = style({
   width: '100%',
-  height: '300px',
+  height: '360px',
   position: 'absolute',
   top: 0,
   zIndex: -1,
   overflow: 'hidden',
   userSelect: 'none',
   transform: 'translate3d(0, 0, 0)',
-  WebkitBackdropFilter: 'blur(10px)',
-  backdropFilter: 'blur(10px)',
+  WebkitBackdropFilter: 'blur(50px)',
+  backdropFilter: 'blur(50px)',
 })
 
-// Background blur effect for artist header
 export const artistHeaderBackground = style({
   width: '100%',
   height: '200px',
