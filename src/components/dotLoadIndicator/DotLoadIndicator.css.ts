@@ -11,7 +11,7 @@ const dotsAnimation = keyframes({
 });
 
 // Create the animated dots style
-export const animatedDots = style({
+export const dotLoadIndicatorDots = style({
   position: "relative",
   fontFamily: tokens.fonts.monospace,
   selectors: {
