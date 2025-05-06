@@ -9,6 +9,7 @@ import TextArea from "@/components/textArea/TextArea";
 import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UpdateProfile.css";
 import PageLoadingIndicator from "../artistProfile/pageLoadingIndicator/PageLoadingIndicator";
+import { toastQueue } from "@/layouts/MainLayout";
 
 interface FormData {
 	username?: string;
@@ -100,8 +101,16 @@ const UpdateProfile = () => {
 		if (formData.profilePicture) {
 			variables.profilePicture = formData.profilePicture;
 		}
-
 		updateProfile({ variables });
+		toastQueue.add(
+			{
+				title: "Toast complete!",
+				description: "Great success.",
+			},
+			{
+				timeout: 5000,
+			},
+		);
 	};
 
 	const validateBio = async (value: string) => {

@@ -9,7 +9,7 @@ const ModalForm = ({
 	onClose,
 	title,
 	description,
-	minWidth = "400px",
+	minWidth = "400px", // only applies at screen width > 480px
 }: {
 	children: React.ReactNode;
 	onClose: () => void;
@@ -31,9 +31,7 @@ const ModalForm = ({
 	};
 
 	useEffect(() => {
-		setTimeout(() => {
-			setIsVisible(true);
-		}, 50);
+		setIsVisible(true);
 	}, []);
 
 	return (
