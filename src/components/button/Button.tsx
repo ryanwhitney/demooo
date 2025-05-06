@@ -11,7 +11,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
  */
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 	({ children, variant, className, ...props }, ref) => {
-		// Combine recipe styles with any additional className
+		// Combine recipe styles with any classes passed in
 		const buttonClassName = [buttonStyles({ variant }), className]
 			.filter(Boolean)
 			.join(" ");
@@ -23,8 +23,5 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 		);
 	},
 );
-
-// Set display name for better debugging
-Button.displayName = "Button";
 
 export default Button;
