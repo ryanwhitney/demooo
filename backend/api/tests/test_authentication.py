@@ -7,7 +7,7 @@ class AuthenticationTests(BaseAPITestCase):
         query = """
         mutation {
             createUser(
-                username: "testuser",
+                username: "testuser123",
                 email: "test@example.com",
                 password: "testpass123"
             ) {
@@ -23,9 +23,91 @@ class AuthenticationTests(BaseAPITestCase):
 
         self.assertIsNotNone(response.data["createUser"]["user"])
         created_user = response.data["createUser"]["user"]
-        self.assertEqual(created_user["username"], "testuser")
+        self.assertEqual(created_user["username"], "testuser123")
         self.assertEqual(created_user["email"], "test@example.com")
         self.assertEqual(self.User.objects.count(), 1)
+
+    def test_create_user_with_invalid_username(self):
+        """Test user creation with invalid username characters"""
+        query = """
+        mutation {
+            createUser(
+                username: "test_user!",
+                email: "test@example.com",
+                password: "testpass123"
+            ) {
+                user {
+                    id
+                    username
+                    email
+                }
+            }
+        }
+        """
+        response = self.execute(query)
+        self.assertIsNotNone(response.errors)
+        error_msg = "Username must contain only lowercase letters and numbers"
+        self.assertIn(error_msg, str(response.errors))
+
+    def test_username_case_insensitivity(self):
+        """Test that usernames are case-insensitive"""
+        # Create a user with lowercase username
+        create_query = """
+        mutation {
+            createUser(
+                username: "testuser",
+                email: "test@example.com",
+                password: "testpass123"
+            ) {
+                user {
+                    username
+                }
+            }
+        }
+        """
+        self.execute(create_query)
+
+        # Try to login with uppercase username
+        login_query = """
+        mutation {
+            login(username: "TESTUSER", password: "testpass123") {
+                success
+                message
+                user {
+                    username
+                }
+            }
+        }
+        """
+        response = self.execute(login_query)
+        self.assertTrue(response.data["login"]["success"])
+        # Verify the returned username is lowercase
+        self.assertEqual(response.data["login"]["user"]["username"], "testuser")
+
+    def test_username_normalization(self):
+        """Test that usernames are normalized to lowercase when created"""
+        query = """
+        mutation {
+            createUser(
+                username: "TestUser123",
+                email: "test@example.com",
+                password: "testpass123"
+            ) {
+                user {
+                    username
+                }
+            }
+        }
+        """
+        response = self.execute(query)
+        self.assertIsNone(response.errors)
+        # Verify the username was normalized to lowercase
+        created_username = response.data["createUser"]["user"]["username"]
+        self.assertEqual(created_username, "testuser123")
+
+        # Verify in database that username is lowercase
+        user = self.User.objects.get(email="test@example.com")
+        self.assertEqual(user.username, "testuser123")
 
     def test_graphql_login_mutation(self):
         """Test the login mutation"""

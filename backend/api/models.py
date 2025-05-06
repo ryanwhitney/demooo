@@ -8,11 +8,32 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from api.validators import AlphanumericUsernameValidator
+
 
 class User(AbstractUser):
     """Extended user model with UUID primary key"""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Override the username validator
+    username_validator = AlphanumericUsernameValidator()
+
+    # Override username field to enforce lowercase alphanumeric
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        help_text="Required. 150 characters or fewer. Lowercase letters and numbers only.",
+        validators=[username_validator],
+        error_messages={
+            "unique": "A user with that username already exists.",
+        },
+    )
+
+    def save(self, *args, **kwargs):
+        # Always normalize username to lowercase before saving
+        self.username = self.username.lower()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.username

@@ -38,14 +38,14 @@ const CreateAccount = () => {
 
 	const [createAccount, { loading, error }] = useMutation(CREATE_USER, {
 		variables: {
-			username: formData.username,
+			username: formData.username.toLowerCase(),
 			email: formData.email,
 			password: formData.password,
 		},
 		onCompleted: () => {
 			authenticateUser({
 				variables: {
-					username: formData.username,
+					username: formData.username.toLowerCase(),
 					password: formData.password,
 				},
 			});
@@ -73,14 +73,21 @@ const CreateAccount = () => {
 		if (!value) {
 			return "Username is required";
 		}
-		if (value.length < 3) {
+
+		const normalizedValue = value.toLowerCase();
+
+		if (normalizedValue.length < 3) {
 			return "Username must be at least 3 characters";
 		}
 
-		// Only check w server if length is valid
+		if (!/^[a-z0-9]+$/.test(normalizedValue)) {
+			return "only contain lowercase letters and numbers";
+		}
+
+		// Only check w server if client validation passes
 		try {
 			const { data } = await checkUsername({
-				variables: { username: value },
+				variables: { username: normalizedValue },
 				fetchPolicy: "network-only",
 			});
 
@@ -115,13 +122,26 @@ const CreateAccount = () => {
 			timerRef.current = undefined;
 		}
 
-		// Set new timer if username is long enough
-		if (formData.username.length >= 3) {
+		// Set new timer if username is long enough and valid format
+		const normalizedUsername = formData.username.toLowerCase();
+		if (
+			normalizedUsername.length >= 3 &&
+			/^[a-z0-9]+$/.test(normalizedUsername)
+		) {
 			timerRef.current = setTimeout(() => {
-				checkUsername({ variables: { username: formData.username } });
+				checkUsername({ variables: { username: normalizedUsername } });
 			}, 500);
 		}
 	}, [formData.username, checkUsername]);
+
+	// Handle username input to enforce lowercase and alphanumeric
+	const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		// Allow only lowercase letters and numbers
+		const sanitizedValue = e.target.value
+			.toLowerCase()
+			.replace(/[^a-z0-9]/g, "");
+		setFormData({ ...formData, username: sanitizedValue });
+	};
 
 	return (
 		<>
@@ -139,14 +159,6 @@ const CreateAccount = () => {
 						return;
 					}
 
-					if (DEBUG) {
-						console.log("About to send create account mutation with:", {
-							username: formData.username,
-							email: formData.email,
-							password: "********",
-						});
-					}
-
 					createAccount();
 				}}
 			>
@@ -156,9 +168,7 @@ const CreateAccount = () => {
 					value={formData.username}
 					autoComplete="username"
 					debounceTime={750}
-					onChange={(e) =>
-						setFormData({ ...formData, username: e.target.value })
-					}
+					onChange={handleUsernameChange}
 					validate={validateUsername}
 					required
 				/>

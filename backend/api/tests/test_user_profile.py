@@ -45,7 +45,7 @@ class UserProfileTests(BaseAPITestCase):
         query = """
         mutation {
             createUser(
-                username: "profileuser",
+                username: "profileuser123",
                 email: "profile@example.com",
                 password: "password123"
             ) {
@@ -209,7 +209,7 @@ class UserProfileTests(BaseAPITestCase):
         # Create a user and authenticate
         User = get_user_model()
         user = User.objects.create_user(
-            username="picuser", email="pic@example.com", password="testpass123"
+            username="picuser123", email="pic@example.com", password="testpass123"
         )
 
         # Load test profile photo

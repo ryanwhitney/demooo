@@ -14,6 +14,13 @@ class CreateUser(graphene.Mutation):
         last_name = graphene.String()
 
     def mutate(self, info, username, password, email, first_name=None, last_name=None):
+        # Normalize username to lowercase
+        username = username.lower()
+
+        # Validate username format
+        if not username.isalnum():
+            raise Exception("Username must contain only lowercase letters and numbers")
+
         if User.objects.filter(username=username).exists():
             raise Exception(f"User with username '{username}' already exists")
 

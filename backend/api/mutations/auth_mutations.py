@@ -13,6 +13,9 @@ class LoginMutation(graphene.Mutation):
     user = graphene.Field(UserType)
 
     def mutate(self, info, username, password):
+        # Normalize username to lowercase
+        username = username.lower()
+
         # info.context is the WSGIRequest
         request = info.context
         user = authenticate(request, username=username, password=password)
