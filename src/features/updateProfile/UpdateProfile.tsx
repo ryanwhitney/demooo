@@ -47,11 +47,19 @@ const UpdateProfile = () => {
 		},
 	});
 
-	// Mutation to update user profile
 	const [updateProfile, { error: updateError, loading: updateLoading }] =
 		useMutation(UPDATE_USER_PROFILE, {
 			onCompleted: () => {
 				setImagePreview(null); // Clear image preview after successful update
+				toastQueue.add(
+					{
+						title: "Profile updated.",
+						description: "Your profile has been successfully updated.",
+					},
+					{
+						timeout: 5000,
+					},
+				);
 			},
 			refetchQueries: ["Whom"], // Refresh the profile data
 		});
@@ -102,15 +110,6 @@ const UpdateProfile = () => {
 			variables.profilePicture = formData.profilePicture;
 		}
 		updateProfile({ variables });
-		toastQueue.add(
-			{
-				title: "Toast complete!",
-				description: "Great success.",
-			},
-			{
-				timeout: 5000,
-			},
-		);
 	};
 
 	const validateBio = async (value: string) => {
