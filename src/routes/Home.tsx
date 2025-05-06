@@ -1,5 +1,5 @@
 import HomeBanner from "@/features/homeBanner/HomeBanner";
-import RecentTracks from "@/features/tracks/RecentTracks";
+import RecentTracks from "@/features/tracks/recentTracks/RecentTracks";
 
 const Home = () => {
 	return (

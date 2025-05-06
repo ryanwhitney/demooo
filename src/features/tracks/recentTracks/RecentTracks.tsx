@@ -2,9 +2,9 @@ import { GET_RECENT_TRACKS } from "@/apollo/queries/trackQueries";
 import { useQuery } from "@apollo/client";
 import TrackChip from "@/features/tracks/trackChip/TrackChip";
 import type { Track } from "@/types/track";
-import { tokens } from "@/styles/tokens";
-import PageLoadingIndicator from "../artistProfile/pageLoadingIndicator/PageLoadingIndicator";
+import PageLoadingIndicator from "../../artistProfile/pageLoadingIndicator/PageLoadingIndicator";
 import { GridList, GridListItem } from "react-aria-components";
+import * as style from "./RecentTracks.css";
 
 const RecentTracks = () => {
 	const { data, loading, error } = useQuery(GET_RECENT_TRACKS, {
@@ -13,23 +13,8 @@ const RecentTracks = () => {
 	});
 
 	return (
-		<section
-			style={{
-				display: "flex",
-				flexDirection: "column",
-				alignItems: "center",
-			}}
-		>
-			<h2
-				id="latest-tracks-heading"
-				style={{
-					padding: 20,
-					textTransform: "uppercase",
-					fontSize: 11,
-					letterSpacing: 8,
-					color: tokens.colors.secondary,
-				}}
-			>
+		<section className={style.recentTracksContainer}>
+			<h2 id="recent-tracks-heading" className={style.recentTracksHeader}>
 				Latest
 			</h2>
 			{loading && !data?.tracks ? (
@@ -38,23 +23,14 @@ const RecentTracks = () => {
 				<p>{error.message}</p>
 			) : (
 				<GridList
-					aria-label="latest-tracks-heading"
-					style={{
-						display: "flex",
-						gap: 16,
-						justifyContent: "center",
-						padding: 0,
-						flexWrap: "wrap",
-						listStyle: "none",
-						margin: 0,
-						maxWidth: 768,
-					}}
+					aria-labelledby="recent-tracks-heading"
+					className={style.recentTracksGridContainer}
 				>
 					{data?.tracks?.map((track: Track) => (
 						<GridListItem
 							key={`${track.id}`}
 							textValue={`${track.title} by ${track.artist.profile.name || track.artist.username}`}
-							style={{ borderRadius: tokens.radii.md }}
+							className={style.recentTracksGridListItem}
 						>
 							<TrackChip track={track} />
 						</GridListItem>
