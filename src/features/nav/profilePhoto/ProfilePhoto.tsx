@@ -1,6 +1,7 @@
 import { tokens } from "@/styles/tokens";
 import type { Profile } from "@/types/user";
-import { useState } from "react";
+import { getProfilePhotoUrl } from "@/utils/getProfilePhotoUrl";
+import { useMemo } from "react";
 
 const DEFAULT_SIZE = 34;
 
@@ -17,15 +18,6 @@ const ProfilePhoto = ({
 	borderRadius?: string;
 	ariaHidden?: boolean;
 }) => {
-	const [imageError, setImageError] = useState(false);
-
-	function getProfilePhotoUrl() {
-		if (profile.profilePictureOptimizedUrl?.startsWith("http")) {
-			return profile.profilePictureOptimizedUrl;
-		}
-		return `${import.meta.env.VITE_API_BASE_URL}${profile.profilePictureOptimizedUrl}`;
-	}
-
 	// Generate a consistent gradient color based on the user's ID or name
 	function generateGradient() {
 		const seed = profile.id || "default";
@@ -44,7 +36,9 @@ const ProfilePhoto = ({
 		return typeof value === "number" ? `${value}px` : value;
 	}
 
-	return imageError ? (
+	const profilePhotoUrl = useMemo(() => getProfilePhotoUrl(profile), [profile]);
+
+	return !profilePhotoUrl ? (
 		<div
 			style={{
 				width: toCssValue(width),
@@ -59,13 +53,12 @@ const ProfilePhoto = ({
 		<img
 			width={toCssValue(width)}
 			height={toCssValue(height)}
-			src={getProfilePhotoUrl()}
+			src={profilePhotoUrl}
 			alt="profile photo"
 			style={{
 				borderRadius: `${borderRadius}`,
 				flexShrink: 0,
 			}}
-			onError={() => setImageError(true)}
 			aria-hidden={ariaHidden}
 		/>
 	);

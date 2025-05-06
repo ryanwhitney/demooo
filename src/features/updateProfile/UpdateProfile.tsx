@@ -9,6 +9,7 @@ import TextArea from "@/components/textArea/TextArea";
 import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UpdateProfile.css";
 import { toastQueue } from "../toastSystem/ToastSystem";
+import { getProfilePhotoUrl } from "@/utils/getProfilePhotoUrl";
 
 interface FormData {
 	username?: string;
@@ -117,16 +118,6 @@ const UpdateProfile = () => {
 		return "";
 	};
 
-	function getProfilePhotoUrl() {
-		if (data?.me.profile?.profilePictureOptimizedUrl) {
-			if (data.me.profile.profilePictureOptimizedUrl?.startsWith("http")) {
-				return data.me.profile.profilePictureOptimizedUrl;
-			}
-			return `http://localhost:8000/${data.me.profile.profilePictureOptimizedUrl}`;
-		}
-		return null;
-	}
-
 	return (
 		<>
 			<div className={style.updateProfileContainer}>
@@ -170,11 +161,11 @@ const UpdateProfile = () => {
 								alt="preview of new profile photo"
 							/>
 						) : (
-							getProfilePhotoUrl() && (
+							getProfilePhotoUrl(data?.me.profile) && (
 								<img
 									width={140}
 									height={140}
-									src={getProfilePhotoUrl()}
+									src={getProfilePhotoUrl(data.me.profile)}
 									// biome-ignore lint/a11y/noRedundantAlt: it makes sense here
 									alt="Your profile photo"
 									className={style.profileImage}
