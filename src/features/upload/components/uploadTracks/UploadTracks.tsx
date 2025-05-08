@@ -55,6 +55,86 @@ const UploadTracks = () => {
 		]);
 	};
 
+	const getValidationErrorMessage = (
+		tracksToValidate: TrackFile[],
+		errorCount: number,
+	) => {
+		if (errorCount === 0) return "";
+		return tracksToValidate.length === 1
+			? "You already have a track with this title."
+			: errorCount === 1
+				? "One track needs a unique title."
+				: `${errorCount} tracks need unique titles.`;
+	};
+
+	const updateTrackValidationState = (
+		tracksToUpdate: TrackFile[],
+		tracksWithErrors: number[],
+		duplicateTitlesInBatch: Set<string>,
+	) => {
+		setTracks((prev) =>
+			prev.map((track, idx) => ({
+				...track,
+				hasValidationError: tracksWithErrors.includes(idx),
+				errorMessage: tracksWithErrors.includes(idx)
+					? duplicateTitlesInBatch.has(track.title)
+						? "Duplicate title"
+						: "Title already exists"
+					: undefined,
+			})),
+		);
+	};
+
+	const validateTracks = (tracksToValidate: TrackFile[]) => {
+		if (!trackTitlesData?.userTracks)
+			return {
+				isValid: true,
+				tracksWithErrors: [],
+				duplicateTitlesInBatch: new Set<string>(),
+			};
+
+		const userTrackTitles = trackTitlesData.userTracks.map(
+			(track: { title: string }) => track.title.toLowerCase().trim(),
+		);
+
+		const titlesInBatch = new Set<string>();
+		const tracksWithErrors: number[] = [];
+		const duplicateTitlesInBatch = new Set<string>();
+
+		// Check for duplicates within the batch
+		tracksToValidate.forEach((track, idx) => {
+			const normalizedTitle = track.title.toLowerCase().trim();
+			if (normalizedTitle && titlesInBatch.has(normalizedTitle)) {
+				duplicateTitlesInBatch.add(track.title);
+				tracksWithErrors.push(idx);
+			} else {
+				titlesInBatch.add(normalizedTitle);
+			}
+		});
+
+		// Check against existing tracks
+		tracksToValidate.forEach((track, idx) => {
+			const normalizedTitle = track.title.toLowerCase().trim();
+			if (
+				normalizedTitle &&
+				!tracksWithErrors.includes(idx) &&
+				userTrackTitles.includes(normalizedTitle)
+			) {
+				tracksWithErrors.push(idx);
+			}
+		});
+
+		setErrorMessage(
+			getValidationErrorMessage(tracksToValidate, tracksWithErrors.length),
+		);
+
+		return {
+			isValid: tracksWithErrors.length === 0,
+			tracksWithErrors,
+			duplicateTitlesInBatch,
+		};
+	};
+
 	const handleInputChange = (index: number, field: "title", value: string) => {
 		const updatedTracks = [...tracks];
 		updatedTracks[index] = {
@@ -62,6 +142,33 @@ const UploadTracks = () => {
 			[field]: value,
 		};
 		setTracks(updatedTracks);
+
+		// Validate titles in real-time
+		if (field === "title") {
+			const { tracksWithErrors, duplicateTitlesInBatch } =
+				validateTracks(updatedTracks);
+			updateTrackValidationState(
+				updatedTracks,
+				tracksWithErrors,
+				duplicateTitlesInBatch,
+			);
+		}
+	};
+
+	const validateTrackTitles = () => {
+		const { isValid, tracksWithErrors, duplicateTitlesInBatch } =
+			validateTracks(tracks);
+
+		if (!isValid) {
+			updateTrackValidationState(
+				tracks,
+				tracksWithErrors,
+				duplicateTitlesInBatch,
+			);
+			return false;
+		}
+
+		return true;
 	};
 
 	const uploadNextTrack = async (
@@ -128,70 +235,6 @@ const UploadTracks = () => {
 		}
 	};
 
-	const validateTrackTitles = () => {
-		if (!trackTitlesData?.userTracks) return false;
-
-		setErrorMessage("");
-
-		const userTrackTitles = trackTitlesData.userTracks.map(
-			(track: { title: string }) => track.title.toLowerCase().trim(),
-		);
-
-		const tracksWithErrors: number[] = [];
-		const duplicateTitlesInBatch = new Set<string>();
-		const titlesInBatch = new Set<string>();
-
-		// First, check for duplicates within the batch
-		tracks.forEach((track, index) => {
-			const normalizedTitle = track.title.toLowerCase().trim();
-
-			if (titlesInBatch.has(normalizedTitle)) {
-				duplicateTitlesInBatch.add(track.title);
-				tracksWithErrors.push(index);
-			} else {
-				titlesInBatch.add(normalizedTitle);
-			}
-		});
-
-		// Then check against existing tracks
-		tracks.forEach((track, index) => {
-			const normalizedTitle = track.title.toLowerCase().trim();
-
-			// If it's already marked as an error (duplicate in batch), skip
-			if (tracksWithErrors.includes(index)) return;
-
-			if (userTrackTitles.includes(normalizedTitle)) {
-				tracksWithErrors.push(index);
-			}
-		});
-
-		// Update tracks with validation errors
-		if (tracksWithErrors.length > 0) {
-			setTracks((prev) =>
-				prev.map((track, index) => ({
-					...track,
-					hasValidationError: tracksWithErrors.includes(index),
-					errorMessage: tracksWithErrors.includes(index)
-						? duplicateTitlesInBatch.has(track.title)
-							? "Duplicate title"
-							: "Title already exists"
-						: undefined,
-				})),
-			);
-
-			setErrorMessage(
-				tracks.length === 1
-					? "You already have a track with this title."
-					: tracksWithErrors.length === 1
-						? "One track needs a unique title."
-						: `${tracksWithErrors.length} tracks need unique titles.`,
-			);
-			return false;
-		}
-
-		return true;
-	};
-
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
@@ -230,7 +273,15 @@ const UploadTracks = () => {
 		const updatedTracks = [...tracks];
 		updatedTracks.splice(index, 1);
 		setTracks(updatedTracks);
-		validateTrackTitles(); // Re-validate titles after removal
+
+		// Validate using the updated tracks array
+		const { isValid, tracksWithErrors, duplicateTitlesInBatch } =
+			validateTracks(updatedTracks);
+		updateTrackValidationState(
+			updatedTracks,
+			tracksWithErrors,
+			duplicateTitlesInBatch,
+		);
 	};
 
 	const resetForm = () => {
