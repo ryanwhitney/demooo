@@ -294,12 +294,11 @@ const UploadTracks = () => {
 			</header>
 			<form onSubmit={handleSubmit}>
 				<div>
-					{(!isSubmitted || tracks.length === 0) && (
-						<AudioDropzone
-							onFilesAdded={handleFilesAdded}
-							isMinimized={isDropZoneMinimized}
-						/>
-					)}
+					<AudioDropzone
+						onFilesAdded={handleFilesAdded}
+						isMinimized={isDropZoneMinimized}
+						isDisabled={isSubmitted}
+					/>
 
 					<div className={style.fileList({ isShown: tracks.length > 0 })}>
 						{tracks.length > 0 && (
