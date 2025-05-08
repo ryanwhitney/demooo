@@ -16,6 +16,7 @@
 /* 3. Enable keyword animations */
 @media (prefers-reduced-motion: no-preference) {
 	html {
+		/* biome-ignore lint/correctness/noUnknownProperty: using experimental prop */
 		interpolate-size: allow-keywords;
 	}
 }
