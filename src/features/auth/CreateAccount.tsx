@@ -111,12 +111,11 @@ const CreateAccount = () => {
 		return "";
 	}
 
-	// Store the timer in a ref so we can clear it when needed
 	const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-	// Clean up the timer when username changes
+	// Clean up timer when username changes
 	useEffect(() => {
-		// Clear previous timer if it exists
+		// Clear prev timer if exists
 		if (timerRef.current) {
 			clearTimeout(timerRef.current);
 			timerRef.current = undefined;
@@ -134,9 +133,7 @@ const CreateAccount = () => {
 		}
 	}, [formData.username, checkUsername]);
 
-	// Handle username input to enforce lowercase and alphanumeric
 	const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		// Allow only lowercase letters and numbers
 		const sanitizedValue = e.target.value
 			.toLowerCase()
 			.replace(/[^a-z0-9]/g, "");
