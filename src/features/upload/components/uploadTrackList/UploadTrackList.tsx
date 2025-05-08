@@ -4,6 +4,7 @@ import * as style from "./UploadTrackList.css";
 import LoadIndicator from "@/components/spinnerLoadIndicator/SpinnerLoadIndicator";
 import type { TrackFile } from "../../types/uploadTypes";
 import { TrackStatus, UploadStatus } from "../../types/uploadTypes";
+import { VisuallyHidden } from "react-aria";
 
 const UploadTrackList = ({
 	tracks,
@@ -114,9 +115,9 @@ const UploadTrackList = ({
 			<h2 className={style.uploadTrackListHeader}>{getHeaderText()}</h2>
 
 			{/* Live region for track status updates */}
-			<div aria-live="polite" className="sr-only">
+			<VisuallyHidden aria-live="polite">
 				{getStatusAnnouncements()}
-			</div>
+			</VisuallyHidden>
 
 			{/* Live region for validation errors */}
 			{errorMessage && (
