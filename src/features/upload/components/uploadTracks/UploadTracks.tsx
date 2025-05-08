@@ -68,7 +68,6 @@ const UploadTracks = () => {
 	};
 
 	const updateTrackValidationState = (
-		tracksToUpdate: TrackFile[],
 		tracksWithErrors: number[],
 		duplicateTitlesInBatch: Set<string>,
 	) => {
@@ -147,11 +146,7 @@ const UploadTracks = () => {
 		if (field === "title") {
 			const { tracksWithErrors, duplicateTitlesInBatch } =
 				validateTracks(updatedTracks);
-			updateTrackValidationState(
-				updatedTracks,
-				tracksWithErrors,
-				duplicateTitlesInBatch,
-			);
+			updateTrackValidationState(tracksWithErrors, duplicateTitlesInBatch);
 		}
 	};
 
@@ -160,11 +155,7 @@ const UploadTracks = () => {
 			validateTracks(tracks);
 
 		if (!isValid) {
-			updateTrackValidationState(
-				tracks,
-				tracksWithErrors,
-				duplicateTitlesInBatch,
-			);
+			updateTrackValidationState(tracksWithErrors, duplicateTitlesInBatch);
 			return false;
 		}
 
@@ -275,13 +266,9 @@ const UploadTracks = () => {
 		setTracks(updatedTracks);
 
 		// Validate using the updated tracks array
-		const { isValid, tracksWithErrors, duplicateTitlesInBatch } =
+		const { tracksWithErrors, duplicateTitlesInBatch } =
 			validateTracks(updatedTracks);
-		updateTrackValidationState(
-			updatedTracks,
-			tracksWithErrors,
-			duplicateTitlesInBatch,
-		);
+		updateTrackValidationState(tracksWithErrors, duplicateTitlesInBatch);
 	};
 
 	const resetForm = () => {
