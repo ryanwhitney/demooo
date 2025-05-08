@@ -167,7 +167,12 @@ const AudioDropzone = ({
 				allowsMultiple={true}
 				onSelect={handleSelectFiles}
 			>
-				<Button className={style.addFilesButton({ isMinimized: isMinimized })}>
+				<Button
+					className={style.addFilesButton({
+						isMinimized: isMinimized,
+						isDisabled: isDisabled,
+					})}
+				>
 					{getButtonText()}
 				</Button>
 			</FileTrigger>

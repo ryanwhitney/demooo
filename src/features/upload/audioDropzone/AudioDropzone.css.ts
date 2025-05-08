@@ -1,13 +1,12 @@
 import { tokens } from '@/styles/tokens'
-import { style } from '@vanilla-extract/css'
 import { recipe } from '@vanilla-extract/recipes'
 
 export const dropZone = recipe({
   base: {
     width: '100%',
-    borderRadius: tokens.radii.xl,
+    borderRadius: 10,
     padding: 20,
-    border: '.5px dashed rgba(130,130,139,0.5)',
+    border: '1px solid rgba(130,130,139,0.2)',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -21,7 +20,7 @@ export const dropZone = recipe({
     opacity: 1,
     ':hover': {
       opacity: 1,
-      border: '.5px dashed rgba(130,130,139,0.8)',
+      borderColor: 'rgba(130,130,139,0.4)',
     },
   },
   variants: {
@@ -34,7 +33,7 @@ export const dropZone = recipe({
     },
     isDisabled: {
       true: {
-        opacity: 0.5,
+        opacity: 0.2,
         pointerEvents: 'none',
       },
     },
@@ -42,7 +41,7 @@ export const dropZone = recipe({
       true: {
         background: tokens.colors.quaternary,
         opacity: 1,
-        border: '.5px dashed rgba(130,130,139,1)',
+        borderColor: 'rgba(130,130,139,6)',
       },
     },
   },
@@ -75,6 +74,12 @@ export const addFilesButton = recipe({
       true: {
         textDecoration: 'none',
         fontWeight: 400,
+      },
+    },
+    isDisabled: {
+      true: {
+        opacity: 0.5,
+        pointerEvents: 'none',
       },
     },
   },
