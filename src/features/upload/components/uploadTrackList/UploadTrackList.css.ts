@@ -27,7 +27,12 @@ export const uploadTrackListDescription = style({
   marginBottom: 8,
 });
 
-
+export const uploadTrackListRowIndex = style({
+  fontSize: 11,
+  color: tokens.colors.tertiary,
+  marginLeft: -4,
+  marginRight: -4,
+});
 
 export const uploadTrackListRowWrapper = style({
   display: "flex",
@@ -77,7 +82,8 @@ globalStyle(`${uploadTrackListTrackContainer} ${inputContainer} input`, {
 });
 globalStyle(`${uploadTrackListTrackContainer} ${inputContainer} label`, {
   flex: 0.5,
-  fontWeight: 400,
+  fontWeight: 300,
+  color: tokens.colors.secondary,
 });
 
 
@@ -133,4 +139,11 @@ export const successStatus = style({
 export const errorStatus = style({
   color: tokens.colors.error,
   fontSize: "16px",
+});
+
+export const errorAsterisk = style({
+	color: tokens.colors.error,
+	fontWeight: "bold",
+  verticalAlign: "super",
+  marginLeft: 2,
 }); 

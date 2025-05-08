@@ -23,11 +23,32 @@ const UploadTrackList = ({
 			case TrackStatus.UPLOADING:
 				return <LoadIndicator size={16} />;
 			case TrackStatus.SUCCESS:
-				return <span className={style.successStatus}>✓</span>;
+				return (
+					<span className={style.successStatus} aria-hidden="true">
+						✓
+					</span>
+				);
 			case TrackStatus.ERROR:
-				return <span className={style.errorStatus}>✗</span>;
+				return (
+					<span className={style.errorStatus} aria-hidden="true">
+						✗
+					</span>
+				);
 			default:
 				return null;
+		}
+	};
+
+	const getTrackStatusText = (track: TrackFile, index: number) => {
+		switch (track.status) {
+			case TrackStatus.UPLOADING:
+				return `Track ${index + 1} uploading`;
+			case TrackStatus.SUCCESS:
+				return `Track ${index + 1} uploaded successfully`;
+			case TrackStatus.ERROR:
+				return `Track ${index + 1} failed to upload: ${track.errorMessage || "Unknown error"}`;
+			default:
+				return `Track ${index + 1} pending upload`;
 		}
 	};
 
@@ -55,35 +76,72 @@ const UploadTrackList = ({
 			}
 		}
 
-		// Ready to upload (default)
 		return `Ready to upload${tracks.length === 1 ? "." : ` ${tracks.length} tracks.`}`;
 	};
 
+	const getStatusAnnouncements = () => {
+		if (uploadStatus !== UploadStatus.IN_PROGRESS) return null;
+
+		// Find currently uploading track
+		const uploadingTrack = tracks.findIndex(
+			(track) => track.status === TrackStatus.UPLOADING,
+		);
+		if (uploadingTrack === -1) return null;
+
+		// Add previous track's status
+		const previousTrack =
+			uploadingTrack > 0 ? tracks[uploadingTrack - 1] : null;
+		const announcements = [];
+		if (previousTrack) {
+			if (previousTrack.status === TrackStatus.SUCCESS) {
+				announcements.push(`Track ${uploadingTrack} uploaded successfully`);
+			} else if (previousTrack.status === TrackStatus.ERROR) {
+				announcements.push(
+					`Track ${uploadingTrack} failed to upload: ${previousTrack.errorMessage || "Unknown error"}`,
+				);
+			}
+		}
+
+		// Add current track's status
+		announcements.push(`Track ${uploadingTrack + 1} uploading`);
+
+		// "track 1 uploaded successfully. track 2 uploading."
+		return announcements.join(". ");
+	};
+
 	return (
-		<div className={style.uploadTrackListContainer}>
-			<h2 className={style.uploadTrackListHeader}>{getHeaderText()} </h2>
-			{uploadStatus === UploadStatus.NOT_STARTED && (
-				<p
+		<section className={style.uploadTrackListContainer}>
+			<h2 className={style.uploadTrackListHeader}>{getHeaderText()}</h2>
+
+			{/* Live region for track status updates */}
+			<div aria-live="polite" className="sr-only">
+				{getStatusAnnouncements()}
+			</div>
+
+			{/* Live region for validation errors */}
+			{errorMessage && (
+				<div
+					role="alert"
+					aria-live="assertive"
 					className={`${style.uploadTrackListDescription} ${errorMessage ? style.errorText : ""}`}
 				>
-					{errorMessage || "You can edit titles beforehand."}
-				</p>
+					{errorMessage}
+				</div>
 			)}
-			<div className={style.uploadTrackListRowWrapper}>
+
+			<ol className={style.uploadTrackListRowWrapper}>
 				{tracks.map((track, index) => (
-					<div
+					<li
 						key={`track-${track.originalFileName}-${index}`}
 						className={`${style.uploadTrackListRow} ${track.hasValidationError ? style.fileItemError : ""}`}
 					>
-						<span
-							style={{
-								fontSize: 11,
-								opacity: 0.5,
-								marginLeft: -4,
-								marginRight: -4,
-							}}
-						>
-							{index + 1}.
+						<span className={style.uploadTrackListRowIndex}>
+							{index + 1}
+							{track.hasValidationError ? (
+								<span className={style.errorAsterisk}>*</span>
+							) : (
+								"."
+							)}
 						</span>
 
 						<div className={style.uploadTrackListTrackContainer}>
@@ -97,6 +155,7 @@ const UploadTrackList = ({
 								}
 								placeholder="Title"
 								className={style.uploadRowTitleInput}
+								aria-invalid={track.hasValidationError}
 								required
 							/>
 						</div>
@@ -106,19 +165,22 @@ const UploadTrackList = ({
 								type="button"
 								onClick={() => onTrackRemove(index)}
 								className={style.removeButton}
-								aria-label={`Remove ${track.title}`}
+								aria-label="Remove track"
 							>
 								×
 							</button>
 						) : (
-							<div className={style.statusIndicator}>
+							<div
+								className={style.statusIndicator}
+								aria-label={getTrackStatusText(track, index)}
+							>
 								{getTrackStatusComponent(track)}
 							</div>
 						)}
-					</div>
+					</li>
 				))}
-			</div>
-		</div>
+			</ol>
+		</section>
 	);
 };
 
