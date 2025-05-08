@@ -90,17 +90,6 @@ export const uploadRowTitleInput = style({
 });
 
 
-export const fileInfoContainer = style({
-  flex: "1",
-  fontSize: 12,
-   display: 'flex',
-  flexDirection: 'column',
-  '@media': {
-		'screen and (min-width: 480px)': {
-			flexDirection: 'row'
-		}
-	},
-});
 
 export const fileName = style({
   color: tokens.colors.secondary,

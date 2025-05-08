@@ -12,15 +12,14 @@ import { Link } from "react-router";
 import AudioDropzone from "@/features/upload/components/audioDropzone/AudioDropzone";
 import TrackList from "@/features/upload/components/uploadTrackList/UploadTrackList";
 import type { AudioFile } from "@/features/upload/components/audioDropzone/AudioDropzone";
-import type { TrackFile } from "@/features/upload/components/uploadTrackList/UploadTrackList";
+import type { TrackFile } from "@/features/upload/types/uploadTypes";
 import Button from "@/components/button/Button";
 import { buttonStyles } from "@/components/button/Button.css";
-import { UploadStatus } from "../../types/uploadTypes";
+import { UploadStatus, TrackStatus } from "../../types/uploadTypes";
 
 const UploadTracks = () => {
 	const [tracks, setTracks] = useState<TrackFile[]>([]);
 	const [errorMessage, setErrorMessage] = useState<string>("");
-	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isDropZoneMinimized, setIsDropZoneMinimized] = useState(false);
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus>(
 		UploadStatus.NOT_STARTED,
@@ -51,7 +50,7 @@ const UploadTracks = () => {
 			...prev,
 			...audioFiles.map((file) => ({
 				...file,
-				status: "pending" as const,
+				status: TrackStatus.PENDING,
 			})),
 		]);
 	};
@@ -71,7 +70,9 @@ const UploadTracks = () => {
 	) => {
 		if (trackIndex >= allTracks.length) {
 			// All uploads complete
-			const hasErrors = allTracks.some((track) => track.status === "error");
+			const hasErrors = allTracks.some(
+				(track) => track.status === TrackStatus.ERROR,
+			);
 			setUploadStatus(
 				hasErrors
 					? UploadStatus.COMPLETE_WITH_ERRORS
@@ -87,7 +88,7 @@ const UploadTracks = () => {
 			const updatedTracks = [...prevTracks];
 			updatedTracks[trackIndex] = {
 				...updatedTracks[trackIndex],
-				status: "uploading",
+				status: TrackStatus.UPLOADING,
 			};
 			return updatedTracks;
 		});
@@ -105,7 +106,7 @@ const UploadTracks = () => {
 				const updatedTracks = [...prevTracks];
 				updatedTracks[trackIndex] = {
 					...updatedTracks[trackIndex],
-					status: "success",
+					status: TrackStatus.SUCCESS,
 				};
 				return updatedTracks;
 			});
@@ -117,7 +118,7 @@ const UploadTracks = () => {
 				const updatedTracks = [...prevTracks];
 				updatedTracks[trackIndex] = {
 					...updatedTracks[trackIndex],
-					status: "error",
+					status: TrackStatus.ERROR,
 					errorMessage: errorMsg,
 				};
 				return updatedTracks;
@@ -132,8 +133,8 @@ const UploadTracks = () => {
 
 		setErrorMessage("");
 
-		const userTrackTitles = trackTitlesData.userTracks.map((track: UserTrack) =>
-			track.title.toLowerCase().trim(),
+		const userTrackTitles = trackTitlesData.userTracks.map(
+			(track: { title: string }) => track.title.toLowerCase().trim(),
 		);
 
 		const tracksWithErrors: number[] = [];
@@ -173,7 +174,7 @@ const UploadTracks = () => {
 					errorMessage: tracksWithErrors.includes(index)
 						? duplicateTitlesInBatch.has(track.title)
 							? "Duplicate title"
-							: ""
+							: "Title already exists"
 						: undefined,
 				})),
 			);
@@ -218,7 +219,6 @@ const UploadTracks = () => {
 			})),
 		);
 
-		setIsSubmitted(true);
 		setUploadStatus(UploadStatus.IN_PROGRESS);
 
 		// Start uploading tracks sequentially
@@ -236,7 +236,6 @@ const UploadTracks = () => {
 	const resetForm = () => {
 		setTracks([]);
 		setErrorMessage("");
-		setIsSubmitted(false);
 		setUploadStatus(UploadStatus.NOT_STARTED);
 	};
 
@@ -251,8 +250,13 @@ const UploadTracks = () => {
 
 	// Determine if we need a general error message
 	useEffect(() => {
-		if (isSubmitted && uploadStatus !== UploadStatus.IN_PROGRESS) {
-			const errorTracks = tracks.filter((track) => track.status === "error");
+		if (
+			uploadStatus !== UploadStatus.NOT_STARTED &&
+			uploadStatus !== UploadStatus.IN_PROGRESS
+		) {
+			const errorTracks = tracks.filter(
+				(track) => track.status === TrackStatus.ERROR,
+			);
 			if (errorTracks.length > 0) {
 				if (errorTracks.length === tracks.length) {
 					setErrorMessage(
@@ -265,7 +269,7 @@ const UploadTracks = () => {
 				}
 			}
 		}
-	}, [isSubmitted, uploadStatus, tracks]);
+	}, [uploadStatus, tracks]);
 
 	return (
 		<section className={style.uploadPageContainer}>
@@ -286,7 +290,7 @@ const UploadTracks = () => {
 					<AudioDropzone
 						onFilesAdded={handleFilesAdded}
 						isMinimized={isDropZoneMinimized}
-						isDisabled={isSubmitted}
+						isDisabled={uploadStatus === UploadStatus.IN_PROGRESS}
 					/>
 
 					<div className={style.fileList({ isShown: tracks.length > 0 })}>
@@ -296,11 +300,11 @@ const UploadTracks = () => {
 									tracks={tracks}
 									onTrackChange={handleInputChange}
 									onTrackRemove={removeTrack}
-									isSubmitted={isSubmitted}
+									uploadStatus={uploadStatus}
 									errorMessage={errorMessage}
 								/>
 
-								{(isSubmitted && uploadStatus === UploadStatus.ALL_COMPLETE) ||
+								{uploadStatus === UploadStatus.ALL_COMPLETE ||
 								uploadStatus === UploadStatus.COMPLETE_WITH_ERRORS ? (
 									<div>
 										<Link

@@ -66,7 +66,7 @@ const UploadTrackList = ({
 				<p
 					className={`${style.uploadTrackListDescription} ${errorMessage ? style.errorText : ""}`}
 				>
-					{!errorMessage ? "You can edit titles beforehand." : errorMessage}
+					{errorMessage || "You can edit titles beforehand."}
 				</p>
 			)}
 			<div className={style.uploadTrackListRowWrapper}>
@@ -99,11 +99,6 @@ const UploadTrackList = ({
 								className={style.uploadRowTitleInput}
 								required
 							/>
-							<div className={style.fileInfoContainer}>
-								{track.errorMessage && (
-									<span className={style.errorText}>{track.errorMessage}</span>
-								)}
-							</div>
 						</div>
 
 						{uploadStatus === UploadStatus.NOT_STARTED ? (
