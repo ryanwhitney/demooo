@@ -34,10 +34,11 @@ export const uploadTrackListRowIndex = style({
   marginRight: -4,
 });
 
-export const uploadTrackListRowWrapper = style({
+export const uploadTrackListWrapper = style({
   display: "flex",
   flexDirection: "column",
   gap: 8,
+  padding: 0,
 });
 
 export const uploadTrackListRow = style({

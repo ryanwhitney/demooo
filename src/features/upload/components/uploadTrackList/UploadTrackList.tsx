@@ -130,7 +130,7 @@ const UploadTrackList = ({
 				</div>
 			)}
 
-			<ol className={style.uploadTrackListRowWrapper}>
+			<ol className={style.uploadTrackListWrapper}>
 				{tracks.map((track, index) => (
 					<li
 						key={`track-${track.originalFileName}-${index}`}
