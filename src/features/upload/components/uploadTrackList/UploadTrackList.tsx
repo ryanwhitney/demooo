@@ -2,45 +2,29 @@ import type { ChangeEvent } from "react";
 import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UploadTrackList.css";
 import LoadIndicator from "@/components/spinnerLoadIndicator/SpinnerLoadIndicator";
-
-export enum TrackStatus {
-	Pending = "pending",
-	Uploading = "uploading",
-	Success = "success",
-	Error = "error",
-}
-
-export interface TrackFile {
-	title: string;
-	file: File;
-	originalFileName: string;
-	status: TrackStatus;
-	errorMessage?: string;
-	hasValidationError?: boolean;
-}
-
-interface UploadTrackListProps {
-	tracks: TrackFile[];
-	onTrackChange: (index: number, field: "title", value: string) => void;
-	onTrackRemove: (index: number) => void;
-	isSubmitted: boolean;
-	errorMessage?: string;
-}
+import type { TrackFile } from "../../types/uploadTypes";
+import { TrackStatus, UploadStatus } from "../../types/uploadTypes";
 
 const UploadTrackList = ({
 	tracks,
 	onTrackChange,
 	onTrackRemove,
-	isSubmitted,
+	uploadStatus,
 	errorMessage,
-}: UploadTrackListProps) => {
+}: {
+	tracks: TrackFile[];
+	onTrackChange: (index: number, field: "title", value: string) => void;
+	onTrackRemove: (index: number) => void;
+	uploadStatus: UploadStatus;
+	errorMessage?: string;
+}) => {
 	const getTrackStatusComponent = (track: TrackFile) => {
 		switch (track.status) {
-			case TrackStatus.Uploading:
+			case TrackStatus.UPLOADING:
 				return <LoadIndicator size={16} />;
-			case TrackStatus.Success:
+			case TrackStatus.SUCCESS:
 				return <span className={style.successStatus}>✓</span>;
-			case TrackStatus.Error:
+			case TrackStatus.ERROR:
 				return <span className={style.errorStatus}>✗</span>;
 			default:
 				return null;
@@ -48,20 +32,20 @@ const UploadTrackList = ({
 	};
 
 	const haveSuccessfulUploads = tracks.some(
-		(track) => track.status === TrackStatus.Success,
+		(track) => track.status === TrackStatus.SUCCESS,
 	);
 
 	const getHeaderText = () => {
-		if (isSubmitted) {
-			if (tracks.some((track) => track.status === TrackStatus.Uploading)) {
+		if (uploadStatus !== UploadStatus.NOT_STARTED) {
+			if (uploadStatus === UploadStatus.IN_PROGRESS) {
 				return "Uploading...";
 			}
 			if (haveSuccessfulUploads) {
 				const successCount = tracks.filter(
-					(t) => t.status === TrackStatus.Success,
+					(t) => t.status === TrackStatus.SUCCESS,
 				).length;
 				const errorCount = tracks.filter(
-					(t) => t.status === TrackStatus.Error,
+					(t) => t.status === TrackStatus.ERROR,
 				).length;
 
 				if (errorCount === 0) {
@@ -78,7 +62,7 @@ const UploadTrackList = ({
 	return (
 		<div className={style.uploadTrackListContainer}>
 			<h2 className={style.uploadTrackListHeader}>{getHeaderText()} </h2>
-			{!isSubmitted && (
+			{uploadStatus === UploadStatus.NOT_STARTED && (
 				<p
 					className={`${style.uploadTrackListDescription} ${errorMessage ? style.errorText : ""}`}
 				>
@@ -107,7 +91,7 @@ const UploadTrackList = ({
 								type="text"
 								label={track.originalFileName}
 								value={track.title}
-								disabled={isSubmitted}
+								disabled={uploadStatus !== UploadStatus.NOT_STARTED}
 								onChange={(e: ChangeEvent<HTMLInputElement>) =>
 									onTrackChange(index, "title", e.target.value)
 								}
@@ -122,7 +106,7 @@ const UploadTrackList = ({
 							</div>
 						</div>
 
-						{!isSubmitted ? (
+						{uploadStatus === UploadStatus.NOT_STARTED ? (
 							<button
 								type="button"
 								onClick={() => onTrackRemove(index)}

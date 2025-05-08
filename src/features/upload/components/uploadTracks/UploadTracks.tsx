@@ -5,29 +5,17 @@ import {
 } from "@/apollo/queries/trackQueries";
 import { UPLOAD_TRACK } from "@/apollo/mutations/trackMutations";
 import { useAuth } from "@/hooks/useAuth";
-import ProgressIndicator from "@/components/dotLoadIndicator/DotLoadIndicator";
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState, type FormEvent } from "react";
 import * as style from "./UploadTracks.css";
 import { Link } from "react-router";
-import AudioDropzone from "@/features/upload/audioDropzone/AudioDropzone";
-import TrackList from "@/features/upload/uploadTrackList/UploadTrackList";
-import type { AudioFile } from "@/features/upload/audioDropzone/AudioDropzone";
-import type { TrackFile } from "@/features/upload/uploadTrackList/UploadTrackList";
+import AudioDropzone from "@/features/upload/components/audioDropzone/AudioDropzone";
+import TrackList from "@/features/upload/components/uploadTrackList/UploadTrackList";
+import type { AudioFile } from "@/features/upload/components/audioDropzone/AudioDropzone";
+import type { TrackFile } from "@/features/upload/components/uploadTrackList/UploadTrackList";
 import Button from "@/components/button/Button";
 import { buttonStyles } from "@/components/button/Button.css";
-
-interface UserTrack {
-	id: string;
-	title: string;
-}
-
-enum UploadStatus {
-	NOT_STARTED = "notStarted",
-	IN_PROGRESS = "inProgress",
-	ALL_COMPLETE = "allComplete",
-	COMPLETE_WITH_ERRORS = "completeWithErrors",
-}
+import { UploadStatus } from "../../types/uploadTypes";
 
 const UploadTracks = () => {
 	const [tracks, setTracks] = useState<TrackFile[]>([]);
