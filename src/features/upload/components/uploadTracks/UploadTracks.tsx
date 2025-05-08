@@ -341,9 +341,8 @@ const UploadTracks = () => {
 					<AudioDropzone
 						onFilesAdded={handleFilesAdded}
 						isMinimized={isDropZoneMinimized}
-						isDisabled={uploadStatus === UploadStatus.IN_PROGRESS}
+						isDisabled={uploadStatus !== UploadStatus.NOT_STARTED}
 					/>
-
 					<div className={style.fileList({ isShown: tracks.length > 0 })}>
 						{tracks.length > 0 && (
 							<>
