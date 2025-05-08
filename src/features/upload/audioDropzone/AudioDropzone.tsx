@@ -14,15 +14,15 @@ export interface AudioFile {
 	originalFileName: string;
 }
 
-interface AudioDropzoneProps {
-	onFilesAdded: (files: AudioFile[]) => void;
-	isMinimized?: boolean;
-}
-
 const AudioDropzone = ({
 	onFilesAdded,
 	isMinimized = false,
-}: AudioDropzoneProps) => {
+	isDisabled = false,
+}: {
+	onFilesAdded: (files: AudioFile[]) => void;
+	isMinimized?: boolean;
+	isDisabled?: boolean;
+}) => {
 	const [dropped, setDropped] = useState(false);
 
 	const processAudioFiles = (files: File[]) => {
@@ -152,12 +152,15 @@ const AudioDropzone = ({
 	return (
 		<DropZone
 			className={({ isDropTarget }) =>
-				`${isMinimized ? style.dropZoneMinimized : ""} ${
-					isDropTarget ? style.dropZoneDropping : ""
-				} ${style.dropZone}`
+				style.dropZone({
+					isMinimized: isMinimized,
+					isDropTarget: isDropTarget,
+					isDisabled: isDisabled,
+				})
 			}
 			getDropOperation={() => "copy"}
 			onDrop={handleDrop}
+			isDisabled={isDisabled}
 		>
 			<FileTrigger
 				acceptedFileTypes={["audio/*"]}
