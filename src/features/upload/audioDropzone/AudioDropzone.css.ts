@@ -34,6 +34,8 @@ export const dropZone = recipe({
     isDisabled: {
       true: {
         opacity: 0.2,
+        height: 0,
+        marginBottom: 0,
         pointerEvents: 'none',
       },
     },

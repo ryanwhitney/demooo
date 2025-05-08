@@ -3,11 +3,18 @@ import TextInput from "@/components/textInput/TextInput";
 import * as style from "./UploadTrackList.css";
 import LoadIndicator from "@/components/spinnerLoadIndicator/SpinnerLoadIndicator";
 
+export enum TrackStatus {
+	Pending = "pending",
+	Uploading = "uploading",
+	Success = "success",
+	Error = "error",
+}
+
 export interface TrackFile {
 	title: string;
 	file: File;
 	originalFileName: string;
-	status: "pending" | "uploading" | "success" | "error";
+	status: TrackStatus;
 	errorMessage?: string;
 	hasValidationError?: boolean;
 }
@@ -29,11 +36,11 @@ const UploadTrackList = ({
 }: UploadTrackListProps) => {
 	const getTrackStatusComponent = (track: TrackFile) => {
 		switch (track.status) {
-			case "uploading":
+			case TrackStatus.Uploading:
 				return <LoadIndicator size={16} />;
-			case "success":
+			case TrackStatus.Success:
 				return <span className={style.successStatus}>✓</span>;
-			case "error":
+			case TrackStatus.Error:
 				return <span className={style.errorStatus}>✗</span>;
 			default:
 				return null;
@@ -41,24 +48,30 @@ const UploadTrackList = ({
 	};
 
 	const haveSuccessfulUploads = tracks.some(
-		(track) => track.status === "success",
+		(track) => track.status === TrackStatus.Success,
 	);
 
 	const getHeaderText = () => {
 		if (isSubmitted) {
-			if (haveSuccessfulUploads) {
-				// Case 1: Upload completed with some successful uploads
-				const successCount = tracks.filter(
-					(t) => t.status === "success",
-				).length;
-				return `Successfully uploaded ${successCount} of ${tracks.length} tracks`;
-			}
-			if (tracks.some((track) => track.status === "uploading")) {
+			if (tracks.some((track) => track.status === TrackStatus.Uploading)) {
 				return "Uploading...";
+			}
+			if (haveSuccessfulUploads) {
+				const successCount = tracks.filter(
+					(t) => t.status === TrackStatus.Success,
+				).length;
+				const errorCount = tracks.filter(
+					(t) => t.status === TrackStatus.Error,
+				).length;
+
+				if (errorCount === 0) {
+					return `${successCount} track${successCount === 1 ? "" : "s"} added to your profile.`;
+				}
+				return `${successCount} track${successCount === 1 ? "" : "s"} successfully uploaded, ${errorCount} failed.`;
 			}
 		}
 
-		// Case 3: Ready to upload (default)
+		// Ready to upload (default)
 		return `Ready to upload${tracks.length === 1 ? "." : ` ${tracks.length} tracks.`}`;
 	};
 

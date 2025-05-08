@@ -130,7 +130,7 @@ const AudioDropzone = ({
 
 	const getButtonText = () => {
 		if (dropped) {
-			return !isMinimized ? "" : "Add more";
+			return !isMinimized || isDisabled ? "" : "Add more";
 		}
 		return "Browse to add";
 	};

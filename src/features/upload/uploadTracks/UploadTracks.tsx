@@ -5,14 +5,11 @@ import {
 } from "@/apollo/queries/trackQueries";
 import { UPLOAD_TRACK } from "@/apollo/mutations/trackMutations";
 import { useAuth } from "@/hooks/useAuth";
-
 import ProgressIndicator from "@/components/dotLoadIndicator/DotLoadIndicator";
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState, type FormEvent } from "react";
 import * as style from "./UploadTracks.css";
 import { Link } from "react-router";
-
-// Import the new components
 import AudioDropzone from "@/features/upload/audioDropzone/AudioDropzone";
 import TrackList from "@/features/upload/uploadTrackList/UploadTrackList";
 import type { AudioFile } from "@/features/upload/audioDropzone/AudioDropzone";
@@ -20,10 +17,16 @@ import type { TrackFile } from "@/features/upload/uploadTrackList/UploadTrackLis
 import Button from "@/components/button/Button";
 import { buttonStyles } from "@/components/button/Button.css";
 
-// Interface for track data from the API
 interface UserTrack {
 	id: string;
 	title: string;
+}
+
+enum UploadStatus {
+	NOT_STARTED = "notStarted",
+	IN_PROGRESS = "inProgress",
+	ALL_COMPLETE = "allComplete",
+	COMPLETE_WITH_ERRORS = "completeWithErrors",
 }
 
 const UploadTracks = () => {
@@ -31,9 +34,10 @@ const UploadTracks = () => {
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isDropZoneMinimized, setIsDropZoneMinimized] = useState(false);
-	const [isUploading, setIsUploading] = useState(false);
+	const [uploadStatus, setUploadStatus] = useState<UploadStatus>(
+		UploadStatus.NOT_STARTED,
+	);
 
-	// Use auth context to get current user instead of making an additional query
 	const { user } = useAuth();
 	const username = user?.username || "";
 
@@ -79,7 +83,12 @@ const UploadTracks = () => {
 	) => {
 		if (trackIndex >= allTracks.length) {
 			// All uploads complete
-			setIsUploading(false);
+			const hasErrors = allTracks.some((track) => track.status === "error");
+			setUploadStatus(
+				hasErrors
+					? UploadStatus.COMPLETE_WITH_ERRORS
+					: UploadStatus.ALL_COMPLETE,
+			);
 			return;
 		}
 
@@ -112,9 +121,6 @@ const UploadTracks = () => {
 				};
 				return updatedTracks;
 			});
-
-			// Proceed to next track
-			uploadNextTrack(trackIndex + 1, allTracks);
 		} catch (err) {
 			const errorMsg = err instanceof Error ? err.message : String(err);
 
@@ -128,8 +134,7 @@ const UploadTracks = () => {
 				};
 				return updatedTracks;
 			});
-
-			// Continue with next track despite error
+		} finally {
 			uploadNextTrack(trackIndex + 1, allTracks);
 		}
 	};
@@ -226,7 +231,7 @@ const UploadTracks = () => {
 		);
 
 		setIsSubmitted(true);
-		setIsUploading(true);
+		setUploadStatus(UploadStatus.IN_PROGRESS);
 
 		// Start uploading tracks sequentially
 		const tracksToUpload = [...tracks];
@@ -244,7 +249,7 @@ const UploadTracks = () => {
 		setTracks([]);
 		setErrorMessage("");
 		setIsSubmitted(false);
-		setIsUploading(false);
+		setUploadStatus(UploadStatus.NOT_STARTED);
 	};
 
 	useEffect(() => {
@@ -258,7 +263,7 @@ const UploadTracks = () => {
 
 	// Determine if we need a general error message
 	useEffect(() => {
-		if (isSubmitted && !isUploading) {
+		if (isSubmitted && uploadStatus !== UploadStatus.IN_PROGRESS) {
 			const errorTracks = tracks.filter((track) => track.status === "error");
 			if (errorTracks.length > 0) {
 				if (errorTracks.length === tracks.length) {
@@ -272,11 +277,7 @@ const UploadTracks = () => {
 				}
 			}
 		}
-	}, [isSubmitted, isUploading, tracks]);
-
-	const haveSuccessfulUploads = tracks.some(
-		(track) => track.status === "success",
-	);
+	}, [isSubmitted, uploadStatus, tracks]);
 
 	return (
 		<section className={style.uploadPageContainer}>
@@ -311,7 +312,8 @@ const UploadTracks = () => {
 									errorMessage={errorMessage}
 								/>
 
-								{isSubmitted && haveSuccessfulUploads ? (
+								{(isSubmitted && uploadStatus === UploadStatus.ALL_COMPLETE) ||
+								uploadStatus === UploadStatus.COMPLETE_WITH_ERRORS ? (
 									<div>
 										<Link
 											to={`/${username}`}
@@ -336,16 +338,13 @@ const UploadTracks = () => {
 										className={style.uploadCtaButton}
 										variant="primary"
 										disabled={
-											isUploading ||
+											uploadStatus === UploadStatus.IN_PROGRESS ||
 											tracks.length === 0 ||
 											tracks.some((track) => !track.title.trim())
 										}
 									>
-										{isUploading ? (
-											<ProgressIndicator />
-										) : (
-											`Upload ${tracks.length} ${tracks.length === 1 ? "Track" : "Tracks"}`
-										)}
+										Uploaaad
+										{tracks.length > 1 ? ` ${tracks.length} Tracks` : ""}
 									</Button>
 								)}
 							</>
