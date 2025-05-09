@@ -112,7 +112,7 @@ const TimelineSlider = ({
 			const element = containerRef.current;
 			if (!element || duration <= 0) return;
 
-			// Prevent default browser actions
+			// Always prevent default and stop propagation
 			e.preventDefault();
 			e.stopPropagation();
 
@@ -131,13 +131,13 @@ const TimelineSlider = ({
 
 			// Use scrub pattern for clicks to ensure consistent behavior
 			if (onScrubbing) {
-				// Pause playback through scrub start
+				// Start scrubbing
 				onScrubbing(true, newTime);
 
-				// Then immediately end scrub to set the position
+				// End scrub after a small delay to ensure player has time to process
 				setTimeout(() => {
 					onScrubbing(false, newTime);
-				}, 50);
+				}, 100); // Increase delay for better stability
 			} else {
 				// Direct time change if no scrubbing support
 				onTimeChange(newTime);

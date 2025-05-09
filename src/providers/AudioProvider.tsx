@@ -462,54 +462,50 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		const audio = audioRef.current;
 		if (!audio) return;
 
-		console.log(`Seeking to ${time} seconds`);
+		console.log(`Seeking to ${time.toFixed(2)} seconds`);
 
-		// Mark that we're in a seeking operation
+		// Always mark seeking state
 		isSeekingRef.current = true;
 
-		// Set a timestamp to ignore time updates until this seeking operation completes
-		// This prevents auto-updates from resetting the position during seeking
-		ignoreTimeUpdatesUntilRef.current = Date.now() + 500; // Ignore updates for 500ms
+		// Ignore time updates for a short period to prevent flickering
+		ignoreTimeUpdatesUntilRef.current = Date.now() + 500;
 
 		// Remember if we were playing
 		const wasPlaying = !audio.paused;
 		pendingPlaybackRef.current = wasPlaying;
 
-		// Always pause during seeking
-		if (wasPlaying) {
-			audio.pause();
-		}
-
-		// Get a valid time value
-		const boundedTime = Math.max(0, Math.min(time, audio.duration || 0));
-
-		// Update the UI state immediately
-		setCurrentTime(boundedTime);
-
-		// Update the audio element
 		try {
+			// Pause during seeking to avoid conflicts
+			if (wasPlaying) {
+				audio.pause();
+			}
+
+			// Update state immediately for responsive UI
+			const boundedTime = Math.max(0, Math.min(time, audio.duration || 0));
+			setCurrentTime(boundedTime);
+
+			// Update audio element
 			audio.currentTime = boundedTime;
-		} catch (error) {
-			console.error("Error seeking:", error);
-		}
 
-		// Resume playback after a short delay if it was playing before
-		setTimeout(() => {
-			isSeekingRef.current = false;
+			// Resume after a short delay
+			setTimeout(() => {
+				isSeekingRef.current = false;
 
-			if (pendingPlaybackRef.current) {
-				const playPromise = audio.play();
-				if (playPromise) {
-					playPromise.catch((error) => {
+				// Resume if it was playing before
+				if (pendingPlaybackRef.current) {
+					audio.play().catch((error) => {
 						console.error("Error resuming after seek:", error);
 						setIsPlaying(false);
 					});
 				}
-			}
 
-			// Clear pending playback flag
-			pendingPlaybackRef.current = false;
-		}, 100); // Increase delay slightly for better stability
+				// Reset playback flag
+				pendingPlaybackRef.current = false;
+			}, 100);
+		} catch (error) {
+			console.error("Error during seek:", error);
+			isSeekingRef.current = false;
+		}
 	}, []);
 
 	// Start scrubbing operation

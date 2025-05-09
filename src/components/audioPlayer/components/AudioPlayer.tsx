@@ -138,36 +138,25 @@ const AudioPlayer = ({
 		(time: number) => {
 			console.log(`AudioPlayer handleSeek: time=${time.toFixed(2)}`);
 
-			// Immediately update local state for visual feedback (before any async operations)
+			// Immediately update local state for visual feedback
 			setLocalCurrentTime(time);
 
+			// Only handle actual audio operations for the current track
 			if (isCurrentTrack) {
-				// If not our source, take control first
+				// Always ensure we have control before seeking
 				if (!isActiveSource) {
-					console.log(
-						`Taking control for seeking from ${audio.activeSource} to ${source}`,
-					);
-
-					// First update local time, then transfer control, then seek
 					audio.transferControlTo(source);
-
-					// Wait for control transfer to complete before seeking
-					setTimeout(() => {
-						// Direct seek after control transfer
-						audio.seekTo(time);
-					}, 20); // Increase timeout to ensure control transfer completes
-				} else {
-					// Already our source, just seek directly
-					audio.seekTo(time);
 				}
+				// Perform the seek after a very brief delay to ensure control transfer
+				setTimeout(() => {
+					audio.seekTo(time);
+				}, 10);
 			} else {
 				// New track - start playing and seek
 				audio.playTrack(track, source);
-
-				// Wait for track to load before seeking
 				setTimeout(() => {
 					audio.seekTo(time);
-				}, 80);
+				}, 50);
 			}
 		},
 		[audio, isCurrentTrack, isActiveSource, track, source],
@@ -183,66 +172,31 @@ const AudioPlayer = ({
 			// Always update local time for responsive UI feedback
 			setLocalCurrentTime(previewTime);
 
-			if (scrubbing) {
-				// Starting to scrub - IMPORTANT: This should pause actual playback without changing UI state
-				if (isCurrentTrack) {
-					// Make sure we have control of the audio
-					if (!isActiveSource) {
-						console.log(
-							`Taking control for scrubbing from ${audio.activeSource} to ${source}`,
-						);
+			// Only interact with actual audio for current track
+			if (!isCurrentTrack) return;
 
-						// First transfer control - this could take time
-						audio.transferControlTo(source);
+			// Take control if needed - always do this before scrubbing operations
+			if (!isActiveSource) {
+				audio.transferControlTo(source);
 
-						// Then once we have control, start scrubbing
-						setTimeout(() => {
-							// Scrubbing will pause playback internally without changing UI state
-							audio.startScrubbing(previewTime);
-						}, 20);
-					} else {
-						// Already our source, just start scrubbing
-						// startScrubbing will pause playback internally without changing UI state
+				// Short delay to ensure transfer completes
+				setTimeout(() => {
+					if (scrubbing) {
 						audio.startScrubbing(previewTime);
-					}
-				}
-				// For non-current track, we just update the local time which was done above
-			} else {
-				// Ending scrub - this should resume playback if needed, based on previous state
-				if (isCurrentTrack) {
-					// Make sure we have control
-					if (!isActiveSource) {
-						console.log(
-							`Regaining control at end of scrub from ${audio.activeSource} to ${source}`,
-						);
-
-						// Transfer control first
-						audio.transferControlTo(source);
-
-						// Then end scrubbing, which will handle resuming playback if needed
-						setTimeout(() => {
-							audio.endScrubbing(previewTime);
-						}, 30);
 					} else {
-						// Already have control, just end scrubbing
-						// endScrubbing will resume playback if it was playing before
 						audio.endScrubbing(previewTime);
 					}
+				}, 20);
+			} else {
+				// Already have control, just update scrubbing state
+				if (scrubbing) {
+					audio.startScrubbing(previewTime);
 				} else {
-					// New track - loading a different track than currently playing
-					console.log(`New track after scrub: ${track.title}`);
-
-					// Load the track through the provider
-					audio.playTrack(track, source);
-
-					// Then seek to the position after track is loaded
-					setTimeout(() => {
-						audio.seekTo(previewTime);
-					}, 80);
+					audio.endScrubbing(previewTime);
 				}
 			}
 		},
-		[audio, isCurrentTrack, isActiveSource, track, source],
+		[audio, isCurrentTrack, isActiveSource, source],
 	);
 
 	// Calculate progress for waveform

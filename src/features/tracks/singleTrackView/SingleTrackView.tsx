@@ -18,88 +18,92 @@ const AudioPlayer = lazy(
 
 /**
  * SingleTrackView - Component for displaying a single track with an embedded audio player
+ * Follows the same pattern as GlobalPlayer which works well
  */
 function SingleTrackView({ track }: { track: Track }) {
 	const audio = useAudio();
 	const audioContainerRef = useRef<HTMLDivElement>(null);
-	const [isScrubbingLocally, setIsScrubbingLocally] = useState(false);
 
 	// Determine if this track is already playing
 	const isCurrentTrack = audio.currentTrack?.id === track.id;
-	const isOurSource = audio.activeSource === "track-view";
 
-	// Take control when viewing this track
+	// Is this player in passive mode? (shouldn't handle direct user interactions)
+	// We're passive when we're not the active source or during scrubbing
+	const isPassive = audio.activeSource !== "track-view" || audio.isScrubbing;
+
+	// Take control when first displaying this track, but only if needed
 	useEffect(() => {
-		// Only take control if this is the current track but not our source yet,
-		// and not during scrubbing operations
-		if (isCurrentTrack && !isOurSource && !audio.isScrubbing) {
-			console.log("[SingleTrackView] Initial mount - taking control");
+		// Only transfer control if:
+		// 1. This is the current track
+		// 2. We're not already the active source
+		// 3. Not during scrubbing operations
+		if (
+			isCurrentTrack &&
+			audio.activeSource !== "track-view" &&
+			!audio.isScrubbing
+		) {
+			console.log("[SingleTrackView] Taking control on mount");
 			audio.transferControlTo("track-view");
 		}
-	}, [isCurrentTrack, isOurSource, audio]);
+	}, [isCurrentTrack, audio]);
 
 	// Clean up on unmount - transfer to global player
 	useEffect(() => {
 		return () => {
-			if (isCurrentTrack && isOurSource) {
-				console.log("[SingleTrackView] Unmounting - transferring to global");
+			if (isCurrentTrack && audio.activeSource === "track-view") {
+				console.log("[SingleTrackView] Unmounting, transferring to global");
 				audio.transferControlTo("global");
 			}
 		};
-	}, [audio, isCurrentTrack, isOurSource]);
+	}, [audio, isCurrentTrack]);
 
-	// Monitor scrubbing state
-	useEffect(() => {
-		if (isCurrentTrack) {
-			// When scrubbing starts, we update our local scrubbing state
-			setIsScrubbingLocally(audio.isScrubbing);
-
-			// When scrubbing ends, wait a bit before clearing local state
-			if (!audio.isScrubbing && isScrubbingLocally) {
-				const timer = setTimeout(() => {
-					setIsScrubbingLocally(false);
-				}, 300);
-				return () => clearTimeout(timer);
-			}
-		}
-	}, [audio.isScrubbing, isCurrentTrack, isScrubbingLocally]);
-
-	// Play/pause handler - simplified and improved
+	// Handle play/pause - following GlobalPlayer's pattern exactly
 	const handlePlayPause = useCallback(
 		(playing: boolean) => {
-			// Always force control to this view during play/pause actions
-			if (!isOurSource) {
-				console.log("[SingleTrackView] Taking control during play/pause");
+			// Don't handle events if we're passive
+			if (isPassive) {
+				console.log("[SingleTrackView] Passive mode, ignoring play/pause");
+				return;
+			}
+
+			// Don't respond during scrubbing
+			if (audio.isScrubbing) {
+				console.log("[SingleTrackView] Ignoring during scrubbing");
+				return;
+			}
+
+			console.log("[SingleTrackView] PlayPause:", playing);
+
+			// Take control first if needed
+			if (audio.activeSource !== "track-view") {
 				audio.transferControlTo("track-view");
 			}
 
-			// Wait a moment for control transfer
+			// Wait a moment to ensure control transfer is complete
 			setTimeout(() => {
 				if (playing) {
-					// Resume or start playing
+					// PLAY
 					if (isCurrentTrack) {
-						console.log("[SingleTrackView] Resuming track");
 						audio.resumeTrack();
 					} else {
-						console.log("[SingleTrackView] Playing new track");
 						audio.playTrack(track, "track-view");
 					}
 				} else {
-					// Pause if it's our track
-					if (isCurrentTrack) {
-						console.log("[SingleTrackView] Pausing track");
-						audio.pauseTrack();
-					}
+					// PAUSE
+					audio.pauseTrack();
 				}
-			}, 50);
+			}, 10);
 		},
-		[audio, isCurrentTrack, isOurSource, track],
+		[audio, isCurrentTrack, isPassive, track],
 	);
 
 	// Handle track ended
 	const handleTrackEnded = useCallback(() => {
-		console.log("[SingleTrackView] Track ended");
-	}, []);
+		// Only handle if we're the active source
+		if (audio.activeSource === "track-view") {
+			console.log("[SingleTrackView] Track ended");
+		}
+	}, [audio]);
 
 	return (
 		<main>
@@ -123,10 +127,12 @@ function SingleTrackView({ track }: { track: Track }) {
 					<div
 						className={style.audioPlayerContainer}
 						ref={audioContainerRef}
-						data-is-active={isCurrentTrack && isOurSource ? "true" : "false"}
-						data-is-scrubbing={
-							isScrubbingLocally || audio.isScrubbing ? "true" : "false"
+						data-is-active={
+							audio.activeSource === "track-view" ? "true" : "false"
 						}
+						data-is-playing={audio.isPlaying ? "true" : "false"}
+						data-is-passive={isPassive ? "true" : "false"}
+						data-is-scrubbing={audio.isScrubbing ? "true" : "false"}
 					>
 						<Suspense fallback={<div>Loading...</div>}>
 							<AudioPlayer
