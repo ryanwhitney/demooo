@@ -212,67 +212,6 @@ const AudioPlayer = ({
 		}
 	}, [audio, isCurrentTrack, isActiveSource, track, source]);
 
-	// Special seek function for keyboard navigation that's less disruptive to playback
-	const handleKeyboardSeek = useCallback(
-		(time: number) => {
-			console.log(`AudioPlayer keyboard seek: time=${time.toFixed(2)}`);
-
-			// Immediately update local state for visual feedback
-			setLocalCurrentTime(time);
-
-			// Only handle actual audio operations for the current track
-			if (isCurrentTrack) {
-				// Always ensure we have control before seeking
-				if (!isActiveSource) {
-					audio.transferControlTo(source);
-				}
-
-				// Get direct access to the audio element for smoother keyboard navigation
-				const audioElement = audio.getAudioElement();
-				if (audioElement) {
-					try {
-						// Store the current playing state
-						const wasPlaying = !audioElement.paused;
-
-						// Update the time directly without pause/play cycling
-						audioElement.currentTime = time;
-
-						// Update announcement for screen readers
-						setAnnouncement(`Moved to ${formatTime(time)}`);
-
-						// Force sync the provider state without triggering pause/play
-						// This ensures the UI updates properly
-						setTimeout(() => {
-							// Check if we need to update the provider's time state manually
-							if (Math.abs(audio.currentTime - time) > 0.5) {
-								// Update state in provider manually if direct update didn't propagate
-								audio.seekTo(time);
-							}
-						}, 50);
-					} catch (error) {
-						console.error("Error during keyboard seek:", error);
-						// Fall back to regular seeking if direct manipulation fails
-						audio.seekTo(time);
-					}
-				} else {
-					// Fall back to regular seeking if we can't access element directly
-					audio.seekTo(time);
-					setAnnouncement(`Seeked to ${formatTime(time)}`);
-				}
-			} else {
-				// New track - start playing and seek
-				audio.playTrack(track, source);
-
-				// Wait for track to load before seeking
-				setTimeout(() => {
-					audio.seekTo(time);
-					setAnnouncement(`Playing ${track.title} from ${formatTime(time)}`);
-				}, 50);
-			}
-		},
-		[audio, isCurrentTrack, isActiveSource, track, source],
-	);
-
 	// Handle seeking through timeline
 	const handleSeek = useCallback(
 		(time: number) => {
@@ -349,26 +288,119 @@ const AudioPlayer = ({
 					e.preventDefault();
 					togglePlayPause();
 					break;
-				case "ArrowRight": // Right arrow - seek forward
+				case "ArrowRight": {
+					// Right arrow - seek forward
 					e.preventDefault();
-					handleKeyboardSeek(Math.min(currentTime + 5, duration));
+					// Direct manipulation without triggering play/pause
+					const audioEl = audio.getAudioElement();
+					if (audioEl && isCurrentTrack) {
+						// Store current time and calculate new time
+						const newTime = Math.min(currentTime + 5, duration);
+						// Update UI immediately
+						setLocalCurrentTime(newTime);
+						// Update audio element directly
+						if (audioEl instanceof HTMLAudioElement) {
+							audioEl.currentTime = newTime;
+						}
+						// Announce for screen readers
+						setAnnouncement(`Moved to ${formatTime(newTime)}`);
+					}
 					break;
-				case "ArrowLeft": // Left arrow - seek backward
+				}
+				case "ArrowLeft": {
+					// Left arrow - seek backward
 					e.preventDefault();
-					handleKeyboardSeek(Math.max(currentTime - 5, 0));
+					// Direct manipulation without triggering play/pause
+					const audioElBack = audio.getAudioElement();
+					if (audioElBack && isCurrentTrack) {
+						// Store current time and calculate new time
+						const newTime = Math.max(currentTime - 5, 0);
+						// Update UI immediately
+						setLocalCurrentTime(newTime);
+						// Update audio element directly
+						if (audioElBack instanceof HTMLAudioElement) {
+							audioElBack.currentTime = newTime;
+						}
+						// Announce for screen readers
+						setAnnouncement(`Moved to ${formatTime(newTime)}`);
+					}
 					break;
-				case "Home": // Home - seek to start
+				}
+				case "Home": {
+					// Home - seek to start
 					e.preventDefault();
-					handleKeyboardSeek(0);
+					// Direct manipulation to start
+					const audioElHome = audio.getAudioElement();
+					if (audioElHome && isCurrentTrack) {
+						// Update UI immediately
+						setLocalCurrentTime(0);
+						// Update audio element directly
+						if (audioElHome instanceof HTMLAudioElement) {
+							audioElHome.currentTime = 0;
+						}
+						// Announce for screen readers
+						setAnnouncement("Moved to the beginning");
+					}
 					break;
-				case "End": // End - seek to end
+				}
+				case "End": {
+					// End - seek to end
 					e.preventDefault();
-					handleKeyboardSeek(duration);
+					// Direct manipulation to end
+					const audioElEnd = audio.getAudioElement();
+					if (audioElEnd && isCurrentTrack) {
+						// Update UI immediately
+						setLocalCurrentTime(duration);
+						// Update audio element directly
+						if (audioElEnd instanceof HTMLAudioElement) {
+							audioElEnd.currentTime = duration;
+						}
+						// Announce for screen readers
+						setAnnouncement("Moved to the end");
+					}
 					break;
+				}
 			}
 		},
-		[togglePlayPause, handleKeyboardSeek, currentTime, duration],
+		[togglePlayPause, currentTime, duration, audio, isCurrentTrack],
 	);
+
+	// Listen for custom timeline keyboard navigation events
+	useEffect(() => {
+		// Skip if we're not the current track
+		if (!playerRef.current || !isCurrentTrack) return;
+
+		const handleTimelineKeyNav = (e: Event) => {
+			const customEvent = e as CustomEvent;
+			const { action, time } = customEvent.detail;
+
+			// Get direct access to the audio element
+			const audioElement = audio.getAudioElement();
+			if (audioElement instanceof HTMLAudioElement) {
+				console.log(`Timeline key nav: ${action}, time: ${time}`);
+
+				// Update local UI state
+				setLocalCurrentTime(time);
+
+				// Directly update audio element time without triggering play/pause
+				audioElement.currentTime = time;
+
+				// Prevent event from propagating further
+				e.stopPropagation();
+			}
+		};
+
+		// Add listener
+		playerRef.current.addEventListener("timelineKeyNav", handleTimelineKeyNav);
+
+		return () => {
+			// Clean up listener
+			playerRef.current?.removeEventListener(
+				"timelineKeyNav",
+				handleTimelineKeyNav,
+			);
+		};
+	}, [isCurrentTrack, audio]);
 
 	return (
 		<section

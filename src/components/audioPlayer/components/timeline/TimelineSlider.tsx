@@ -269,8 +269,17 @@ const TimelineSlider = ({
 					e.stopPropagation(); // Stop propagation to parent handlers
 					// Simple right arrow - move 5 seconds forward
 					const newTimeRight = Math.min(currentTime + smallStep, duration);
-					onTimeChange(newTimeRight);
+
+					// Update UI but don't call onTimeChange directly
+					setTemporaryUserProgress(newTimeRight / duration);
 					setAnnouncement(`Moved to ${formatTime(newTimeRight)}`);
+
+					// Create and dispatch custom event with the forward action
+					const forwardEvent = new CustomEvent("timelineKeyNav", {
+						bubbles: true,
+						detail: { action: "forward", time: newTimeRight },
+					});
+					e.currentTarget.dispatchEvent(forwardEvent);
 					break;
 				}
 				case "ArrowLeft": {
@@ -278,24 +287,49 @@ const TimelineSlider = ({
 					e.stopPropagation(); // Stop propagation to parent handlers
 					// Simple left arrow - move 5 seconds backward
 					const newTimeLeft = Math.max(0, currentTime - smallStep);
-					onTimeChange(newTimeLeft);
+
+					// Update UI but don't call onTimeChange directly
+					setTemporaryUserProgress(newTimeLeft / duration);
 					setAnnouncement(`Moved to ${formatTime(newTimeLeft)}`);
+
+					// Create and dispatch custom event with the backward action
+					const backwardEvent = new CustomEvent("timelineKeyNav", {
+						bubbles: true,
+						detail: { action: "backward", time: newTimeLeft },
+					});
+					e.currentTarget.dispatchEvent(backwardEvent);
 					break;
 				}
-				case "Home":
+				case "Home": {
 					e.preventDefault();
 					e.stopPropagation(); // Stop propagation to parent handlers
 					// Seek to start
-					onTimeChange(0);
+					setTemporaryUserProgress(0);
 					setAnnouncement("Moved to beginning");
+
+					// Create and dispatch custom event with the home action
+					const homeEvent = new CustomEvent("timelineKeyNav", {
+						bubbles: true,
+						detail: { action: "home", time: 0 },
+					});
+					e.currentTarget.dispatchEvent(homeEvent);
 					break;
-				case "End":
+				}
+				case "End": {
 					e.preventDefault();
 					e.stopPropagation(); // Stop propagation to parent handlers
 					// Seek to end
-					onTimeChange(duration);
+					setTemporaryUserProgress(1);
 					setAnnouncement("Moved to end");
+
+					// Create and dispatch custom event with the end action
+					const endEvent = new CustomEvent("timelineKeyNav", {
+						bubbles: true,
+						detail: { action: "end", time: duration },
+					});
+					e.currentTarget.dispatchEvent(endEvent);
 					break;
+				}
 				case "Tab":
 					// Let default Tab behavior work for moving focus
 					return;
@@ -309,7 +343,7 @@ const TimelineSlider = ({
 					return;
 			}
 		},
-		[currentTime, duration, onTimeChange],
+		[currentTime, duration, setTemporaryUserProgress],
 	);
 
 	// Get the current display progress

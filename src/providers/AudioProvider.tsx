@@ -184,6 +184,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 			setIsPlaying(false);
 		};
 
+		// Custom handler for manual time updates (keyboard navigation)
+		const handleManualTimeUpdate = (e: Event) => {
+			const customEvent = e as CustomEvent;
+			const time = customEvent.detail?.time;
+
+			if (typeof time === "number") {
+				console.log(`Manual time update: ${time.toFixed(2)}`);
+				// Just update the time state without triggering seeking behavior
+				setCurrentTime(time);
+			}
+		};
+
 		// Add event listeners
 		audio.addEventListener("timeupdate", handleTimeUpdate);
 		audio.addEventListener("durationchange", handleDurationChange);
@@ -191,6 +203,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		audio.addEventListener("pause", handlePause);
 		audio.addEventListener("ended", handleEnded);
 		audio.addEventListener("error", handleError);
+		// Add custom event listener
+		audio.addEventListener("manualTimeUpdate", handleManualTimeUpdate);
 
 		// Cleanup on unmount or refresh
 		return () => {
@@ -200,6 +214,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 			audio.removeEventListener("pause", handlePause);
 			audio.removeEventListener("ended", handleEnded);
 			audio.removeEventListener("error", handleError);
+			// Remove custom event listener
+			audio.removeEventListener("manualTimeUpdate", handleManualTimeUpdate);
 		};
 	}, [isScrubbing]);
 
