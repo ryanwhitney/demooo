@@ -43,6 +43,9 @@ interface AudioContextType {
 	startScrubbing: (previewTime: number) => void;
 	endScrubbing: (finalTime: number) => void;
 
+	// Get audio element for direct manipulation
+	getAudioElement: () => HTMLAudioElement | null;
+
 	// Source management
 	setActiveSource: (source: PlayerSource) => void;
 	isSourceActive: (source: PlayerSource) => boolean;
@@ -75,6 +78,9 @@ const AudioContext = createContext<AudioContextType>({
 	seekTo: () => {},
 	startScrubbing: () => {},
 	endScrubbing: () => {},
+
+	// Default audio element accessor
+	getAudioElement: () => null,
 
 	// Default source management stubs
 	setActiveSource: () => {},
@@ -588,6 +594,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		}
 	}, []);
 
+	// Provide direct access to the audio element for direct manipulation
+	const getAudioElement = useCallback(() => {
+		return audioRef.current;
+	}, []);
+
 	// Expose the context
 	return (
 		<AudioContext.Provider
@@ -616,6 +627,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 				seekTo,
 				startScrubbing,
 				endScrubbing,
+
+				// Audio element access
+				getAudioElement,
 
 				// Source management
 				setActiveSource: changeActiveSource,

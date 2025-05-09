@@ -7,28 +7,36 @@ export type PlayButtonProps = HTMLAttributes<HTMLButtonElement> & {
 	isPlaying: boolean;
 	onToggle?: (isToggled: boolean) => void;
 	className?: string;
-	iconOneTitle?: string;
-	iconTwoTitle?: string;
+	trackTitle?: string;
 };
 
 const PlayButton = ({
 	isPlaying,
 	onToggle,
 	className,
-	iconOneTitle = "play",
-	iconTwoTitle = "pause",
+	trackTitle,
 	...rest
-}: PlayButtonProps) => (
-	<IconToggleButton
-		iconOne={<PlaySVG />}
-		iconTwo={<PauseSVG />}
-		className={className}
-		defaultToggled={isPlaying}
-		onToggle={onToggle}
-		iconOneTitle={iconOneTitle}
-		iconTwoTitle={iconTwoTitle}
-		{...rest}
-	/>
-);
+}: PlayButtonProps) => {
+	// Simple label based on state
+	const playLabel = trackTitle ? `Play ${trackTitle}` : "Play";
+	const pauseLabel = trackTitle ? `Pause ${trackTitle}` : "Pause";
+
+	// Current accessible label based on state
+	const ariaLabel = isPlaying ? pauseLabel : playLabel;
+
+	return (
+		<IconToggleButton
+			iconOne={<PlaySVG />}
+			iconTwo={<PauseSVG />}
+			className={className}
+			defaultToggled={isPlaying}
+			onToggle={onToggle}
+			iconOneTitle={playLabel}
+			iconTwoTitle={pauseLabel}
+			ariaLabel={ariaLabel}
+			{...rest}
+		/>
+	);
+};
 
 export default PlayButton;

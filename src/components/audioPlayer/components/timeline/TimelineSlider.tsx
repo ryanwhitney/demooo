@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as style from "../AudioPlayer.css";
 import { formatTime } from "@/utils/timeAndDate";
+import { VisuallyHidden } from "react-aria";
 
 interface TimelineSliderProps {
 	children: React.ReactNode;
@@ -11,6 +12,7 @@ interface TimelineSliderProps {
 	onTimeChange: (newTime: number) => void;
 	onScrubbing?: (isScrubbing: boolean, previewTime: number) => void;
 	className?: string;
+	"aria-label"?: string;
 }
 
 /**
@@ -25,12 +27,16 @@ const TimelineSlider = ({
 	onTimeChange,
 	onScrubbing,
 	className = "",
+	"aria-label": ariaLabel = "Audio timeline",
 }: TimelineSliderProps) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [userProgress, setUserProgress] = useState<number | null>(null);
 	const interactionTimeoutRef = useRef<number | null>(null);
 	const isUserInteractingRef = useRef(false);
 	const lastUserInteractionTimeRef = useRef(0);
+	const [sliderFocused, setSliderFocused] = useState(false);
+	// For screen reader announcements
+	const [announcement, setAnnouncement] = useState("");
 
 	// Set the minimum time between system updates after user interaction (ms)
 	const USER_INTERACTION_COOLDOWN = 350;
@@ -242,52 +248,105 @@ const TimelineSlider = ({
 		[duration, onScrubbing, onTimeChange, setTemporaryUserProgress],
 	);
 
+	// Handle keyboard navigation with improved focus management
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent) => {
+			// Standard time step (seconds)
+			const smallStep = 5; // 5 seconds jump - simple and predictable
+
+			switch (e.key) {
+				case "ArrowRight": {
+					e.preventDefault();
+					e.stopPropagation(); // Stop propagation to parent handlers
+					// Simple right arrow - move 5 seconds forward
+					const newTimeRight = Math.min(currentTime + smallStep, duration);
+					onTimeChange(newTimeRight);
+					setAnnouncement(`Moved to ${formatTime(newTimeRight)}`);
+					break;
+				}
+				case "ArrowLeft": {
+					e.preventDefault();
+					e.stopPropagation(); // Stop propagation to parent handlers
+					// Simple left arrow - move 5 seconds backward
+					const newTimeLeft = Math.max(0, currentTime - smallStep);
+					onTimeChange(newTimeLeft);
+					setAnnouncement(`Moved to ${formatTime(newTimeLeft)}`);
+					break;
+				}
+				case "Home":
+					e.preventDefault();
+					e.stopPropagation(); // Stop propagation to parent handlers
+					// Seek to start
+					onTimeChange(0);
+					setAnnouncement("Moved to beginning");
+					break;
+				case "End":
+					e.preventDefault();
+					e.stopPropagation(); // Stop propagation to parent handlers
+					// Seek to end
+					onTimeChange(duration);
+					setAnnouncement("Moved to end");
+					break;
+				case "Tab":
+					// Let default Tab behavior work for moving focus
+					return;
+				case " ":
+				case "Enter":
+					// Let space/enter bubble up to parent for play/pause
+					// Don't call preventDefault here to allow parent handlers to work
+					return;
+				default:
+					// Don't handle other keys
+					return;
+			}
+		},
+		[currentTime, duration, onTimeChange],
+	);
+
 	// Get the current display progress
 	const displayProgress = getDisplayProgress();
 	const displayTime = displayProgress * duration;
 
+	// Create class names array
+	const classNames = [style.timelineSlider];
+
+	if (sliderFocused) {
+		classNames.push(style.timelineFocused);
+	}
+
+	if (className) {
+		classNames.push(className);
+	}
+
 	return (
 		<div
 			ref={containerRef}
-			className={`${style.timelineSlider} ${className}`}
+			className={classNames.join(" ")}
 			onClick={handleClick}
 			onPointerDown={handlePointerDown}
-			onKeyDown={(e) => {
-				if (e.key === " " || e.key === "Enter") {
-					e.preventDefault();
-					// Space or Enter to seek to clicked position
-					if (containerRef.current && duration > 0) {
-						const width = containerRef.current.clientWidth;
-						const seekPos = width / 2; // Seek to middle when using keyboard
-						const progress = seekPos / width;
-						const newTime = progress * duration;
-						onTimeChange(newTime);
-					}
-				} else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-					e.preventDefault();
-					// Arrow keys for 5 second jumps
-					const jumpAmount = e.key === "ArrowLeft" ? -5 : 5;
-					const newTime = Math.max(
-						0,
-						Math.min(duration, currentTime + jumpAmount),
-					);
-					onTimeChange(newTime);
-				}
-			}}
+			onKeyDown={handleKeyDown}
+			onFocus={() => setSliderFocused(true)}
+			onBlur={() => setSliderFocused(false)}
 			role="slider"
 			aria-valuemin={0}
 			aria-valuemax={duration || 100}
 			aria-valuenow={displayTime}
 			aria-valuetext={formatTime(displayTime)}
-			aria-label="Audio timeline"
+			aria-label={ariaLabel}
+			aria-orientation="horizontal"
 			tabIndex={0}
-			style={{ position: "relative" }}
 		>
+			{/* Screen reader announcements */}
+			{announcement && (
+				<VisuallyHidden aria-live="polite">{announcement}</VisuallyHidden>
+			)}
+
 			{/* Playhead indicator */}
 			{displayProgress > 0 && (
 				<div
 					className={style.playheadIndicator}
 					style={{ left: `${displayProgress * 100}%` }}
+					aria-hidden="true"
 				/>
 			)}
 

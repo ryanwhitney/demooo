@@ -95,6 +95,11 @@ export const timelineSlider = style({
   justifyContent: "center",
 });
 
+export const timelineFocused = style({
+  boxShadow: `0 0 0 2px ${tokens.colors.primary}`,
+  outline: 'none',
+});
+
 export const audioElement = style({
   display: "none",
 });

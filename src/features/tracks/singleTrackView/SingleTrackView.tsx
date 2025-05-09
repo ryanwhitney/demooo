@@ -60,20 +60,6 @@ function SingleTrackView({ track }: { track: Track }) {
 	// Handle play/pause - following GlobalPlayer's pattern exactly
 	const handlePlayPause = useCallback(
 		(playing: boolean) => {
-			// Don't handle events if we're passive
-			if (isPassive) {
-				console.log("[SingleTrackView] Passive mode, ignoring play/pause");
-				return;
-			}
-
-			// Don't respond during scrubbing
-			if (audio.isScrubbing) {
-				console.log("[SingleTrackView] Ignoring during scrubbing");
-				return;
-			}
-
-			console.log("[SingleTrackView] PlayPause:", playing);
-
 			// Take control first if needed
 			if (audio.activeSource !== "track-view") {
 				audio.transferControlTo("track-view");
@@ -94,7 +80,7 @@ function SingleTrackView({ track }: { track: Track }) {
 				}
 			}, 10);
 		},
-		[audio, isCurrentTrack, isPassive, track],
+		[audio, isCurrentTrack, track],
 	);
 
 	// Handle track ended

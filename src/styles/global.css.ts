@@ -1,4 +1,4 @@
-import { globalStyle } from "@vanilla-extract/css";
+import { globalStyle, style } from "@vanilla-extract/css";
 import { tokens } from "./tokens";
 
 globalStyle("html, body", {
@@ -35,6 +35,6 @@ globalStyle("main", {
 });
 
 globalStyle("*:focus-visible", {
-			outline: `2px solid ${tokens.colors.focusRing}`,
-			outlineOffset: "2px"
+	outline: `2px solid ${tokens.colors.focusRing}`,
+	outlineOffset: "2px"
 });
