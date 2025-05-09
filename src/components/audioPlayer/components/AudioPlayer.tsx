@@ -146,14 +146,20 @@ const AudioPlayer = ({
 				// Always ensure we have control before seeking
 				if (!isActiveSource) {
 					audio.transferControlTo(source);
-				}
-				// Perform the seek after a very brief delay to ensure control transfer
-				setTimeout(() => {
+
+					// Allow a moment for control transfer before seeking
+					setTimeout(() => {
+						audio.seekTo(time);
+					}, 20);
+				} else {
+					// Already have control, seek directly
 					audio.seekTo(time);
-				}, 10);
+				}
 			} else {
 				// New track - start playing and seek
 				audio.playTrack(track, source);
+
+				// Wait for track to load before seeking
 				setTimeout(() => {
 					audio.seekTo(time);
 				}, 50);
@@ -169,7 +175,7 @@ const AudioPlayer = ({
 				`AudioPlayer handleScrubbing: scrubbing=${scrubbing}, time=${previewTime.toFixed(2)}`,
 			);
 
-			// Always update local time for responsive UI feedback
+			// Always update local state for responsive UI feedback
 			setLocalCurrentTime(previewTime);
 
 			// Only interact with actual audio for current track
@@ -186,7 +192,7 @@ const AudioPlayer = ({
 					} else {
 						audio.endScrubbing(previewTime);
 					}
-				}, 20);
+				}, 30);
 			} else {
 				// Already have control, just update scrubbing state
 				if (scrubbing) {
@@ -212,8 +218,6 @@ const AudioPlayer = ({
 		<section
 			className={style.audioPlayerWrapper}
 			aria-label={`Audio player for ${track.title || "track"}`}
-			data-active-source={isActiveSource ? "true" : "false"}
-			data-is-current-track={isCurrentTrack ? "true" : "false"}
 			onKeyDown={(e) => {
 				// Add global keyboard shortcut for play/pause
 				if (

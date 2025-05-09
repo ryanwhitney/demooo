@@ -124,9 +124,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
 		console.log("Setting up audio element event listeners");
 
-		// Simple timeupdate handler - don't update state during scrubbing
+		// Simple timeupdate handler - don't update time during scrubbing/seeking
 		const handleTimeUpdate = () => {
-			// Never update time state during scrubbing or seeking
+			// Skip all updates during scrubbing or seeking
 			if (isScrubbing || isSeekingRef.current) {
 				return;
 			}
@@ -464,44 +464,46 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
 		console.log(`Seeking to ${time.toFixed(2)} seconds`);
 
-		// Always mark seeking state
+		// Mark that we're in a seeking operation
 		isSeekingRef.current = true;
 
 		// Ignore time updates for a short period to prevent flickering
-		ignoreTimeUpdatesUntilRef.current = Date.now() + 500;
+		ignoreTimeUpdatesUntilRef.current = Date.now() + 300;
 
 		// Remember if we were playing
 		const wasPlaying = !audio.paused;
-		pendingPlaybackRef.current = wasPlaying;
 
 		try {
-			// Pause during seeking to avoid conflicts
-			if (wasPlaying) {
-				audio.pause();
-			}
-
 			// Update state immediately for responsive UI
 			const boundedTime = Math.max(0, Math.min(time, audio.duration || 0));
 			setCurrentTime(boundedTime);
 
-			// Update audio element
+			// Pause only if needed to avoid unnecessary play/pause cycles
+			let wasPausedForSeeking = false;
+
+			if (wasPlaying) {
+				audio.pause();
+				wasPausedForSeeking = true;
+			}
+
+			// Update audio element position
 			audio.currentTime = boundedTime;
 
-			// Resume after a short delay
+			// End seeking state after a short delay
 			setTimeout(() => {
 				isSeekingRef.current = false;
 
-				// Resume if it was playing before
-				if (pendingPlaybackRef.current) {
-					audio.play().catch((error) => {
-						console.error("Error resuming after seek:", error);
-						setIsPlaying(false);
-					});
+				// Resume playback only if we paused it specifically for seeking
+				if (wasPausedForSeeking && wasPlaying) {
+					const playPromise = audio.play();
+					if (playPromise) {
+						playPromise.catch((error) => {
+							console.error("Error resuming after seek:", error);
+							setIsPlaying(false);
+						});
+					}
 				}
-
-				// Reset playback flag
-				pendingPlaybackRef.current = false;
-			}, 100);
+			}, 50);
 		} catch (error) {
 			console.error("Error during seek:", error);
 			isSeekingRef.current = false;
@@ -518,11 +520,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		// Remember if we were playing before scrubbing
 		wasPlayingBeforeScrubRef.current = !audio.paused;
 
-		// Always pause audio during scrubbing
-		if (!audio.paused) {
-			audio.pause();
-		}
-
 		// Mark that we're scrubbing
 		isSeekingRef.current = true;
 		setIsScrubbing(true);
@@ -530,7 +527,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		// Update UI immediately for responsive feedback
 		setCurrentTime(previewTime);
 
-		// Try to update audio element for accurate preview
+		// Always pause during scrubbing but only when needed
+		if (!audio.paused) {
+			audio.pause();
+		}
+
+		// Update audio element for preview but don't trigger events
 		try {
 			const boundedTime = Math.max(
 				0,
@@ -567,26 +569,22 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		// Clear scrubbing state
 		setIsScrubbing(false);
 
-		// Clear seeking flag after a small delay
-		setTimeout(() => {
-			isSeekingRef.current = false;
-		}, 50);
+		// Clear seeking flag immediately to allow timeupdate events
+		isSeekingRef.current = false;
 
 		// Resume playback if it was playing before
 		if (wasPlayingBeforeScrubRef.current) {
-			// Try to resume with a small delay
-			setTimeout(() => {
-				if (audio.paused) {
-					console.log("Resuming playback after scrub");
-					const playPromise = audio.play();
-					if (playPromise) {
-						playPromise.catch((err) => {
-							console.error("Error resuming after scrub:", err);
-							setIsPlaying(false);
-						});
-					}
+			// Resume immediately to avoid flicker
+			if (audio.paused) {
+				console.log("Resuming playback after scrub");
+				const playPromise = audio.play();
+				if (playPromise) {
+					playPromise.catch((err) => {
+						console.error("Error resuming after scrub:", err);
+						setIsPlaying(false);
+					});
 				}
-			}, 50);
+			}
 		}
 	}, []);
 

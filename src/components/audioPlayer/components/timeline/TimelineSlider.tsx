@@ -134,12 +134,12 @@ const TimelineSlider = ({
 				// Start scrubbing
 				onScrubbing(true, newTime);
 
-				// End scrub after a small delay to ensure player has time to process
+				// End scrub after a small delay
 				setTimeout(() => {
 					onScrubbing(false, newTime);
-				}, 100); // Increase delay for better stability
+				}, 50);
 			} else {
-				// Direct time change if no scrubbing support
+				// Direct time change
 				onTimeChange(newTime);
 			}
 		},

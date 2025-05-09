@@ -1,6 +1,8 @@
 import { style } from '@vanilla-extract/css';
+import { recipe } from '@vanilla-extract/recipes';
 import { tokens } from "@/styles/tokens";
 
+// Base container style
 export const container = style({
   position: "fixed",
   bottom: -100,
@@ -17,45 +19,51 @@ export const container = style({
   paddingTop: 10,
   justifyContent: 'center',
   overflow: "hidden",
-  selectors: {
-    '&[data-is-passive="true"]': {
-      opacity: 0,
-      pointerEvents: 'none',
-      visibility: 'hidden',
-      bottom: -100,
+  '@media': {
+    'screen and (min-width: 480px)': {
+      right: 8,
+      bottom: -30,
+      borderRadius: 23,
+      paddingTop: 0,
+      left: 'unset',
     },
   },
-  '@media': {
-   'screen and (min-width: 480px)': {
-    right: 8,
-    bottom: -30,
-    borderRadius: 23,
-    paddingTop: 0,
-    left: 'unset',
-   },
- },
 });
 
-export const containerVisible = style({
-  bottom: "0",
-  '@media': {
-   'screen and (min-width: 480px)': {
-    bottom: 8,
-   },
-  },
-  selectors: {
-    '&[data-is-passive="true"]': {
-      opacity: 0,
-      visibility: 'hidden',
-      pointerEvents: 'none',
-      bottom: -100,
-      '@media': {
-        'screen and (min-width: 480px)': {
-          bottom: -30,
+// Convert to recipe for variants
+export const playerContainer = recipe({
+  base: {},
+  variants: {
+    visible: {
+      true: {
+        bottom: "0",
+        '@media': {
+          'screen and (min-width: 480px)': {
+            bottom: 8,
+          },
         },
       },
+      false: {}
     },
+    passive: {
+      true: {
+        opacity: 0,
+        pointerEvents: 'none',
+        visibility: 'hidden',
+        bottom: -100,
+        '@media': {
+          'screen and (min-width: 480px)': {
+            bottom: -30,
+          },
+        },
+      },
+      false: {}
+    }
   },
+  defaultVariants: {
+    visible: false,
+    passive: false
+  }
 });
 
 export const playerWrapper = style({

@@ -8,7 +8,6 @@ import {
 } from "react";
 import type { Track } from "@/types/track";
 import { useAudio } from "@/providers/AudioProvider";
-import { clsx } from "clsx";
 import * as style from "./GlobalPlayer.css";
 import { useLocation } from "react-router";
 
@@ -29,15 +28,14 @@ const GlobalPlayer = () => {
 	// Determine if the GlobalPlayer should be shown
 	// - Has a track
 	// - Is global/artist source OR we're NOT in SingleTrackView
-	// - Never show during scrubbing or when SingleTrackView has control
+	// - Do not hide during scrubbing - fixes the hide/show flicker
 	const shouldShow =
 		audio.currentTrack !== null &&
-		!audio.isScrubbing &&
 		(!isSingleTrackView ||
 			audio.activeSource === "global" ||
 			audio.activeSource === "artist-view");
 
-	// Is this GlobalPlayer passive (should not handle interactions)?
+	// Is this GlobalPlayer passive (shouldn't handle interactions)?
 	const isPassive =
 		isSingleTrackView &&
 		(audio.activeSource === "track-view" || audio.isScrubbing);
@@ -75,12 +73,9 @@ const GlobalPlayer = () => {
 
 	// Regular visibility handling
 	useEffect(() => {
-		// Always hide immediately when in SingleTrackView with track-view source or during scrubbing
-		if (
-			isSingleTrackView &&
-			(audio.isScrubbing || audio.activeSource === "track-view") &&
-			isVisible
-		) {
+		// Only hide when in SingleTrackView and explicitly using track-view source
+		// BUT do NOT hide during scrubbing - this avoids the show/hide flicker
+		if (isSingleTrackView && audio.activeSource === "track-view" && isVisible) {
 			setIsVisible(false);
 			return;
 		}
@@ -91,13 +86,7 @@ const GlobalPlayer = () => {
 		}, 100); // Increase delay slightly for better stability
 
 		return () => clearTimeout(timer);
-	}, [
-		shouldShow,
-		isSingleTrackView,
-		audio.isScrubbing,
-		audio.activeSource,
-		isVisible,
-	]);
+	}, [shouldShow, isSingleTrackView, audio.activeSource, isVisible]);
 
 	// Only handle track end if this is the active source
 	const handleTrackEnded = useCallback(() => {
@@ -152,11 +141,10 @@ const GlobalPlayer = () => {
 
 	return (
 		<div
-			className={clsx(style.container, isVisible && style.containerVisible)}
-			data-active-source={audio.activeSource}
-			data-is-playing={audio.isPlaying ? "true" : "false"}
-			data-is-passive={isPassive ? "true" : "false"}
-			data-is-scrubbing={audio.isScrubbing ? "true" : "false"}
+			className={`${style.container} ${style.playerContainer({
+				visible: isVisible,
+				passive: isPassive,
+			})}`}
 		>
 			<div className={style.playerWrapper}>
 				<Suspense fallback={<div>Loading...</div>}>

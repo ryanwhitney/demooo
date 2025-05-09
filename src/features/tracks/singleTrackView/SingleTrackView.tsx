@@ -124,28 +124,17 @@ function SingleTrackView({ track }: { track: Track }) {
 					</div>
 
 					{/* Audio Player Container */}
-					<div
-						className={style.audioPlayerContainer}
-						ref={audioContainerRef}
-						data-is-active={
-							audio.activeSource === "track-view" ? "true" : "false"
-						}
-						data-is-playing={audio.isPlaying ? "true" : "false"}
-						data-is-passive={isPassive ? "true" : "false"}
-						data-is-scrubbing={audio.isScrubbing ? "true" : "false"}
-					>
-						<Suspense fallback={<div>Loading...</div>}>
-							<AudioPlayer
-								track={
-									isCurrentTrack && audio.currentTrack
-										? audio.currentTrack
-										: track
-								}
-								onPlayPause={handlePlayPause}
-								onEnded={handleTrackEnded}
-								source="track-view"
-							/>
-						</Suspense>
+					<div className={style.audioPlayerContainer} ref={audioContainerRef}>
+						<AudioPlayer
+							track={
+								isCurrentTrack && audio.currentTrack
+									? audio.currentTrack
+									: track
+							}
+							onPlayPause={handlePlayPause}
+							onEnded={handleTrackEnded}
+							source="track-view"
+						/>
 					</div>
 
 					<div className={style.trackViewDetails}>
