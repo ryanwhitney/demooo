@@ -48,3 +48,10 @@ export const trackViewTagsWrapper = style({
 	marginTop: tokens.space.sm,
 });
 
+export const audioPlayerContainer = style({
+	display: "flex",
+	width: "100%",
+	marginTop: tokens.space.md,
+	marginBottom: tokens.space.md,
+});
+

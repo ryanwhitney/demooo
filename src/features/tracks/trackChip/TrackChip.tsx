@@ -10,14 +10,20 @@ import Waveform from "@/components/audioPlayer/components/waveform/Waveform";
 const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 	const audio = useAudio();
 
-	// subscribe to the state we need
+	// Check if this track is currently active
 	const isCurrentTrack = useMemo(() => {
-		return (
-			audio.currentTrack?.id === track.id && audio.activeSource === "global"
-		);
-	}, [audio.currentTrack?.id, audio.activeSource, track.id]);
+		return audio.currentTrack?.id === track.id;
+	}, [audio.currentTrack?.id, track.id]);
 
 	const isPlaying = isCurrentTrack && audio.isPlaying;
+
+	// Calculate progress for the waveform
+	const progress = useMemo(() => {
+		if (isCurrentTrack && audio.duration > 0) {
+			return audio.currentTime / audio.duration;
+		}
+		return 0;
+	}, [isCurrentTrack, audio.currentTime, audio.duration]);
 
 	const handleClick = useCallback(() => {
 		if (isCurrentTrack) {
@@ -25,6 +31,7 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 				audio.pauseTrack();
 			} else {
 				audio.resumeTrack();
+				audio.setActiveSource("global");
 			}
 		} else {
 			audio.playTrack(track, "global");
@@ -71,7 +78,7 @@ const TrackChip = memo(function TrackChip({ track }: { track: Track }) {
 						height={29}
 						barWidth={1}
 						spacing={4}
-						progress={0}
+						progress={progress}
 					/>
 				</div>
 			</div>

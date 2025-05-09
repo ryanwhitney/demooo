@@ -42,7 +42,7 @@ const TrackRow = ({
 			}
 		} else {
 			// Play track in queue, starting from this track in the list
-			audio.playTrackInQueue(track, allTracksInList, "global");
+			audio.playTrackInQueue(track, allTracksInList, "artist-view");
 		}
 	}, [audio, isCurrentTrack, isPlaying, track, allTracksInList]);
 

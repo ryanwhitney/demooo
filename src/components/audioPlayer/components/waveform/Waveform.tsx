@@ -35,11 +35,7 @@ const Waveform = ({
 	});
 
 	return (
-		<div
-			className={style.waveformVisualization}
-			role={isInteractive ? "progressbar" : undefined}
-			aria-hidden={!isInteractive}
-		>
+		<div className={style.waveformVisualization} aria-hidden="true">
 			<div
 				className={style.waveformProgress}
 				style={{

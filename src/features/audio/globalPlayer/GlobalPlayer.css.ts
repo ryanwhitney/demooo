@@ -4,7 +4,7 @@ import { tokens } from "@/styles/tokens";
 export const container = style({
   position: "fixed",
   bottom: -100,
-  transition: "bottom 300ms ease-in-out",
+  transition: "bottom 300ms ease-in-out, opacity 200ms ease-in-out, visibility 200ms ease-in-out",
   borderRadius: 0,
   backgroundColor: "rgba(60, 60, 69, 0.3)",
   backdropFilter: "blur(10px)",
@@ -17,6 +17,14 @@ export const container = style({
   paddingTop: 10,
   justifyContent: 'center',
   overflow: "hidden",
+  selectors: {
+    '&[data-is-passive="true"]': {
+      opacity: 0,
+      pointerEvents: 'none',
+      visibility: 'hidden',
+      bottom: -100,
+    },
+  },
   '@media': {
    'screen and (min-width: 480px)': {
     right: 8,
@@ -26,7 +34,6 @@ export const container = style({
     left: 'unset',
    },
  },
-  
 });
 
 export const containerVisible = style({
@@ -36,10 +43,22 @@ export const containerVisible = style({
     bottom: 8,
    },
   },
+  selectors: {
+    '&[data-is-passive="true"]': {
+      opacity: 0,
+      visibility: 'hidden',
+      pointerEvents: 'none',
+      bottom: -100,
+      '@media': {
+        'screen and (min-width: 480px)': {
+          bottom: -30,
+        },
+      },
+    },
+  },
 });
 
 export const playerWrapper = style({
-
   '@media': {
    'screen and (min-width: 480px)': {
     scale: 0.5,

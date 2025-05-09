@@ -109,7 +109,7 @@ export const timelineWrapper = style({
 export const playheadIndicator = style({
   position: "absolute",
   width: 2,
-  top:-3,
+  top: -3,
   bottom: -3,
   background: tokens.colors.tintColor,
   borderRadius: 2,

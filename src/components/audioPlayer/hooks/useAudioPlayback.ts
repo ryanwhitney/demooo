@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Track } from "@/types/track";
+import { useAudio } from "@/providers/AudioProvider";
 
 interface UseAudioPlaybackOptions {
   track: Track;
@@ -8,6 +9,7 @@ interface UseAudioPlaybackOptions {
   onTimeUpdate?: (time: number) => void;
   onDurationChange?: (duration: number) => void;
   onEnded?: () => void;
+  source?: "global" | "track-view" | "artist-view";
 }
 
 interface UseAudioPlaybackResult {
@@ -32,6 +34,7 @@ export function useAudioPlayback({
   onTimeUpdate,
   onDurationChange,
   onEnded,
+  source = "global",
 }: UseAudioPlaybackOptions): UseAudioPlaybackResult {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -43,6 +46,10 @@ export function useAudioPlayback({
   const wasPlayingRef = useRef(false);
   const previousTrackId = useRef<string | null>(null);
   const pendingSeekTimeRef = useRef<number | null>(null);
+  
+  // Get the shared audio context
+  const audioContext = useAudio();
+  const isActiveSource = audioContext.isSourceActive?.(source);
 
   // Add direct listeners to the audio element to ensure we catch all updates
   useEffect(() => {
@@ -143,7 +150,7 @@ export function useAudioPlayback({
 
         // Chrome sometimes needs a small delay before trying to play a new track
         setTimeout(() => {
-          if (externalIsPlaying && audioRef.current) {
+          if (externalIsPlaying && audioRef.current && isActiveSource) {
             audioRef.current.play().catch((error) => {
               console.error("Error playing new track:", error);
               setIsPlaying(false);
@@ -154,11 +161,11 @@ export function useAudioPlayback({
       }
       previousTrackId.current = track.id;
     }
-  }, [track.id, externalIsPlaying, onPlayPause]);
+  }, [track.id, externalIsPlaying, onPlayPause, isActiveSource]);
 
   // Sync with external play state if provided
   useEffect(() => {
-    if (externalIsPlaying !== undefined && externalIsPlaying !== isPlaying) {
+    if (externalIsPlaying !== undefined && externalIsPlaying !== isPlaying && isActiveSource) {
       if (externalIsPlaying) {
         if (audioRef.current && isLoaded) {
           audioRef.current.play().catch((error: Error) => {
@@ -174,12 +181,26 @@ export function useAudioPlayback({
       }
       setIsPlaying(externalIsPlaying);
     }
-  }, [externalIsPlaying, isPlaying, onPlayPause, isLoaded]);
+  }, [externalIsPlaying, isPlaying, onPlayPause, isLoaded, isActiveSource]);
 
   // Toggle play/pause state
   const togglePlayPause = useCallback(() => {
     if (audioRef.current) {
       const newPlayingState = !isPlaying;
+      
+      // If we're not the active source but trying to play, transfer control
+      if (newPlayingState && !isActiveSource && audioContext.currentTrack?.id === track.id) {
+        audioContext.transferControlTo(source);
+      }
+      
+      // If playing the same track that's already active elsewhere, transfer control
+      if (newPlayingState && !isActiveSource && audioContext.isPlaying && 
+          audioContext.currentTrack?.id === track.id) {
+        audioContext.transferControlTo(source);
+        return;
+      }
+      
+      // If we're playing a different track than what's currently active, play through normal channels
       if (newPlayingState) {
         audioRef.current.play().catch((error: Error) => {
           console.error("Error playing audio:", error);
@@ -189,10 +210,11 @@ export function useAudioPlayback({
       } else {
         audioRef.current.pause();
       }
+      
       setIsPlaying(newPlayingState);
       onPlayPause?.(newPlayingState);
     }
-  }, [isPlaying, onPlayPause]);
+  }, [isPlaying, onPlayPause, audioContext, track.id, isActiveSource, source]);
 
   // Jump to a specific time position
   const jumpToPosition = useCallback(
