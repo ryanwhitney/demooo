@@ -11,76 +11,110 @@ import { Link } from "react-router";
 import * as style from "./SingleTrackView.css";
 import { useAudio } from "@/providers/AudioProvider";
 
-// Use lazy loading like GlobalPlayer
+// Use lazy loading for AudioPlayer
 const AudioPlayer = lazy(
 	() => import("@/components/audioPlayer/components/AudioPlayer"),
 );
 
 /**
- * SingleTrackView - Component for displaying a single track with an embedded audio player
- * Follows the same pattern as GlobalPlayer which works well
+ * SingleTrackView - Displays a single track with an embedded audio player
+ * Takes control of audio playback when mounted
  */
 function SingleTrackView({ track }: { track: Track }) {
 	const audio = useAudio();
 	const audioContainerRef = useRef<HTMLDivElement>(null);
+	const hasInitializedRef = useRef(false);
+	const isMountedRef = useRef(false);
 
 	// Determine if this track is already playing
 	const isCurrentTrack = audio.currentTrack?.id === track.id;
 
-	// Is this player in passive mode? (shouldn't handle direct user interactions)
-	// We're passive when we're not the active source or during scrubbing
+	// Is this player in passive mode?
 	const isPassive = audio.activeSource !== "track-view" || audio.isScrubbing;
 
-	// Take control when first displaying this track, but only if needed
+	// Track component lifecycle
 	useEffect(() => {
-		// Only transfer control if:
-		// 1. This is the current track
-		// 2. We're not already the active source
-		// 3. Not during scrubbing operations
+		isMountedRef.current = true;
+
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
+
+	// Manage control transfer on mount/unmount
+	useEffect(() => {
+		// Skip if not mounted or during scrubbing
+		if (!isMountedRef.current) return;
+
+		// Take control when component mounts and track is current or changes
 		if (
 			isCurrentTrack &&
 			audio.activeSource !== "track-view" &&
-			!audio.isScrubbing
+			!audio.isScrubbing &&
+			!hasInitializedRef.current
 		) {
 			console.log("[SingleTrackView] Taking control on mount");
 			audio.transferControlTo("track-view");
+			hasInitializedRef.current = true;
 		}
-	}, [isCurrentTrack, audio]);
 
-	// Clean up on unmount - transfer to global player
-	useEffect(() => {
 		return () => {
-			if (isCurrentTrack && audio.activeSource === "track-view") {
+			// Only perform cleanup on actual unmount, not re-renders
+			if (
+				!isMountedRef.current &&
+				isCurrentTrack &&
+				audio.activeSource === "track-view"
+			) {
 				console.log("[SingleTrackView] Unmounting, transferring to global");
 				audio.transferControlTo("global");
+				hasInitializedRef.current = false;
 			}
 		};
-	}, [audio, isCurrentTrack]);
+	}, [
+		isCurrentTrack,
+		audio.activeSource,
+		audio.isScrubbing,
+		audio.transferControlTo,
+	]);
 
-	// Handle play/pause - following GlobalPlayer's pattern exactly
+	// Handle play/pause
 	const handlePlayPause = useCallback(
 		(playing: boolean) => {
-			// Take control first if needed
+			// Take control if needed
 			if (audio.activeSource !== "track-view") {
 				audio.transferControlTo("track-view");
-			}
+				hasInitializedRef.current = true;
 
-			// Wait a moment to ensure control transfer is complete
-			setTimeout(() => {
-				if (playing) {
-					// PLAY
-					if (isCurrentTrack) {
-						audio.resumeTrack();
+				// Allow transfer to complete before changing playback
+				setTimeout(() => {
+					if (playing) {
+						isCurrentTrack
+							? audio.resumeTrack()
+							: audio.playTrack(track, "track-view");
 					} else {
-						audio.playTrack(track, "track-view");
+						audio.pauseTrack();
 					}
+				}, 10);
+			} else {
+				// Already have control, just update playback state
+				if (playing) {
+					isCurrentTrack
+						? audio.resumeTrack()
+						: audio.playTrack(track, "track-view");
 				} else {
-					// PAUSE
 					audio.pauseTrack();
 				}
-			}, 10);
+			}
 		},
-		[audio, isCurrentTrack, track],
+		[
+			audio.activeSource,
+			audio.pauseTrack,
+			audio.playTrack,
+			audio.resumeTrack,
+			audio.transferControlTo,
+			isCurrentTrack,
+			track,
+		],
 	);
 
 	// Handle track ended
@@ -89,7 +123,7 @@ function SingleTrackView({ track }: { track: Track }) {
 		if (audio.activeSource === "track-view") {
 			console.log("[SingleTrackView] Track ended");
 		}
-	}, [audio]);
+	}, [audio.activeSource]);
 
 	return (
 		<main>
@@ -111,16 +145,18 @@ function SingleTrackView({ track }: { track: Track }) {
 
 					{/* Audio Player Container */}
 					<div className={style.audioPlayerContainer} ref={audioContainerRef}>
-						<AudioPlayer
-							track={
-								isCurrentTrack && audio.currentTrack
-									? audio.currentTrack
-									: track
-							}
-							onPlayPause={handlePlayPause}
-							onEnded={handleTrackEnded}
-							source="track-view"
-						/>
+						<Suspense fallback={<div>Loading player...</div>}>
+							<AudioPlayer
+								track={
+									isCurrentTrack && audio.currentTrack
+										? audio.currentTrack
+										: track
+								}
+								onPlayPause={handlePlayPause}
+								onEnded={handleTrackEnded}
+								source="track-view"
+							/>
+						</Suspense>
 					</div>
 
 					<div className={style.trackViewDetails}>

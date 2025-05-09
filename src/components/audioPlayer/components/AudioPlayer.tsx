@@ -118,8 +118,62 @@ const AudioPlayer = ({
 		track.title,
 	]);
 
+	// Handle scrubbing (including drag operations)
+	const handleScrubbing = useCallback(
+		(scrubbing: boolean, previewTime: number) => {
+			if (scrubbing) {
+				// Just started scrubbing
+				console.log(`Scrubbing started at ${previewTime.toFixed(2)}`);
+			} else {
+				// Finished scrubbing
+				console.log(`Scrubbing ended at ${previewTime.toFixed(2)}`);
+			}
+
+			// Always update local state for immediate visual feedback
+			setLocalCurrentTime(previewTime);
+
+			// Update screen reader announcements
+			if (scrubbing) {
+				setAnnouncement(`Scrubbing to ${formatTime(previewTime)}`);
+			} else {
+				setAnnouncement(`Set playback position to ${formatTime(previewTime)}`);
+			}
+
+			// Skip audio operations if not current track
+			if (!isCurrentTrack) return;
+
+			// Handle scrubbing state changes
+			if (scrubbing) {
+				// Starting to scrub - take control once if needed
+				if (!isActiveSource) {
+					audio.transferControlTo(source);
+				}
+
+				// Start scrubbing mode - we don't pause audio as it causes flickering in Chrome
+				audio.startScrubbing(previewTime);
+			} else {
+				// End scrubbing and apply final position - again, don't pause/play to avoid flicker
+				audio.endScrubbing(previewTime);
+			}
+		},
+		[
+			audio.endScrubbing,
+			audio.startScrubbing,
+			audio.transferControlTo,
+			isActiveSource,
+			isCurrentTrack,
+			source,
+		],
+	);
+
 	// Toggle play/pause
 	const togglePlayPause = useCallback(() => {
+		// Don't toggle during scrubbing to avoid visual inconsistency
+		if (audio.isScrubbing) {
+			console.log("Ignoring play/pause toggle during scrubbing");
+			return;
+		}
+
 		console.log(
 			`AudioPlayer togglePlayPause: isCurrentTrack=${isCurrentTrack}, isActiveSource=${isActiveSource}, currentState=${audio.isPlaying ? "playing" : "paused"}`,
 		);
@@ -224,23 +278,28 @@ const AudioPlayer = ({
 		(time: number) => {
 			console.log(`AudioPlayer handleSeek: time=${time.toFixed(2)}`);
 
-			// Immediately update local state for visual feedback
+			// Immediately update local state for responsive UI
 			setLocalCurrentTime(time);
 
 			// Only handle actual audio operations for the current track
 			if (isCurrentTrack) {
-				// Always ensure we have control before seeking
+				// Skip if already scrubbing to avoid state conflicts
+				if (audio.isScrubbing) {
+					return;
+				}
+
+				// Transfer control only if needed
 				if (!isActiveSource) {
+					// Need to take control first
 					audio.transferControlTo(source);
 
-					// Allow a moment for control transfer before seeking
+					// Wait for transfer to complete before seeking
 					setTimeout(() => {
-						// Seek without affecting play state
 						audio.seekTo(time);
 						setAnnouncement(`Seeked to ${formatTime(time)}`);
-					}, 20);
+					}, 50);
 				} else {
-					// Already have control, seek directly without affecting play state
+					// Already have control, seek directly
 					audio.seekTo(time);
 					setAnnouncement(`Seeked to ${formatTime(time)}`);
 				}
@@ -255,55 +314,16 @@ const AudioPlayer = ({
 				}, 50);
 			}
 		},
-		[audio, isCurrentTrack, isActiveSource, track, source],
-	);
-
-	// Handle scrubbing
-	const handleScrubbing = useCallback(
-		(scrubbing: boolean, previewTime: number) => {
-			console.log(
-				`AudioPlayer handleScrubbing: scrubbing=${scrubbing}, time=${previewTime.toFixed(2)}`,
-			);
-
-			// Always update local state for responsive UI feedback
-			setLocalCurrentTime(previewTime);
-
-			// Announce scrubbing status to screen readers
-			if (scrubbing) {
-				setAnnouncement(`Scrubbing to ${formatTime(previewTime)}`);
-			}
-
-			// Only interact with actual audio for current track
-			if (!isCurrentTrack) return;
-
-			// Take control if needed - always do this before scrubbing operations
-			if (!isActiveSource) {
-				audio.transferControlTo(source);
-
-				// Short delay to ensure transfer completes
-				setTimeout(() => {
-					if (scrubbing) {
-						audio.startScrubbing(previewTime);
-					} else {
-						audio.endScrubbing(previewTime);
-						setAnnouncement(
-							`Set playback position to ${formatTime(previewTime)}`,
-						);
-					}
-				}, 30);
-			} else {
-				// Already have control, just update scrubbing state
-				if (scrubbing) {
-					audio.startScrubbing(previewTime);
-				} else {
-					audio.endScrubbing(previewTime);
-					setAnnouncement(
-						`Set playback position to ${formatTime(previewTime)}`,
-					);
-				}
-			}
-		},
-		[audio, isCurrentTrack, isActiveSource, source],
+		[
+			audio.isScrubbing,
+			audio.playTrack,
+			audio.seekTo,
+			audio.transferControlTo,
+			isActiveSource,
+			isCurrentTrack,
+			source,
+			track,
+		],
 	);
 
 	// Handle keyboard navigation for the entire player
@@ -373,7 +393,7 @@ const AudioPlayer = ({
 				<div className={style.playButtonWrapper}>
 					<PlayButton
 						className={style.playButton}
-						isPlaying={isPlaying}
+						isPlaying={audio.isScrubbing ? audio.isPlaying : isPlaying}
 						onToggle={togglePlayPause}
 						trackTitle={track.title}
 					/>

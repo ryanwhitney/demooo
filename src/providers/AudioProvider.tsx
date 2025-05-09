@@ -105,6 +105,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 	const isSeekingRef = useRef(false);
 	const ignoreTimeUpdatesUntilRef = useRef(0); // Timestamp to ignore timeupdate events until
 	const pendingPlaybackRef = useRef(false); // Track if we should resume playback after seeking
+	const transferDebounceRef = useRef(0); // Timestamp to debounce transfer operations
+	const lastTimeUpdateRef = useRef(0); // Timestamp for throttled time updates
 
 	// Initialize the single audio element
 	useEffect(() => {
@@ -142,6 +144,13 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 				return;
 			}
 
+			// Throttle time updates to reduce rendering pressure during playback
+			const now = Date.now();
+			if (!audio.paused && now - lastTimeUpdateRef.current < 100) {
+				return; // Skip updates that are too close together during playback
+			}
+			lastTimeUpdateRef.current = now;
+
 			// Update time state normally during playback
 			setCurrentTime(audio.currentTime);
 		};
@@ -153,11 +162,14 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		};
 
 		const handlePlay = () => {
-			setIsPlaying(true);
+			// Skip play events during scrubbing to maintain consistent UI
+			if (!isScrubbing) {
+				setIsPlaying(true);
+			}
 		};
 
 		const handlePause = () => {
-			// Only update playing state if not scrubbing
+			// Skip pause events during scrubbing to maintain consistent UI
 			if (!isScrubbing) {
 				setIsPlaying(false);
 			}
@@ -375,6 +387,19 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 				return;
 			}
 
+			// If we've transfered very recently, debounce this operation
+			const now = Date.now();
+			const lastTransferTime = transferDebounceRef.current;
+			if (now - lastTransferTime < 300) {
+				console.log(
+					`Transfer too soon, debouncing (${now - lastTransferTime}ms since last)`,
+				);
+				return;
+			}
+
+			// Mark this transfer time
+			transferDebounceRef.current = now;
+
 			// Save state before transfer
 			const wasPlaying = isPlaying;
 			const currentPosition = currentTime;
@@ -470,49 +495,56 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
 		console.log(`Seeking to ${time.toFixed(2)} seconds`);
 
-		// Mark that we're in a seeking operation
+		// Mark that we're in a seeking operation to block timeupdate events
 		isSeekingRef.current = true;
 
-		// Ignore time updates for a short period to prevent flickering
-		ignoreTimeUpdatesUntilRef.current = Date.now() + 300;
+		// Ignore time updates for a period to prevent UI flickering during seek
+		ignoreTimeUpdatesUntilRef.current = Date.now() + 500;
 
-		// Remember if we were playing
+		// Remember playback state
 		const wasPlaying = !audio.paused;
+		pendingPlaybackRef.current = wasPlaying;
 
 		try {
-			// Update state immediately for responsive UI
+			// Update state first for immediate UI feedback
 			const boundedTime = Math.max(0, Math.min(time, audio.duration || 0));
 			setCurrentTime(boundedTime);
 
-			// Pause only if needed to avoid unnecessary play/pause cycles
-			let wasPausedForSeeking = false;
-
+			// Pause briefly to avoid stuttering during seek
 			if (wasPlaying) {
 				audio.pause();
-				wasPausedForSeeking = true;
 			}
 
 			// Update audio element position
 			audio.currentTime = boundedTime;
 
-			// End seeking state after a short delay
+			// Clear seeking state and resume playback after a delay
 			setTimeout(() => {
 				isSeekingRef.current = false;
 
-				// Resume playback only if we paused it specifically for seeking
-				if (wasPausedForSeeking && wasPlaying) {
-					const playPromise = audio.play();
-					if (playPromise) {
-						playPromise.catch((error) => {
-							console.error("Error resuming after seek:", error);
-							setIsPlaying(false);
-						});
-					}
+				// Resume playback smoothly after a short delay if needed
+				if (wasPlaying) {
+					setTimeout(() => {
+						const playPromise = audio.play();
+						if (playPromise) {
+							playPromise.catch((error) => {
+								console.error("Error resuming after seek:", error);
+								setIsPlaying(false);
+							});
+						}
+					}, 50);
 				}
-			}, 50);
+			}, 150);
 		} catch (error) {
 			console.error("Error during seek:", error);
 			isSeekingRef.current = false;
+
+			// Try to recover playback state
+			if (pendingPlaybackRef.current && audio.paused) {
+				audio.play().catch(() => {
+					setIsPlaying(false);
+				});
+			}
 		}
 	}, []);
 
@@ -524,7 +556,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		if (!audio) return;
 
 		// Remember if we were playing before scrubbing
-		wasPlayingBeforeScrubRef.current = !audio.paused;
+		const wasPlaying = !audio.paused;
+		wasPlayingBeforeScrubRef.current = wasPlaying;
 
 		// Mark that we're scrubbing
 		isSeekingRef.current = true;
@@ -533,12 +566,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		// Update UI immediately for responsive feedback
 		setCurrentTime(previewTime);
 
-		// Always pause during scrubbing but only when needed
-		if (!audio.paused) {
-			audio.pause();
-		}
+		// Chrome works best if we maintain the playing state during scrubbing
+		// instead of pausing/playing which can cause flicker
 
-		// Update audio element for preview but don't trigger events
+		// Update audio element for preview
 		try {
 			const boundedTime = Math.max(
 				0,
@@ -572,26 +603,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 			console.error("Error setting time at end of scrub:", error);
 		}
 
-		// Clear scrubbing state
+		// Clear scrubbing state - we do this first to avoid race conditions
 		setIsScrubbing(false);
-
-		// Clear seeking flag immediately to allow timeupdate events
 		isSeekingRef.current = false;
 
-		// Resume playback if it was playing before
-		if (wasPlayingBeforeScrubRef.current) {
-			// Resume immediately to avoid flicker
-			if (audio.paused) {
-				console.log("Resuming playback after scrub");
-				const playPromise = audio.play();
-				if (playPromise) {
-					playPromise.catch((err) => {
-						console.error("Error resuming after scrub:", err);
-						setIsPlaying(false);
-					});
-				}
-			}
-		}
+		// Clear seeking flag immediately to allow timeupdate events
+		// No need to adjust playback state - maintain what was playing before
 	}, []);
 
 	// Provide direct access to the audio element for direct manipulation

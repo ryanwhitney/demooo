@@ -179,12 +179,16 @@ const TimelineSlider = ({
 			isUserInteractingRef.current = true;
 			lastUserInteractionTimeRef.current = Date.now();
 
-			// Start scrubbing
+			// Start scrubbing - only call once
 			if (onScrubbing) {
 				onScrubbing(true, initialTime);
 			}
 
-			// Handle pointer movements
+			// Track the last position to avoid sending duplicate move events
+			let lastProgress = initialProgress;
+			const scrubThreshold = 0.005; // Minimum movement before sending an update (0.5%)
+
+			// Handle pointer movements with throttling
 			const handlePointerMove = (e: PointerEvent) => {
 				e.preventDefault();
 				e.stopPropagation();
@@ -195,15 +199,20 @@ const TimelineSlider = ({
 					Math.min(e.clientX - rect.left, rect.width),
 				);
 				const progress = relativeX / rect.width;
-				const time = progress * duration;
 
-				// Update UI immediately and update interaction time
-				setUserProgress(progress);
-				lastUserInteractionTimeRef.current = Date.now();
+				// Only update if there's a meaningful change in position
+				if (Math.abs(progress - lastProgress) > scrubThreshold) {
+					lastProgress = progress;
+					const time = progress * duration;
 
-				// Send event to update audio time for preview
-				if (onScrubbing) {
-					onScrubbing(true, time);
+					// Update UI immediately
+					setUserProgress(progress);
+					lastUserInteractionTimeRef.current = Date.now();
+
+					// Send event to update audio time for preview - throttled
+					if (onScrubbing) {
+						onScrubbing(true, time);
+					}
 				}
 			};
 
@@ -224,7 +233,7 @@ const TimelineSlider = ({
 				// Update interaction time
 				lastUserInteractionTimeRef.current = Date.now();
 
-				// End scrubbing
+				// End scrubbing - call only once at the end
 				if (onScrubbing) {
 					onScrubbing(false, finalTime);
 				} else {
