@@ -1,4 +1,4 @@
-import { globalStyle, style } from "@vanilla-extract/css";
+import { globalStyle } from "@vanilla-extract/css";
 import { tokens } from "./tokens";
 
 globalStyle("html, body", {

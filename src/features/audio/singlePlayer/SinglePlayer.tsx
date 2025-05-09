@@ -1,9 +1,8 @@
 import { Suspense, lazy, useCallback, useEffect, useRef } from "react";
 import type { Track } from "@/types/track";
 import { useAudio } from "@/providers/AudioProvider";
-
-// Import the PlayerSource type
-type PlayerSource = "global" | "track-view" | "artist-view";
+import type { PlayerSource } from "@/types/audio";
+import { shouldAutoTakeControl } from "@/types/audio";
 
 // Use lazy loading for AudioPlayer
 const AudioPlayer = lazy(
@@ -11,8 +10,8 @@ const AudioPlayer = lazy(
 );
 
 /**
- * SinglePlayer - A simplified track player component that can be used across the app
- * Manages audio control transfer between different parts of the application
+ * Player for individual track pages that transfers control
+ * between different audio sources
  */
 function SinglePlayer({
 	track,
@@ -28,9 +27,6 @@ function SinglePlayer({
 	// Determine if this track is already playing
 	const isCurrentTrack = audio.currentTrack?.id === track.id;
 
-	// Is this player in passive mode?
-	const isPassive = audio.activeSource !== source || audio.isScrubbing;
-
 	// Track component lifecycle
 	useEffect(() => {
 		isMountedRef.current = true;
@@ -42,31 +38,27 @@ function SinglePlayer({
 
 	// Manage control transfer on mount/unmount
 	useEffect(() => {
-		// Skip if not mounted or during scrubbing
 		if (!isMountedRef.current) return;
 
-		// Take control when component mounts and track is current or changes
+		const shouldTakeControl = shouldAutoTakeControl(source);
+
 		if (
 			isCurrentTrack &&
 			audio.activeSource !== source &&
 			!audio.isScrubbing &&
-			!hasInitializedRef.current
+			!hasInitializedRef.current &&
+			shouldTakeControl
 		) {
-			console.log(`[SinglePlayer] Taking control on mount (${source})`);
 			audio.transferControlTo(source);
 			hasInitializedRef.current = true;
 		}
 
 		return () => {
-			// Only perform cleanup on actual unmount, not re-renders
 			if (
 				!isMountedRef.current &&
 				isCurrentTrack &&
 				audio.activeSource === source
 			) {
-				console.log(
-					`[SinglePlayer] Unmounting, transferring to global (${source})`,
-				);
 				audio.transferControlTo("global");
 				hasInitializedRef.current = false;
 			}
@@ -122,7 +114,6 @@ function SinglePlayer({
 	const handleTrackEnded = useCallback(() => {
 		// Only handle if we're the active source
 		if (audio.activeSource === source) {
-			console.log(`[SinglePlayer] Track ended (${source})`);
 			audio.nextTrack();
 		}
 	}, [audio, audio.activeSource, source]);

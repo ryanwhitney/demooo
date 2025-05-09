@@ -1,5 +1,6 @@
 // AudioContext.tsx
 import type { Track } from "@/types/track";
+import type { PlayerSource, AudioContextType } from "@/types/audio";
 import {
 	createContext,
 	useContext,
@@ -9,48 +10,6 @@ import {
 	useRef,
 	useEffect,
 } from "react";
-
-type PlayerSource = "global" | "track-view" | "artist-view";
-
-// Define the type for our context value
-interface AudioContextType {
-	// State
-	currentTrack: Track | null;
-	isPlaying: boolean;
-	currentTime: number;
-	duration: number;
-	activeSource: PlayerSource | null;
-	queue: Track[];
-	isScrubbing: boolean;
-
-	// Actions
-	playTrack: (track: Track, source: PlayerSource) => void;
-	playTrackInQueue: (
-		track: Track,
-		queueTracks: Track[],
-		source: PlayerSource,
-	) => void;
-	pauseTrack: () => void;
-	resumeTrack: () => void;
-	togglePlayPause: () => void;
-	nextTrack: () => void;
-	previousTrack: () => void;
-	skipToTrack: (trackId: string) => void;
-	clearQueue: () => void;
-
-	// Time control
-	seekTo: (time: number) => void;
-	startScrubbing: (previewTime: number) => void;
-	endScrubbing: (finalTime: number) => void;
-
-	// Get audio element for direct manipulation
-	getAudioElement: () => HTMLAudioElement | null;
-
-	// Source management
-	setActiveSource: (source: PlayerSource) => void;
-	isSourceActive: (source: PlayerSource) => boolean;
-	transferControlTo: (source: PlayerSource) => void;
-}
 
 // Create context with a default value matching the interface
 const AudioContext = createContext<AudioContextType>({
@@ -89,7 +48,9 @@ const AudioContext = createContext<AudioContextType>({
 });
 
 export function AudioProvider({ children }: { children: ReactNode }) {
+	// -------------------------------------------------------------------------
 	// State
+	// -------------------------------------------------------------------------
 	const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [currentTime, setCurrentTime] = useState(0);
@@ -98,7 +59,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 	const [queue, setQueue] = useState<Track[]>([]);
 	const [isScrubbing, setIsScrubbing] = useState(false);
 
+	// -------------------------------------------------------------------------
 	// Refs
+	// -------------------------------------------------------------------------
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const wasPlayingBeforeScrubRef = useRef(false);
 	const nextTrackRef = useRef<() => void>(() => {});
@@ -108,7 +71,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 	const transferDebounceRef = useRef(0); // Timestamp to debounce transfer operations
 	const lastTimeUpdateRef = useRef(0); // Timestamp for throttled time updates
 
-	// Initialize the single audio element
+	// -------------------------------------------------------------------------
+	// Audio Element Initialization
+	// -------------------------------------------------------------------------
 	useEffect(() => {
 		if (!audioRef.current) {
 			console.log("Creating audio element");
@@ -125,7 +90,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		}
 	}, []);
 
-	// Setup event listeners on the audio element
+	// -------------------------------------------------------------------------
+	// Audio Event Listeners
+	// -------------------------------------------------------------------------
 	useEffect(() => {
 		const audio = audioRef.current;
 		if (!audio) return;
@@ -219,165 +186,25 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		};
 	}, [isScrubbing]);
 
+	// -------------------------------------------------------------------------
+	// Queue Management Utilities
+	// -------------------------------------------------------------------------
+
 	// Get current position in queue
 	const getQueuePosition = useCallback(() => {
 		if (!currentTrack || queue.length === 0) return -1;
 		return queue.findIndex((track) => track.id === currentTrack.id);
 	}, [currentTrack, queue]);
 
+	// -------------------------------------------------------------------------
+	// Source Management
+	// -------------------------------------------------------------------------
+
 	// Check if a source is active
 	const isSourceActive = useCallback(
 		(source: PlayerSource) => activeSource === source,
 		[activeSource],
 	);
-
-	// Update audio source when track changes
-	useEffect(() => {
-		const audio = audioRef.current;
-		if (!audio || !currentTrack) return;
-
-		console.log(`Updating audio source for track: ${currentTrack.title}`);
-
-		let trackUrl = "";
-		if (currentTrack.audioUrl) {
-			if (currentTrack.audioUrl.startsWith("http")) {
-				trackUrl = currentTrack.audioUrl;
-			} else {
-				trackUrl = `${import.meta.env.VITE_API_BASE_URL}${currentTrack.audioUrl}`;
-			}
-		}
-
-		// Only update if URL has changed to prevent unnecessary reloading
-		if (audio.src !== trackUrl) {
-			// Save current playing state
-			const wasPlaying = !audio.paused;
-
-			// Update source
-			audio.src = trackUrl;
-			audio.load();
-
-			// Resume playback if it was playing
-			if (wasPlaying) {
-				audio.play().catch((error) => {
-					console.error("Error playing new track:", error);
-					setIsPlaying(false);
-				});
-			}
-		}
-	}, [currentTrack]);
-
-	// Control playback when isPlaying state changes
-	useEffect(() => {
-		const audio = audioRef.current;
-		if (!audio || !currentTrack) return;
-
-		if (isPlaying && audio.paused && !isScrubbing) {
-			console.log(`Playing track: ${currentTrack.title} (${activeSource})`);
-			audio.play().catch((error) => {
-				console.error("Error playing audio:", error);
-				setIsPlaying(false);
-			});
-		} else if (!isPlaying && !audio.paused && !isScrubbing) {
-			console.log(`Pausing track: ${currentTrack.title} (${activeSource})`);
-			audio.pause();
-		}
-	}, [isPlaying, currentTrack, activeSource, isScrubbing]);
-
-	// Play next track in queue
-	const nextTrack = useCallback(() => {
-		const currentPosition = getQueuePosition();
-
-		// If not in queue or at the end, stop playback
-		if (currentPosition === -1 || currentPosition === queue.length - 1) {
-			setIsPlaying(false);
-			return;
-		}
-
-		// Play next track
-		const nextTrack = queue[currentPosition + 1];
-		setCurrentTrack(nextTrack);
-		setCurrentTime(0);
-		setDuration(0);
-		setIsPlaying(true);
-	}, [queue, getQueuePosition]);
-
-	// Update the nextTrack ref whenever the function changes
-	useEffect(() => {
-		nextTrackRef.current = nextTrack;
-	}, [nextTrack]);
-
-	// Play a specific track
-	const playTrack = useCallback(
-		(track: Track, source: PlayerSource) => {
-			console.log(`Play track requested: ${track.title} from source ${source}`);
-
-			// If it's the same track, just switch source and resume
-			if (currentTrack?.id === track.id) {
-				console.log(`Same track - setting source to ${source} and resuming`);
-				setActiveSource(source);
-				setIsPlaying(true);
-				return;
-			}
-
-			// New track - reset state and play
-			console.log(`New track - playing ${track.title} from source ${source}`);
-			setCurrentTrack(track);
-			setActiveSource(source);
-			setIsPlaying(true);
-			setCurrentTime(0);
-			setDuration(0);
-			setQueue([track]);
-		},
-		[currentTrack?.id],
-	);
-
-	// Play a track and set up a queue
-	const playTrackInQueue = useCallback(
-		(track: Track, queueTracks: Track[], source: PlayerSource) => {
-			console.log(`Play in queue requested: ${track.title} from ${source}`);
-
-			// If it's the same track, just switch source and resume
-			if (currentTrack?.id === track.id) {
-				setActiveSource(source);
-				setIsPlaying(true);
-				setQueue(queueTracks);
-				return;
-			}
-
-			// Set the new queue
-			setQueue(queueTracks);
-
-			// Find the index of the selected track in the queue
-			const trackIndex = queueTracks.findIndex((t) => t.id === track.id);
-
-			// If not found, just play the track without queue
-			if (trackIndex === -1) {
-				playTrack(track, source);
-				return;
-			}
-
-			// Set current track and play it
-			setCurrentTrack(track);
-			setActiveSource(source);
-			setIsPlaying(true);
-			setCurrentTime(0);
-			setDuration(0);
-		},
-		[currentTrack?.id, playTrack],
-	);
-
-	// Simple playback controls
-	const pauseTrack = useCallback(() => {
-		setIsPlaying(false);
-	}, []);
-
-	const resumeTrack = useCallback(() => {
-		setIsPlaying(true);
-	}, []);
-
-	const togglePlayPause = useCallback(() => {
-		setIsPlaying((prev) => !prev);
-	}, []);
 
 	// Change active source
 	const changeActiveSource = useCallback(
@@ -462,6 +289,89 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		[activeSource, currentTrack, isPlaying, currentTime],
 	);
 
+	// -------------------------------------------------------------------------
+	// Audio Source Management
+	// -------------------------------------------------------------------------
+
+	// Update audio source when track changes
+	useEffect(() => {
+		const audio = audioRef.current;
+		if (!audio || !currentTrack) return;
+
+		console.log(`Updating audio source for track: ${currentTrack.title}`);
+
+		let trackUrl = "";
+		if (currentTrack.audioUrl) {
+			if (currentTrack.audioUrl.startsWith("http")) {
+				trackUrl = currentTrack.audioUrl;
+			} else {
+				trackUrl = `${import.meta.env.VITE_API_BASE_URL}${currentTrack.audioUrl}`;
+			}
+		}
+
+		// Only update if URL has changed to prevent unnecessary reloading
+		if (audio.src !== trackUrl) {
+			// Save current playing state
+			const wasPlaying = !audio.paused;
+
+			// Update source
+			audio.src = trackUrl;
+			audio.load();
+
+			// Resume playback if it was playing
+			if (wasPlaying) {
+				audio.play().catch((error) => {
+					console.error("Error playing new track:", error);
+					setIsPlaying(false);
+				});
+			}
+		}
+	}, [currentTrack]);
+
+	// Control playback when isPlaying state changes
+	useEffect(() => {
+		const audio = audioRef.current;
+		if (!audio || !currentTrack) return;
+
+		if (isPlaying && audio.paused && !isScrubbing) {
+			console.log(`Playing track: ${currentTrack.title} (${activeSource})`);
+			audio.play().catch((error) => {
+				console.error("Error playing audio:", error);
+				setIsPlaying(false);
+			});
+		} else if (!isPlaying && !audio.paused && !isScrubbing) {
+			console.log(`Pausing track: ${currentTrack.title} (${activeSource})`);
+			audio.pause();
+		}
+	}, [isPlaying, currentTrack, activeSource, isScrubbing]);
+
+	// -------------------------------------------------------------------------
+	// Track Navigation
+	// -------------------------------------------------------------------------
+
+	// Play next track in queue
+	const nextTrack = useCallback(() => {
+		const currentPosition = getQueuePosition();
+
+		// If not in queue or at the end, stop playback
+		if (currentPosition === -1 || currentPosition === queue.length - 1) {
+			setIsPlaying(false);
+			return;
+		}
+
+		// Play next track
+		const nextTrack = queue[currentPosition + 1];
+		setCurrentTrack(nextTrack);
+		setCurrentTime(0);
+		setDuration(0);
+		setIsPlaying(true);
+	}, [queue, getQueuePosition]);
+
+	// Update the nextTrack ref whenever the function changes
+	useEffect(() => {
+		nextTrackRef.current = nextTrack;
+	}, [nextTrack]);
+
 	// Play previous track in queue
 	const previousTrack = useCallback(() => {
 		const currentPosition = getQueuePosition();
@@ -503,6 +413,87 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 	const clearQueue = useCallback(() => {
 		setQueue([]);
 	}, []);
+
+	// -------------------------------------------------------------------------
+	// Track Playback Controls
+	// -------------------------------------------------------------------------
+
+	// Play a specific track
+	const playTrack = useCallback(
+		(track: Track, source: PlayerSource) => {
+			console.log(`Play track requested: ${track.title} from source ${source}`);
+
+			// If it's the same track, just switch source and resume
+			if (currentTrack?.id === track.id) {
+				console.log(`Same track - setting source to ${source} and resuming`);
+				setActiveSource(source);
+				setIsPlaying(true);
+				return;
+			}
+
+			// New track - reset state and play
+			console.log(`New track - playing ${track.title} from source ${source}`);
+			setCurrentTrack(track);
+			setActiveSource(source);
+			setIsPlaying(true);
+			setCurrentTime(0);
+			setDuration(0);
+			setQueue([track]);
+		},
+		[currentTrack?.id],
+	);
+
+	// Play a track and set up a queue
+	const playTrackInQueue = useCallback(
+		(track: Track, queueTracks: Track[], source: PlayerSource) => {
+			console.log(`Play in queue requested: ${track.title} from ${source}`);
+
+			// If it's the same track, just switch source and resume
+			if (currentTrack?.id === track.id) {
+				setActiveSource(source);
+				setIsPlaying(true);
+				setQueue(queueTracks);
+				return;
+			}
+
+			// Set the new queue
+			setQueue(queueTracks);
+
+			// Find the index of the selected track in the queue
+			const trackIndex = queueTracks.findIndex((t) => t.id === track.id);
+
+			// If not found, just play the track without queue
+			if (trackIndex === -1) {
+				playTrack(track, source);
+				return;
+			}
+
+			// Set current track and play it
+			setCurrentTrack(track);
+			setActiveSource(source);
+			setIsPlaying(true);
+			setCurrentTime(0);
+			setDuration(0);
+		},
+		[currentTrack?.id, playTrack],
+	);
+
+	// Simple playback controls
+	const pauseTrack = useCallback(() => {
+		setIsPlaying(false);
+	}, []);
+
+	const resumeTrack = useCallback(() => {
+		setIsPlaying(true);
+	}, []);
+
+	const togglePlayPause = useCallback(() => {
+		setIsPlaying((prev) => !prev);
+	}, []);
+
+	// -------------------------------------------------------------------------
+	// Time Control
+	// -------------------------------------------------------------------------
 
 	// Seek to a specific time
 	const seekTo = useCallback((time: number) => {
@@ -626,6 +617,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 		// Clear seeking flag immediately to allow timeupdate events
 		// No need to adjust playback state - maintain what was playing before
 	}, []);
+
+	// -------------------------------------------------------------------------
+	// Utilities
+	// -------------------------------------------------------------------------
 
 	// Provide direct access to the audio element for direct manipulation
 	const getAudioElement = useCallback(() => {

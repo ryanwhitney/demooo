@@ -4,9 +4,14 @@ import PlayButton from "./playButton/PlayButton";
 import * as style from "./AudioPlayer.css";
 import Waveform from "./waveform/Waveform";
 import TimelineSlider from "./timeline/TimelineSlider";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, memo } from "react";
 import { useAudio } from "@/providers/AudioProvider";
 import { VisuallyHidden } from "react-aria";
+import type { PlayerSource } from "@/types/audio";
+
+// Fixed constants for keyboard navigation
+const KEYBOARD_SEEK_STEP = 5; // seconds
+const DEBOUNCE_ANNOUNCEMENT_MS = 500;
 
 interface AudioPlayerProps {
 	track: Track;
@@ -14,23 +19,28 @@ interface AudioPlayerProps {
 	onTimeUpdate?: (time: number) => void;
 	onDurationChange?: (duration: number) => void;
 	onEnded?: () => void;
-	source?: "global" | "track-view" | "artist-view";
+	source?: PlayerSource;
 }
 
-const AudioPlayer = ({
+/**
+ * Core audio playback UI component that connects to the global audio context
+ * and manages user interactions with the current track
+ */
+const AudioPlayer = memo(function AudioPlayer({
 	track,
 	onPlayPause,
 	onTimeUpdate,
 	onDurationChange,
 	onEnded,
 	source = "global",
-}: AudioPlayerProps) => {
+}: AudioPlayerProps) {
 	const audio = useAudio();
 	const [localCurrentTime, setLocalCurrentTime] = useState(0);
 	const [localDuration, setLocalDuration] = useState(0);
 	const previousSourceRef = useRef<string | null>(null);
 	const playerRef = useRef<HTMLElement>(null);
 	const [announcement, setAnnouncement] = useState("");
+	const announcementTimerRef = useRef<number | null>(null);
 
 	// Check if this track is active
 	const isCurrentTrack = audio.currentTrack?.id === track.id;
@@ -46,15 +56,37 @@ const AudioPlayer = ({
 		: localDuration;
 	const normalizedProgress = duration > 0 ? currentTime / duration : 0;
 
+	// Debounced announcement helper
+	const updateAnnouncement = useCallback((message: string) => {
+		// Clear any pending announcement
+		if (announcementTimerRef.current !== null) {
+			window.clearTimeout(announcementTimerRef.current);
+		}
+
+		setAnnouncement(message);
+
+		// Clear announcement after delay
+		announcementTimerRef.current = window.setTimeout(() => {
+			setAnnouncement("");
+			announcementTimerRef.current = null;
+		}, DEBOUNCE_ANNOUNCEMENT_MS);
+	}, []);
+
 	// Track source changes to debug issues
 	useEffect(() => {
 		if (isCurrentTrack && previousSourceRef.current !== audio.activeSource) {
-			console.log(
-				`AudioPlayer: Source changed from ${previousSourceRef.current} to ${audio.activeSource} for ${track.title}`,
-			);
 			previousSourceRef.current = audio.activeSource;
 		}
-	}, [isCurrentTrack, audio.activeSource, track.title]);
+	}, [isCurrentTrack, audio.activeSource]);
+
+	// Clean up any timers on unmount
+	useEffect(() => {
+		return () => {
+			if (announcementTimerRef.current !== null) {
+				window.clearTimeout(announcementTimerRef.current);
+			}
+		};
+	}, []);
 
 	// Keep local state in sync with provider state
 	useEffect(() => {
@@ -91,12 +123,18 @@ const AudioPlayer = ({
 	useEffect(() => {
 		if (isCurrentTrack && isActiveSource) {
 			if (isPlaying) {
-				setAnnouncement(`Playing ${track.title}`);
+				updateAnnouncement(`Playing ${track.title}`);
 			} else {
-				setAnnouncement(`Paused ${track.title}`);
+				updateAnnouncement(`Paused ${track.title}`);
 			}
 		}
-	}, [isCurrentTrack, isActiveSource, isPlaying, track.title]);
+	}, [
+		isCurrentTrack,
+		isActiveSource,
+		isPlaying,
+		track.title,
+		updateAnnouncement,
+	]);
 
 	// Check for track ended
 	useEffect(() => {
@@ -106,7 +144,7 @@ const AudioPlayer = ({
 			audio.currentTime >= audio.duration &&
 			audio.duration > 0
 		) {
-			setAnnouncement(`Finished playing ${track.title}`);
+			updateAnnouncement(`Finished playing ${track.title}`);
 			onEnded?.();
 		}
 	}, [
@@ -116,43 +154,31 @@ const AudioPlayer = ({
 		audio.duration,
 		onEnded,
 		track.title,
+		updateAnnouncement,
 	]);
 
 	// Handle scrubbing (including drag operations)
 	const handleScrubbing = useCallback(
 		(scrubbing: boolean, previewTime: number) => {
-			if (scrubbing) {
-				// Just started scrubbing
-				console.log(`Scrubbing started at ${previewTime.toFixed(2)}`);
-			} else {
-				// Finished scrubbing
-				console.log(`Scrubbing ended at ${previewTime.toFixed(2)}`);
-			}
-
-			// Always update local state for immediate visual feedback
 			setLocalCurrentTime(previewTime);
 
-			// Update screen reader announcements
 			if (scrubbing) {
-				setAnnouncement(`Scrubbing to ${formatTime(previewTime)}`);
+				updateAnnouncement(`Scrubbing to ${formatTime(previewTime)}`);
 			} else {
-				setAnnouncement(`Set playback position to ${formatTime(previewTime)}`);
+				updateAnnouncement(
+					`Set playback position to ${formatTime(previewTime)}`,
+				);
 			}
 
-			// Skip audio operations if not current track
 			if (!isCurrentTrack) return;
 
-			// Handle scrubbing state changes
 			if (scrubbing) {
-				// Starting to scrub - take control once if needed
 				if (!isActiveSource) {
 					audio.transferControlTo(source);
 				}
 
-				// Start scrubbing mode - we don't pause audio as it causes flickering in Chrome
 				audio.startScrubbing(previewTime);
 			} else {
-				// End scrubbing and apply final position - again, don't pause/play to avoid flicker
 				audio.endScrubbing(previewTime);
 			}
 		},
@@ -163,6 +189,7 @@ const AudioPlayer = ({
 			isActiveSource,
 			isCurrentTrack,
 			source,
+			updateAnnouncement,
 		],
 	);
 
@@ -170,22 +197,12 @@ const AudioPlayer = ({
 	const togglePlayPause = useCallback(() => {
 		// Don't toggle during scrubbing to avoid visual inconsistency
 		if (audio.isScrubbing) {
-			console.log("Ignoring play/pause toggle during scrubbing");
 			return;
 		}
-
-		console.log(
-			`AudioPlayer togglePlayPause: isCurrentTrack=${isCurrentTrack}, isActiveSource=${isActiveSource}, currentState=${audio.isPlaying ? "playing" : "paused"}`,
-		);
 
 		if (isCurrentTrack) {
 			// Current track - handle based on source
 			if (!isActiveSource) {
-				console.log(
-					`Not active source. Transferring control from ${audio.activeSource} to ${source}`,
-				);
-
-				// Remember current playback state and position
 				const wasPlaying = audio.isPlaying;
 
 				// Transfer control to this source
@@ -193,21 +210,16 @@ const AudioPlayer = ({
 
 				// If it was paused and we're clicking play, resume
 				if (!wasPlaying) {
-					console.log("Was paused, now resuming");
 					setTimeout(() => {
 						audio.resumeTrack();
 					}, 10); // Small delay to ensure transfer completes
 				}
 			} else {
 				// We're already the active source, just toggle play state
-				console.log(`Already active source ${source}, toggling playback`);
 				audio.togglePlayPause();
 			}
 		} else {
 			// Not the current track - start fresh
-			console.log(
-				`New track: ${track.title}, starting playback with source=${source}`,
-			);
 			audio.playTrack(track, source);
 		}
 	}, [audio, isCurrentTrack, isActiveSource, track, source]);
@@ -215,12 +227,8 @@ const AudioPlayer = ({
 	// Handle seeking through timeline
 	const handleSeek = useCallback(
 		(time: number) => {
-			console.log(`AudioPlayer handleSeek: time=${time.toFixed(2)}`);
-
-			// Immediately update local state for responsive UI
 			setLocalCurrentTime(time);
 
-			// Only handle actual audio operations for the current track
 			if (isCurrentTrack) {
 				// Skip if already scrubbing to avoid state conflicts
 				if (audio.isScrubbing) {
@@ -235,12 +243,12 @@ const AudioPlayer = ({
 					// Wait for transfer to complete before seeking
 					setTimeout(() => {
 						audio.seekTo(time);
-						setAnnouncement(`Seeked to ${formatTime(time)}`);
+						updateAnnouncement(`Seeked to ${formatTime(time)}`);
 					}, 50);
 				} else {
 					// Already have control, seek directly
 					audio.seekTo(time);
-					setAnnouncement(`Seeked to ${formatTime(time)}`);
+					updateAnnouncement(`Seeked to ${formatTime(time)}`);
 				}
 			} else {
 				// New track - start playing and seek
@@ -249,7 +257,7 @@ const AudioPlayer = ({
 				// Wait for track to load before seeking
 				setTimeout(() => {
 					audio.seekTo(time);
-					setAnnouncement(`Playing ${track.title} from ${formatTime(time)}`);
+					updateAnnouncement(`Playing ${track.title} from ${formatTime(time)}`);
 				}, 50);
 			}
 		},
@@ -262,7 +270,33 @@ const AudioPlayer = ({
 			isCurrentTrack,
 			source,
 			track,
+			updateAnnouncement,
 		],
+	);
+
+	// Direct manipulation of audio element for keyboard navigation
+	const directAudioTimeAdjust = useCallback(
+		(newTime: number) => {
+			// Get direct access to the audio element
+			const audioEl = audio.getAudioElement();
+			if (audioEl && isCurrentTrack) {
+				// Bound the time to valid range
+				const boundedTime = Math.max(0, Math.min(newTime, duration));
+
+				// Update UI immediately
+				setLocalCurrentTime(boundedTime);
+
+				// Update audio element directly - avoid triggering play/pause
+				audioEl.currentTime = boundedTime;
+
+				// Announce for screen readers
+				updateAnnouncement(`Moved to ${formatTime(boundedTime)}`);
+
+				return boundedTime;
+			}
+			return null;
+		},
+		[audio, isCurrentTrack, duration, updateAnnouncement],
 	);
 
 	// Handle keyboard navigation for the entire player
@@ -291,78 +325,30 @@ const AudioPlayer = ({
 				case "ArrowRight": {
 					// Right arrow - seek forward
 					e.preventDefault();
-					// Direct manipulation without triggering play/pause
-					const audioEl = audio.getAudioElement();
-					if (audioEl && isCurrentTrack) {
-						// Store current time and calculate new time
-						const newTime = Math.min(currentTime + 5, duration);
-						// Update UI immediately
-						setLocalCurrentTime(newTime);
-						// Update audio element directly
-						if (audioEl instanceof HTMLAudioElement) {
-							audioEl.currentTime = newTime;
-						}
-						// Announce for screen readers
-						setAnnouncement(`Moved to ${formatTime(newTime)}`);
-					}
+					directAudioTimeAdjust(currentTime + KEYBOARD_SEEK_STEP);
 					break;
 				}
 				case "ArrowLeft": {
 					// Left arrow - seek backward
 					e.preventDefault();
-					// Direct manipulation without triggering play/pause
-					const audioElBack = audio.getAudioElement();
-					if (audioElBack && isCurrentTrack) {
-						// Store current time and calculate new time
-						const newTime = Math.max(currentTime - 5, 0);
-						// Update UI immediately
-						setLocalCurrentTime(newTime);
-						// Update audio element directly
-						if (audioElBack instanceof HTMLAudioElement) {
-							audioElBack.currentTime = newTime;
-						}
-						// Announce for screen readers
-						setAnnouncement(`Moved to ${formatTime(newTime)}`);
-					}
+					directAudioTimeAdjust(Math.max(currentTime - KEYBOARD_SEEK_STEP, 0));
 					break;
 				}
 				case "Home": {
 					// Home - seek to start
 					e.preventDefault();
-					// Direct manipulation to start
-					const audioElHome = audio.getAudioElement();
-					if (audioElHome && isCurrentTrack) {
-						// Update UI immediately
-						setLocalCurrentTime(0);
-						// Update audio element directly
-						if (audioElHome instanceof HTMLAudioElement) {
-							audioElHome.currentTime = 0;
-						}
-						// Announce for screen readers
-						setAnnouncement("Moved to the beginning");
-					}
+					directAudioTimeAdjust(0);
 					break;
 				}
 				case "End": {
 					// End - seek to end
 					e.preventDefault();
-					// Direct manipulation to end
-					const audioElEnd = audio.getAudioElement();
-					if (audioElEnd && isCurrentTrack) {
-						// Update UI immediately
-						setLocalCurrentTime(duration);
-						// Update audio element directly
-						if (audioElEnd instanceof HTMLAudioElement) {
-							audioElEnd.currentTime = duration;
-						}
-						// Announce for screen readers
-						setAnnouncement("Moved to the end");
-					}
+					directAudioTimeAdjust(duration);
 					break;
 				}
 			}
 		},
-		[togglePlayPause, currentTime, duration, audio, isCurrentTrack],
+		[togglePlayPause, currentTime, duration, directAudioTimeAdjust],
 	);
 
 	// Listen for custom timeline keyboard navigation events
@@ -372,20 +358,12 @@ const AudioPlayer = ({
 
 		const handleTimelineKeyNav = (e: Event) => {
 			const customEvent = e as CustomEvent;
-			const { action, time } = customEvent.detail;
+			const { time } = customEvent.detail;
 
-			// Get direct access to the audio element
-			const audioElement = audio.getAudioElement();
-			if (audioElement instanceof HTMLAudioElement) {
-				console.log(`Timeline key nav: ${action}, time: ${time}`);
+			// Use our direct time adjustment function
+			const adjustedTime = directAudioTimeAdjust(time);
 
-				// Update local UI state
-				setLocalCurrentTime(time);
-
-				// Directly update audio element time without triggering play/pause
-				audioElement.currentTime = time;
-
-				// Prevent event from propagating further
+			if (adjustedTime !== null) {
 				e.stopPropagation();
 			}
 		};
@@ -400,7 +378,7 @@ const AudioPlayer = ({
 				handleTimelineKeyNav,
 			);
 		};
-	}, [isCurrentTrack, audio]);
+	}, [isCurrentTrack, directAudioTimeAdjust]);
 
 	return (
 		<section
@@ -461,6 +439,6 @@ const AudioPlayer = ({
 			</span>
 		</section>
 	);
-};
+});
 
 export default AudioPlayer;

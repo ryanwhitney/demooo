@@ -1,15 +1,6 @@
-import {
-	Suspense,
-	lazy,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
 import type { Track } from "@/types/track";
 import { Link } from "react-router";
 import * as style from "./SingleTrackView.css";
-import { useAudio } from "@/providers/AudioProvider";
 import SinglePlayer from "@/features/audio/singlePlayer/SinglePlayer";
 
 /**

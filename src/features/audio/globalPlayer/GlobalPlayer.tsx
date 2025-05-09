@@ -5,11 +5,12 @@ import {
 	useEffect,
 	useRef,
 	useState,
+	useMemo,
 } from "react";
-import type { Track } from "@/types/track";
 import { useAudio } from "@/providers/AudioProvider";
 import * as style from "./GlobalPlayer.css";
 import { useLocation } from "react-router";
+import type { PlayerSource } from "@/types/audio";
 
 const AudioPlayer = lazy(
 	() => import("@/components/audioPlayer/components/AudioPlayer"),
@@ -17,33 +18,41 @@ const AudioPlayer = lazy(
 
 /**
  * GlobalPlayer - Persistent audio player that appears at the bottom of the screen
- * Shows when playing content not on a single track page
+ * Shows when playing content not on a single track page or when explicitly using the global source
  */
 const GlobalPlayer = () => {
 	const [isVisible, setIsVisible] = useState(false);
 	const audio = useAudio();
-	const previousSourceRef = useRef<string | null>(null);
+	const previousSourceRef = useRef<PlayerSource | null>(null);
 	const previousTrackIdRef = useRef<string | null>(null);
 	const previousPathRef = useRef<string | null>(null);
 	const location = useLocation();
 	const loggedPlayPauseRef = useRef(false);
 
 	// Check if we're on a track page - they have paths like "/username/track/title"
-	const isSingleTrackView = location.pathname.includes("/track/");
+	const isSingleTrackView = useMemo(() => {
+		return location.pathname.includes("/track/");
+	}, [location.pathname]);
 
 	// Determine if the GlobalPlayer should be shown
 	// - Has a track
 	// - Is global/artist source OR we're NOT in SingleTrackView
-	const shouldShow =
-		audio.currentTrack !== null &&
-		(!isSingleTrackView ||
-			audio.activeSource === "global" ||
-			audio.activeSource === "artist-view");
+	const shouldShow = useMemo(() => {
+		return (
+			audio.currentTrack !== null &&
+			(!isSingleTrackView ||
+				audio.activeSource === "global" ||
+				audio.activeSource === "artist-view")
+		);
+	}, [audio.currentTrack, audio.activeSource, isSingleTrackView]);
 
 	// Is this GlobalPlayer passive (shouldn't handle interactions)?
-	const isPassive =
-		isSingleTrackView &&
-		(audio.activeSource === "track-view" || audio.isScrubbing);
+	const isPassive = useMemo(() => {
+		return (
+			isSingleTrackView &&
+			(audio.activeSource === "track-view" || audio.isScrubbing)
+		);
+	}, [isSingleTrackView, audio.activeSource, audio.isScrubbing]);
 
 	// Track location and source changes to manage visibility
 	useEffect(() => {

@@ -21,7 +21,6 @@ const Waveform = ({
 	height = 30,
 	barWidth = 1.2,
 	spacing = 3,
-	isInteractive = false,
 }: WaveformProps) => {
 	const progressWidth = progress * 100;
 	let xPosition = (barWidth + spacing) * -1;

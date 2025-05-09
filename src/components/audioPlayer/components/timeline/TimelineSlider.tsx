@@ -22,7 +22,6 @@ const TimelineSlider = ({
 	children,
 	currentTime,
 	duration,
-	isPlaying,
 	isScrubbing = false,
 	onTimeChange,
 	onScrubbing,
