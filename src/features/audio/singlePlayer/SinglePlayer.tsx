@@ -1,118 +1,144 @@
-import { lazy, Suspense, useCallback, useEffect, useRef } from "react";
+import { Suspense, lazy, useCallback, useEffect, useRef } from "react";
 import type { Track } from "@/types/track";
 import { useAudio } from "@/providers/AudioProvider";
 
-// Use lazy loading for the player component
+// Import the PlayerSource type
+type PlayerSource = "global" | "track-view" | "artist-view";
+
+// Use lazy loading for AudioPlayer
 const AudioPlayer = lazy(
 	() => import("@/components/audioPlayer/components/AudioPlayer"),
 );
 
 /**
- * SinglePlayer - A simplified track player for the track view
- * Built to work in harmony with GlobalPlayer by using similar patterns
+ * SinglePlayer - A simplified track player component that can be used across the app
+ * Manages audio control transfer between different parts of the application
  */
-const SinglePlayer = ({
+function SinglePlayer({
 	track,
-	relatedTracks = [],
+	source = "track-view",
 }: {
 	track: Track;
-	relatedTracks?: Track[];
-}) => {
-	// Get audio context
+	source?: PlayerSource;
+}) {
 	const audio = useAudio();
-
-	// Track interaction and initialization state
-	const playerRef = useRef<HTMLDivElement>(null);
 	const hasInitializedRef = useRef(false);
+	const isMountedRef = useRef(false);
 
-	// Check if this is the current track
+	// Determine if this track is already playing
 	const isCurrentTrack = audio.currentTrack?.id === track.id;
 
-	// Take control on mount if needed
+	// Is this player in passive mode?
+	const isPassive = audio.activeSource !== source || audio.isScrubbing;
+
+	// Track component lifecycle
 	useEffect(() => {
-		if (!hasInitializedRef.current) {
-			console.log("[SinglePlayer] Initializing");
+		isMountedRef.current = true;
 
-			// If we're already playing this track, take control
-			if (isCurrentTrack && audio.activeSource !== "track-view") {
-				console.log("[SinglePlayer] Taking control of current track");
-				audio.transferControlTo("track-view");
-			}
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
 
+	// Manage control transfer on mount/unmount
+	useEffect(() => {
+		// Skip if not mounted or during scrubbing
+		if (!isMountedRef.current) return;
+
+		// Take control when component mounts and track is current or changes
+		if (
+			isCurrentTrack &&
+			audio.activeSource !== source &&
+			!audio.isScrubbing &&
+			!hasInitializedRef.current
+		) {
+			console.log(`[SinglePlayer] Taking control on mount (${source})`);
+			audio.transferControlTo(source);
 			hasInitializedRef.current = true;
 		}
-	}, [audio, isCurrentTrack]);
 
-	// Clean up on unmount - transfer control to global player
-	useEffect(() => {
 		return () => {
-			// Only transfer if this is still the current track and we have control
-			if (isCurrentTrack && audio.activeSource === "track-view") {
-				console.log("[SinglePlayer] Unmounting, transferring to global");
+			// Only perform cleanup on actual unmount, not re-renders
+			if (
+				!isMountedRef.current &&
+				isCurrentTrack &&
+				audio.activeSource === source
+			) {
+				console.log(
+					`[SinglePlayer] Unmounting, transferring to global (${source})`,
+				);
 				audio.transferControlTo("global");
+				hasInitializedRef.current = false;
 			}
 		};
-	}, [audio, isCurrentTrack]);
+	}, [
+		isCurrentTrack,
+		audio.activeSource,
+		audio.isScrubbing,
+		audio.transferControlTo,
+		source,
+	]);
 
-	// Very simple play/pause handler that matches GlobalPlayer's approach
+	// Handle play/pause
 	const handlePlayPause = useCallback(
 		(playing: boolean) => {
-			// Take control first - this is critical
-			if (audio.activeSource !== "track-view") {
-				audio.transferControlTo("track-view");
-			}
+			// Take control if needed
+			if (audio.activeSource !== source) {
+				audio.transferControlTo(source);
+				hasInitializedRef.current = true;
 
-			// Wait a moment to ensure control transfer is complete
-			setTimeout(() => {
-				if (playing) {
-					// PLAY
-					if (isCurrentTrack) {
-						// Already the current track, just resume
-						audio.resumeTrack();
+				// Allow transfer to complete before changing playback
+				setTimeout(() => {
+					if (playing) {
+						isCurrentTrack
+							? audio.resumeTrack()
+							: audio.playTrack(track, source);
 					} else {
-						// Play a new track, with queue if available
-						if (relatedTracks.length > 0) {
-							const queue = [
-								track,
-								...relatedTracks.filter((t) => t.id !== track.id),
-							];
-							audio.playTrackInQueue(track, queue, "track-view");
-						} else {
-							audio.playTrack(track, "track-view");
-						}
-					}
-				} else {
-					// PAUSE - only if it's our track
-					if (isCurrentTrack) {
 						audio.pauseTrack();
 					}
+				}, 10);
+			} else {
+				// Already have control, just update playback state
+				if (playing) {
+					isCurrentTrack ? audio.resumeTrack() : audio.playTrack(track, source);
+				} else {
+					audio.pauseTrack();
 				}
-			}, 10);
+			}
 		},
-		[audio, isCurrentTrack, track, relatedTracks],
+		[
+			audio.activeSource,
+			audio.pauseTrack,
+			audio.playTrack,
+			audio.resumeTrack,
+			audio.transferControlTo,
+			isCurrentTrack,
+			track,
+			source,
+		],
 	);
 
-	// Handle track ending
+	// Handle track ended
 	const handleTrackEnded = useCallback(() => {
-		console.log("[SinglePlayer] Track ended, playing next track");
-		audio.nextTrack();
-	}, [audio]);
+		// Only handle if we're the active source
+		if (audio.activeSource === source) {
+			console.log(`[SinglePlayer] Track ended (${source})`);
+			audio.nextTrack();
+		}
+	}, [audio, audio.activeSource, source]);
 
-	// Render a simplified player component that's consistent with GlobalPlayer
 	return (
-		<div ref={playerRef}>
-			<Suspense fallback={<div>Loading...</div>}>
-				<AudioPlayer
-					track={
-						isCurrentTrack && audio.currentTrack ? audio.currentTrack : track
-					}
-					onPlayPause={handlePlayPause}
-					onEnded={handleTrackEnded}
-					source="track-view"
-				/>
-			</Suspense>
-		</div>
+		<Suspense fallback={<div>Loading player...</div>}>
+			<AudioPlayer
+				track={
+					isCurrentTrack && audio.currentTrack ? audio.currentTrack : track
+				}
+				onPlayPause={handlePlayPause}
+				onEnded={handleTrackEnded}
+				source={source}
+			/>
+		</Suspense>
 	);
-};
+}
 
 export default SinglePlayer;
