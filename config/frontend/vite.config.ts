@@ -55,6 +55,7 @@ export default defineConfig({
       }
     },
     chunkSizeWarningLimit: 700,
+    copyPublicDir: true,
   },
   optimizeDeps: {
     include: ['react', 'react-dom', '@apollo/client', 'graphql'],

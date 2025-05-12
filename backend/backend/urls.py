@@ -18,6 +18,12 @@ urlpatterns = [
     # Debug and CSRF endpoints
     path("api/debug/session/", session_debug, name="session_debug"),
     path("api/csrf/", get_csrf_token, name="csrf"),
+    # Serve robots.txt
+    path(
+        "robots.txt",
+        serve,
+        {"document_root": settings.FRONTEND_DIR, "path": "robots.txt"},
+    ),
     # Serve frontend assets
     re_path(
         r"^assets/(?P<path>.*)$",
@@ -33,7 +39,7 @@ urlpatterns = [
     # Serve the frontend's index.html for all other routes
     re_path(r"^$", TemplateView.as_view(template_name="index.html")),
     re_path(
-        r"^(?!admin|graphql|media|assets).*$",
+        r"^(?!admin|graphql|media|assets|robots\.txt).*$",
         TemplateView.as_view(template_name="index.html"),
     ),
 ]
