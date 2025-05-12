@@ -13,6 +13,8 @@ logger = logging.getLogger("django")
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Path to the frontend dist directory
 FRONTEND_DIR = Path(BASE_DIR).parent / "dist"
+# Path to the config directory
+CONFIG_DIR = Path(BASE_DIR).parent / "config"
 
 # Determine which env file to use
 env_file = ".env.local"  # fallback
@@ -21,10 +23,8 @@ if os.environ.get("ENVIRONMENT") == "production":
 elif os.environ.get("ENVIRONMENT") == "docker":
     env_file = ".env.docker"
 
-# Load from .env files in different potential locations
+# Load from .env file in the project root
 load_dotenv(dotenv_path=Path(BASE_DIR).parent / env_file, override=True)
-load_dotenv(dotenv_path=BASE_DIR / env_file, override=True)
-load_dotenv(dotenv_path=Path(__file__).resolve().parent / env_file, override=True)
 
 # Environment settings
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")

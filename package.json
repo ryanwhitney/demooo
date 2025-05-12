@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config config/frontend/vite.config.ts",
-    "build": "tsc -b --project config/frontend/tsconfig.json && vite build --config config/frontend/vite.config.ts",
+    "build": "tsc --project config/frontend/tsconfig.json && vite build --config config/frontend/vite.config.ts",
     "preview": "vite preview --config config/frontend/vite.config.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
