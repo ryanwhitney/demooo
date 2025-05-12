@@ -12,7 +12,7 @@ import { useEffect, useState, useRef } from "react";
 
 const DEBUG = false;
 
-const CreateAccount = () => {
+const CreateAccount = ({ onSuccess }: { onSuccess?: () => void }) => {
 	const [usernameError, setUsernameError] = useState("");
 	const [formData, setFormData] = useState<SignupFormInput>({
 		email: "",
@@ -60,7 +60,11 @@ const CreateAccount = () => {
 			if (data.login.success) {
 				setFormData({ ...formData, password: "" });
 				setIsAuthenticated(true);
-				window.location.reload();
+				if (onSuccess) {
+					onSuccess();
+				} else {
+					window.location.reload();
+				}
 			}
 		},
 		onError: (error) => {

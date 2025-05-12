@@ -1,12 +1,11 @@
 import Button from "@/components/button/Button";
 import { useAuth } from "@/hooks/useAuth";
 import { useFollow } from "@/hooks/useFollow";
+import { useModal } from "@/hooks/useModal";
+import { ModalType } from "@/types/modal";
 import { tokens } from "@/styles/tokens";
 import type { User } from "@/types/user";
-import { useState } from "react";
-import { createPortal } from "react-dom";
 import UpdateProfile from "../updateProfile/UpdateProfile";
-import Modal from "@/components/modal/ModalForm";
 
 const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 	const {
@@ -14,27 +13,41 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 		// loading: loadingFollow,
 		toggleFollow,
 	} = useFollow(userToFollow.username);
-	const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-	const { user } = useAuth();
+
+	const { openModal } = useModal();
+	const { user, isAuthenticated } = useAuth();
 
 	// Check if current user is the same as userToFollow
 	const isSameUser = user?.username === userToFollow.username;
 
+	const handleFollowClick = () => {
+		if (!isAuthenticated) {
+			openModal(ModalType.AUTH, {
+				authRedirect: {
+					login: false,
+					message: `Sign up to follow ${userToFollow.username}`,
+					actionText: "Sign up to follow",
+				},
+				onSuccess: toggleFollow,
+			});
+			return;
+		}
+		toggleFollow();
+	};
+
+	const handleEditProfileClick = () => {
+		openModal(ModalType.PROFILE, {
+			content: <UpdateProfile />,
+			// We don't need to set title because it's already defined in MODAL_CONFIGS
+		});
+	};
+
 	return (
 		<>
-			{createPortal(
-				<Modal
-					isOpen={showEditProfileModal}
-					onOpenChange={(isOpen) => setShowEditProfileModal(isOpen)}
-				>
-					<UpdateProfile />
-				</Modal>,
-				document.body,
-			)}
 			{isSameUser ? (
 				<Button
 					variant="primary"
-					onClick={() => setShowEditProfileModal(true)}
+					onClick={handleEditProfileClick}
 					style={{
 						minWidth: 120,
 						borderRadius: 40,
@@ -48,7 +61,7 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 			) : (
 				<Button
 					variant={isFollowing ? "secondary" : "primary"}
-					onClick={toggleFollow}
+					onClick={handleFollowClick}
 					style={{
 						minWidth: 120,
 						borderRadius: 40,

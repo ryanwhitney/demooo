@@ -11,7 +11,7 @@ import { useState } from "react";
 
 const DEBUG = false;
 
-const Login = () => {
+const Login = ({ onSuccess }: { onSuccess?: () => void }) => {
 	const [formData, setFormData] = useState<LoginFormInput>({
 		username: "",
 		password: "",
@@ -32,7 +32,11 @@ const Login = () => {
 			if (data.login.success) {
 				setFormData({ username: "", password: "" });
 				setIsAuthenticated(true);
-				window.location.reload();
+				if (onSuccess) {
+					onSuccess();
+				} else {
+					window.location.reload();
+				}
 			} else {
 				setErrorMessage(data.login.message || "Login failed");
 			}

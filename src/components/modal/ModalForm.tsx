@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import Button from "../button/Button";
 import * as style from "./ModalForm.css";
 import { Dialog, Modal } from "react-aria-components";
@@ -12,7 +13,7 @@ const ModalForm = ({
 	minWidth = "400px", // only applies at screen width > 480px
 	isOpen = true,
 }: {
-	children: React.ReactNode;
+	children: ReactNode;
 	onOpenChange?: (isOpen: boolean) => void;
 	title?: string;
 	description?: string;
@@ -53,6 +54,7 @@ const ModalForm = ({
 					[style.transitionDurationVar]: `${TRANSITION_DURATION}ms`,
 				}),
 			}}
+			isDismissable={true}
 		>
 			<Dialog
 				className={style.modalCard({ isActive: isVisible })}
@@ -61,6 +63,8 @@ const ModalForm = ({
 						[style.minWidthVar]: `${minWidth}`,
 					}),
 				}}
+				aria-labelledby={title ? "modal-title" : undefined}
+				aria-describedby={description ? "modal-description" : undefined}
 			>
 				<Button
 					variant="icon"
@@ -69,10 +73,18 @@ const ModalForm = ({
 					className={style.modalButtonClose}
 					onClick={handleClose}
 				>
-					<span aria-label="X">&times;</span>
+					<span aria-label="Close">×</span>
 				</Button>
-				<h1 className={style.modalTitle}>{title}</h1>
-				<p className={style.modalDescription}>{description}</p>
+				{title && (
+					<h1 id="modal-title" className={style.modalTitle}>
+						{title}
+					</h1>
+				)}
+				{description && (
+					<p id="modal-description" className={style.modalDescription}>
+						{description}
+					</p>
+				)}
 				{children}
 			</Dialog>
 		</Modal>

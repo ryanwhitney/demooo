@@ -2,6 +2,9 @@ import { useCallback, useMemo } from "react";
 import type { Track } from "@/types/track";
 import { formatTime, monthOrder } from "@/utils/timeAndDate";
 import { useAudio } from "@/providers/AudioProvider";
+import { useAuth } from "@/hooks/useAuth";
+import { useModal } from "@/hooks/useModal";
+import { ModalType } from "@/types/modal";
 import IconToggleButton from "@/components/IconToggleButton/IconToggleButton";
 import HeartSVG from "@/components/svg/HeartSVG";
 import PlaySVG from "@/components/svg/PlaySVG";
@@ -16,6 +19,8 @@ const TrackRow = ({
 	allTracksInList,
 }: { track: Track; allTracksInList: Track[] }) => {
 	const audio = useAudio();
+	const { isAuthenticated } = useAuth();
+	const { openModal } = useModal();
 	const {
 		isFavorited,
 		// loading: loadingFavorite,
@@ -46,6 +51,21 @@ const TrackRow = ({
 		}
 	}, [audio, isCurrentTrack, isPlaying, track, allTracksInList]);
 
+	const handleFavoriteToggle = useCallback(() => {
+		if (!isAuthenticated) {
+			openModal(ModalType.AUTH, {
+				authRedirect: {
+					login: false,
+					message: "Sign up to share the love and favorite tracks",
+					actionText: "Sign up to favorite",
+				},
+				onSuccess: toggleFavorite,
+			});
+			return;
+		}
+		toggleFavorite();
+	}, [isAuthenticated, openModal, toggleFavorite]);
+
 	return (
 		<div key={track.id} className={style.trackRowWrapper}>
 			<div className={style.trackLeftContent}>
@@ -69,7 +89,7 @@ const TrackRow = ({
 						iconTwo={<HeartSVG />}
 						iconTwoTitle="Remove from favorites"
 						defaultToggled={isFavorited}
-						onToggle={toggleFavorite}
+						onToggle={handleFavoriteToggle}
 						className={`${style.favoriteIconToggle({ isActive: isFavorited })}`}
 					/>
 					<span className={style.favoriteCount({ isActive: isFavorited })}>

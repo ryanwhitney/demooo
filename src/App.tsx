@@ -5,6 +5,7 @@ import { BrowserRouter, useRoutes } from "react-router";
 import { client } from "@/apollo/client";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { AudioProvider } from "@/providers/AudioProvider";
+import { ModalProvider } from "@/providers/ModalProvider";
 import routes from "@/routes/_config";
 import { fetchCsrfToken } from "@/utils/csrf";
 import "@/styles/reset.css";
@@ -35,11 +36,13 @@ if (rootElement) {
 			<ApolloProvider client={client}>
 				<CsrfInitializer>
 					<AuthProvider>
-						<AudioProvider>
-							<BrowserRouter>
-								<AppRoutes />
-							</BrowserRouter>
-						</AudioProvider>
+						<ModalProvider>
+							<AudioProvider>
+								<BrowserRouter>
+									<AppRoutes />
+								</BrowserRouter>
+							</AudioProvider>
+						</ModalProvider>
 					</AuthProvider>
 				</CsrfInitializer>
 			</ApolloProvider>
