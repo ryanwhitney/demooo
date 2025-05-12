@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import Button from "../button/Button";
 import * as style from "./ModalForm.css";
-import { Dialog, Modal } from "react-aria-components";
+import { Dialog, Modal, ModalOverlay } from "react-aria-components";
 import { assignInlineVars } from "@vanilla-extract/dynamic";
 
 const ModalForm = ({
@@ -39,7 +39,7 @@ const ModalForm = ({
 	}, [isOpen]);
 
 	return (
-		<Modal
+		<ModalOverlay
 			isOpen={isOpen}
 			onOpenChange={(open) => {
 				if (!open) {
@@ -56,38 +56,42 @@ const ModalForm = ({
 			}}
 			isDismissable={true}
 		>
-			<Dialog
+			<Modal
 				className={style.modalCard({ isActive: isVisible })}
 				style={{
 					...assignInlineVars({
 						[style.minWidthVar]: `${minWidth}`,
 					}),
 				}}
-				aria-labelledby={title ? "modal-title" : undefined}
-				aria-describedby={description ? "modal-description" : undefined}
 			>
-				<Button
-					variant="icon"
-					type="button"
-					title="close modal"
-					className={style.modalButtonClose}
-					onClick={handleClose}
+				<Dialog
+					aria-labelledby={title ? "modal-title" : undefined}
+					aria-describedby={description ? "modal-description" : undefined}
 				>
-					<span aria-label="Close">×</span>
-				</Button>
-				{title && (
-					<h1 id="modal-title" className={style.modalTitle}>
-						{title}
-					</h1>
-				)}
-				{description && (
-					<p id="modal-description" className={style.modalDescription}>
-						{description}
-					</p>
-				)}
-				{children}
-			</Dialog>
-		</Modal>
+					<Button
+						variant="icon"
+						type="button"
+						title="close modal"
+						className={style.modalButtonClose}
+						onClick={handleClose}
+						autoFocus
+					>
+						<span aria-label="Close">×</span>
+					</Button>
+					{title && (
+						<h1 id="modal-title" className={style.modalTitle}>
+							{title}
+						</h1>
+					)}
+					{description && (
+						<p id="modal-description" className={style.modalDescription}>
+							{description}
+						</p>
+					)}
+					{children}
+				</Dialog>
+			</Modal>
+		</ModalOverlay>
 	);
 };
 
