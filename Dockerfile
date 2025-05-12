@@ -7,7 +7,8 @@ RUN npm install
 
 COPY public/ public/
 COPY src/ src/
-COPY tsconfig.json vite.config.ts index.html ./
+COPY config/frontend/tsconfig.json config/frontend/vite.config.ts ./config/frontend/
+COPY index.html ./
 
 ARG API_BASE_URL
 ENV VITE_API_BASE_URL $API_BASE_URL
