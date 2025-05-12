@@ -4,6 +4,6 @@ Demooo is an app for uploading demos, sketches, and rough musical ideas that wou
 
 However—it's actual reason for existance is as a sample project for me to build things publicly in a semi-realistic environment.
 
-It's deployed at http://demooo.fly.dev on slower shared machines.
+It's deployed at http://demooo.fly.dev (warning: on slower shared machines.)
 
 This is very much a work-in-progress in design, functionality, and organization. :) 
