@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     react(),
     tsconfigPaths({
-      projects: [resolve(__dirname, 'tsconfig.json')],
+      projects: [resolve(__dirname, '../../tsconfig.json')],
     }),
     vanillaExtractPlugin(),
   ],
