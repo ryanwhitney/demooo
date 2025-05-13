@@ -23,6 +23,8 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     minify: 'terser',
+    cssCodeSplit: true,
+    cssMinify: true,
     terserOptions: {
       compress: {
         passes: 2,

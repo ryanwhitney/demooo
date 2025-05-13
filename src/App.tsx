@@ -1,3 +1,4 @@
+import React, { StrictMode, useEffect } from "react";
 import { client } from "@/apollo/client";
 import { AudioProvider } from "@/providers/AudioProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
@@ -5,7 +6,6 @@ import { ModalProvider } from "@/providers/ModalProvider";
 import routes from "@/routes/_config";
 import { fetchCsrfToken } from "@/utils/csrf";
 import { ApolloProvider } from "@apollo/client";
-import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, useRoutes } from "react-router";
 import "@/styles/reset.css";

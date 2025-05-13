@@ -2,12 +2,8 @@ import { useAudio } from "@/providers/AudioProvider";
 import type { PlayerSource } from "@/types/audio";
 import { shouldAutoTakeControl } from "@/types/audio";
 import type { Track } from "@/types/track";
-import { Suspense, lazy, useCallback, useEffect, useRef } from "react";
-
-// Use lazy loading for AudioPlayer
-const AudioPlayer = lazy(
-  () => import("@/components/audioPlayer/components/AudioPlayer"),
-);
+import { useCallback, useEffect, useRef } from "react";
+import AudioPlayer from "../../../components/audioPlayer/components/AudioPlayer";
 
 /**
  * Player for individual track pages that transfers control
@@ -119,16 +115,12 @@ function SinglePlayer({
   }, [audio, audio.activeSource, source]);
 
   return (
-    <Suspense fallback={<div>Loading player...</div>}>
-      <AudioPlayer
-        track={
-          isCurrentTrack && audio.currentTrack ? audio.currentTrack : track
-        }
-        onPlayPause={handlePlayPause}
-        onEnded={handleTrackEnded}
-        source={source}
-      />
-    </Suspense>
+    <AudioPlayer
+      track={isCurrentTrack && audio.currentTrack ? audio.currentTrack : track}
+      onPlayPause={handlePlayPause}
+      onEnded={handleTrackEnded}
+      source={source}
+    />
   );
 }
 

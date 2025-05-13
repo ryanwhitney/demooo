@@ -1,6 +1,5 @@
 import ProtectedRoute from "@/components/protectedRoute/ProtectedRoute";
 import MainLayout from "@/layouts/MainLayout";
-// src/routes/config.tsx
 import type { RouteObject } from "react-router";
 import ArtistPage from "./Artist";
 import Home from "./Home";
