@@ -8,7 +8,19 @@ from api.views import (
     session_debug,
     get_csrf_token,
     CustomGraphQLView,
-)  # Import the custom view
+)
+from django.views.decorators.cache import cache_control
+from typing import Optional
+
+
+# Custom view for serving static files with cache headers
+@cache_control(max_age=604800)  # 1 week (604800 seconds)
+def serve_static_with_cache(request, path, document_root: Optional[str] = None):
+    if document_root is None:
+        raise ValueError("document_root cannot be None")
+    response = serve(request, path, document_root=document_root)
+    return response
+
 
 urlpatterns = [
     # Admin and GraphQL API
@@ -24,16 +36,16 @@ urlpatterns = [
         serve,
         {"document_root": settings.FRONTEND_DIR, "path": "robots.txt"},
     ),
-    # Serve frontend assets
+    # Serve frontend assets with caching
     re_path(
         r"^assets/(?P<path>.*)$",
-        serve,
+        serve_static_with_cache,
         {"document_root": settings.FRONTEND_DIR / "assets"},
     ),
     # Serve favicon and other static files from root
     re_path(
         r"^(?P<path>favicon\.ico|icon\.svg|favicon-\d+\.png)$",
-        serve,
+        serve_static_with_cache,
         {"document_root": settings.FRONTEND_DIR},
     ),
     # Serve the frontend's index.html for all other routes
