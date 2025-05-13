@@ -10,7 +10,7 @@ import * as style from "./SingleTrackView.css";
 function SingleTrackView({ track }: { track: Track }) {
   return (
     <main>
-      <title>Music | {track.artist.username}</title>
+      <title>{`${track.title} | ${track.artist.username} | demooo`}</title>
       <div className={style.trackViewWrapper}>
         <div className={style.trackViewInfo}>
           <div>

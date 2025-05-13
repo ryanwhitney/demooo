@@ -75,8 +75,8 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 
   return (
     <div className={style.artistProfileContainer}>
+      <title>{`Music | ${artist.username || artistName} | demooo`}</title>
       <div className={style.artistViewWrapper}>
-        <title>Music | {artist?.username}</title>
         <div className={style.artistHeaderBackgroundGrain} aria-hidden>
           <ProfileGrainSVG />
         </div>

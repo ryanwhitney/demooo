@@ -1,7 +1,12 @@
 import UploadTracks from "@/features/upload/components/uploadTracks/UploadTracks";
 
 function Upload() {
-  return <UploadTracks />;
+  return (
+    <>
+      <title>Upload your music | demooo</title>
+      <UploadTracks />
+    </>
+  );
 }
 
 export default Upload;
