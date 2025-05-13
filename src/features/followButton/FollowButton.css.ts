@@ -1,5 +1,5 @@
-import { style } from "@vanilla-extract/css";
 import { tokens } from "@/styles/tokens";
+import { style } from "@vanilla-extract/css";
 
 export const followButtonBase = style({
   minWidth: 120,
@@ -11,4 +11,4 @@ export const followButtonBase = style({
 
 export const followButtonToggle = style({
   transition: "background-color 0s",
-}); 
+});

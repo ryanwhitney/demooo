@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from "@storybook/react";
 import SpinnerLoadIndicator from "./SpinnerLoadIndicator";
 
 const meta: Meta<typeof SpinnerLoadIndicator> = {
-	title: "Components/SpinnerLoadIndicator",
-	component: SpinnerLoadIndicator,
-	parameters: {
-		layout: "centered",
-	},
+  title: "Components/SpinnerLoadIndicator",
+  component: SpinnerLoadIndicator,
+  parameters: {
+    layout: "centered",
+  },
 };
 
 export default meta;

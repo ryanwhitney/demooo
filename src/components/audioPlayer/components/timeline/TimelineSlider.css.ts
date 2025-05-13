@@ -1,5 +1,5 @@
-import { style, createVar } from "@vanilla-extract/css";
 import { tokens } from "@/styles/tokens";
+import { createVar, style } from "@vanilla-extract/css";
 
 export const progressVar = createVar();
 export const leftPositionVar = createVar();
@@ -17,7 +17,7 @@ export const timelineSlider = style({
 
 export const timelineFocused = style({
   boxShadow: `0 0 0 2px ${tokens.colors.primary}`,
-  outline: 'none',
+  outline: "none",
 });
 
 export const playheadIndicator = style({
@@ -36,4 +36,4 @@ export const progressContainer = style({
   position: "relative",
   width: "100%",
   height: "100%",
-}); 
+});

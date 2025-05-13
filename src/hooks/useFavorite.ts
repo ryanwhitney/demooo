@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useMutation, useQuery, useApolloClient } from '@apollo/client';
-import { IS_TRACK_FAVORITED } from '@/apollo/queries/favoriteTrackQueries'
-import { FAVORITE_TRACK, UNFAVORITE_TRACK } from '@/apollo/mutations/favoriteTrackMutations'
-import { gql } from '@apollo/client';
+import {
+  FAVORITE_TRACK,
+  UNFAVORITE_TRACK,
+} from "@/apollo/mutations/favoriteTrackMutations";
+import { IS_TRACK_FAVORITED } from "@/apollo/queries/favoriteTrackQueries";
+import { useApolloClient, useMutation, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useEffect, useState } from "react";
 
 export function useFavorite(trackId: string) {
   const [loading, setLoading] = useState(false);
-  const [favoritesCount, setFavoritesCount] = useState<number | undefined>(undefined);
+  const [favoritesCount, setFavoritesCount] = useState<number | undefined>(
+    undefined,
+  );
   const apolloClient = useApolloClient();
-  
+
   // Check if current user has favorited the track
   const { data, refetch } = useQuery(IS_TRACK_FAVORITED, {
     variables: { trackId },
@@ -16,7 +21,7 @@ export function useFavorite(trackId: string) {
   });
 
   const isFavorited = data?.isTrackFavorited || false;
-  
+
   // Use count from query if available, otherwise use state
   useEffect(() => {
     if (data?.track?.favoritesCount !== undefined) {
@@ -35,9 +40,9 @@ export function useFavorite(trackId: string) {
             fragment TrackFavoritesCount on Track {
               favoritesCount
             }
-          `
+          `,
         });
-        
+
         if (cacheData?.favoritesCount !== undefined) {
           setFavoritesCount(cacheData.favoritesCount);
         }
@@ -46,24 +51,24 @@ export function useFavorite(trackId: string) {
       }
     }
   }, [trackId, apolloClient, favoritesCount]);
-  
+
   const [favoriteTrackMutation] = useMutation(FAVORITE_TRACK);
   const [unfavoriteTrackMutation] = useMutation(UNFAVORITE_TRACK);
-  
+
   const favoriteTrack = async () => {
     if (loading || isFavorited) return;
-    
+
     // Optimistically update the favorites count
     if (favoritesCount !== undefined) {
       setFavoritesCount(favoritesCount + 1);
     }
-    
+
     setLoading(true);
     try {
       const result = await favoriteTrackMutation({
-        variables: { trackId }
+        variables: { trackId },
       });
-      
+
       if (result.data?.favoriteTrack?.success) {
         // Update the count with the actual value from the server
         if (result.data.favoriteTrack.track?.favoritesCount !== undefined) {
@@ -73,7 +78,7 @@ export function useFavorite(trackId: string) {
         await refetch();
       }
     } catch (error) {
-      console.error('Error favoriting track:', error);
+      console.error("Error favoriting track:", error);
       // Revert optimistic update if there was an error
       if (favoritesCount !== undefined) {
         setFavoritesCount(favoritesCount);
@@ -82,21 +87,21 @@ export function useFavorite(trackId: string) {
       setLoading(false);
     }
   };
-  
+
   const unfavoriteTrack = async () => {
     if (loading || !isFavorited) return;
-    
+
     // Optimistically update the favorites count
     if (favoritesCount !== undefined && favoritesCount > 0) {
       setFavoritesCount(favoritesCount - 1);
     }
-    
+
     setLoading(true);
     try {
       const result = await unfavoriteTrackMutation({
-        variables: { trackId }
+        variables: { trackId },
       });
-      
+
       if (result.data?.unfavoriteTrack?.success) {
         // Update the count with the actual value from the server
         if (result.data.unfavoriteTrack.track?.favoritesCount !== undefined) {
@@ -106,7 +111,7 @@ export function useFavorite(trackId: string) {
         await refetch();
       }
     } catch (error) {
-      console.error('Error unfavoriting track:', error);
+      console.error("Error unfavoriting track:", error);
       // Revert optimistic update if there was an error
       if (favoritesCount !== undefined) {
         setFavoritesCount(favoritesCount);
@@ -115,7 +120,7 @@ export function useFavorite(trackId: string) {
       setLoading(false);
     }
   };
-  
+
   const toggleFavorite = async () => {
     if (isFavorited) {
       await unfavoriteTrack();
@@ -130,6 +135,6 @@ export function useFavorite(trackId: string) {
     favoritesCount,
     favoriteTrack,
     unfavoriteTrack,
-    toggleFavorite
+    toggleFavorite,
   };
 }

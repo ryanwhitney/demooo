@@ -15,12 +15,11 @@ const baseTextarea = style({
   borderRadius: tokens.radii.lg,
   padding: `${tokens.space.md} ${tokens.space.lg}`,
   transition: "border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-  '@media': {
-		'screen and (min-width: 480px)': {
-			fontSize: tokens.fontSizes.md,
-
-		}
-	},
+  "@media": {
+    "screen and (min-width: 480px)": {
+      fontSize: tokens.fontSizes.md,
+    },
+  },
   "::placeholder": {
     color: tokens.colors.tertiary,
   },

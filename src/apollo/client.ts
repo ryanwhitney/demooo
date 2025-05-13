@@ -1,9 +1,10 @@
+import { fetchCsrfToken, getCsrfToken, setCSRFHeader } from "@/utils/csrf";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
-import { getCsrfToken, fetchCsrfToken, setCSRFHeader } from "@/utils/csrf";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 // Enable debugging in development only
 const DEBUG = import.meta.env.DEV;
@@ -21,7 +22,7 @@ const ensureCsrfToken = async (): Promise<boolean> => {
     }
     return true;
   }
-  
+
   // Start fetching a new token
   if (DEBUG) console.log("Apollo client: Fetching CSRF token");
   const result = await fetchCsrfToken();
@@ -32,9 +33,9 @@ const ensureCsrfToken = async (): Promise<boolean> => {
 // Create the upload link with credentials
 const uploadLink = createUploadLink({
   uri: `${API_BASE_URL}/graphql/`,
-  credentials: 'include',
+  credentials: "include",
   fetchOptions: {
-    credentials: 'include',
+    credentials: "include",
   },
 });
 
@@ -45,19 +46,19 @@ ensureCsrfToken();
 const authLink = setContext(async (_operation, { headers }) => {
   // Make sure we have initialized CSRF
   await ensureCsrfToken();
-  
+
   // Get the token
   const csrfToken = getCsrfToken();
-  
+
   if (DEBUG && !csrfToken) {
     // Only log actual problems to reduce console noise
     console.warn("No CSRF token available for request - proceeding anyway");
   }
-  
+
   // Use our utility function to add the CSRF header
   return {
     headers: setCSRFHeader({
-      ...headers
+      ...headers,
     }),
   };
 });
@@ -67,14 +68,14 @@ export const client = new ApolloClient({
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
     },
     query: {
-      fetchPolicy: 'network-only',
-      errorPolicy: 'all',
+      fetchPolicy: "network-only",
+      errorPolicy: "all",
     },
     mutate: {
-      errorPolicy: 'all',
+      errorPolicy: "all",
     },
   },
 });

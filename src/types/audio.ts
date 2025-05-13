@@ -8,7 +8,12 @@ export type PlayerSource = "global" | "track-view" | "artist-view";
 /**
  * PlaybackState - Represents the current state of audio playback
  */
-export type PlaybackState = "playing" | "paused" | "loading" | "ended" | "error";
+export type PlaybackState =
+  | "playing"
+  | "paused"
+  | "loading"
+  | "ended"
+  | "error";
 
 /**
  * AudioContextState - The complete state interface for the audio provider
@@ -29,27 +34,31 @@ export interface AudioContextState {
 export interface AudioActions {
   // Playback actions
   playTrack: (track: Track, source: PlayerSource) => void;
-  playTrackInQueue: (track: Track, queueTracks: Track[], source: PlayerSource) => void;
+  playTrackInQueue: (
+    track: Track,
+    queueTracks: Track[],
+    source: PlayerSource,
+  ) => void;
   pauseTrack: () => void;
   resumeTrack: () => void;
   togglePlayPause: () => void;
-  
+
   // Queue navigation
   nextTrack: () => void;
   previousTrack: () => void;
   skipToTrack: (trackId: string) => void;
   clearQueue: () => void;
-  
+
   // Time control
   seekTo: (time: number) => void;
   startScrubbing: (previewTime: number) => void;
   endScrubbing: (finalTime: number) => void;
-  
+
   // Source management
   setActiveSource: (source: PlayerSource) => void;
   isSourceActive: (source: PlayerSource) => boolean;
   transferControlTo: (source: PlayerSource) => void;
-  
+
   // Audio access
   getAudioElement: () => HTMLAudioElement | null;
 }
@@ -82,4 +91,4 @@ export const getSourcePriority = (source: PlayerSource): number => {
 export const shouldAutoTakeControl = (source: PlayerSource): boolean => {
   // Only track-view should auto-take control when mounted
   return source === "track-view";
-}; 
+};

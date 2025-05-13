@@ -1,4 +1,4 @@
-import { style, keyframes, createVar } from "@vanilla-extract/css";
+import { createVar, keyframes, style } from "@vanilla-extract/css";
 
 // Variables
 export const baseSize = createVar();

@@ -1,5 +1,5 @@
-import { style } from "@vanilla-extract/css";
 import { tokens } from "@/styles/tokens";
+import { style } from "@vanilla-extract/css";
 
 export const siteFooterContainer = style({
   display: "flex",
@@ -15,4 +15,4 @@ export const siteFooterCopyright = style({
   fontSize: 12,
   position: "relative",
   bottom: -2,
-}); 
+});

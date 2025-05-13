@@ -2,9 +2,9 @@ import type { StoryObj } from "@storybook/react";
 import PlayButton from "./PlayButton";
 
 const meta = {
-	title: "Components/PlayButton",
-	component: PlayButton,
-	tags: ["autodocs"],
+  title: "Components/PlayButton",
+  component: PlayButton,
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -12,7 +12,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-	args: {
-		isPlaying: false,
-	},
+  args: {
+    isPlaying: false,
+  },
 };

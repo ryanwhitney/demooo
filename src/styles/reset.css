@@ -5,20 +5,20 @@
 *,
 *::before,
 *::after {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* 2. Remove default margin */
 * {
-	margin: 0;
+  margin: 0;
 }
 
 /* 3. Enable keyword animations */
 @media (prefers-reduced-motion: no-preference) {
-	html {
-		/* biome-ignore lint/correctness/noUnknownProperty: using experimental prop */
-		interpolate-size: allow-keywords;
-	}
+  html {
+    /* biome-ignore lint/correctness/noUnknownProperty: using experimental prop */
+    interpolate-size: allow-keywords;
+  }
 }
 
 /* 6. Improve media defaults */
@@ -27,8 +27,8 @@ picture,
 video,
 canvas,
 svg {
-	display: block;
-	max-width: 100%;
+  display: block;
+  max-width: 100%;
 }
 
 /* 7. Inherit fonts for form controls */
@@ -36,7 +36,7 @@ input,
 button,
 textarea,
 select {
-	font: inherit;
+  font: inherit;
 }
 
 /* 8. Avoid text overflows */
@@ -47,12 +47,12 @@ h3,
 h4,
 h5,
 h6 {
-	overflow-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* 9. Improve line wrapping */
 p {
-	text-wrap: pretty;
+  text-wrap: pretty;
 }
 h1,
 h2,
@@ -60,7 +60,7 @@ h3,
 h4,
 h5,
 h6 {
-	text-wrap: balance;
+  text-wrap: balance;
 }
 
 /*
@@ -68,20 +68,20 @@ h6 {
 */
 #root,
 #__next {
-	isolation: isolate;
+  isolation: isolate;
 }
 
 /* individual elements */
 
 button {
-	-webkit-appearance: none;
-	appearance: none;
-	border-radius: 0;
-	background: none;
-	box-shadow: none;
-	padding: 0;
-	cursor: pointer;
-	border: none;
-	color: inherit;
-	font: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  cursor: pointer;
+  border: none;
+  color: inherit;
+  font: inherit;
 }

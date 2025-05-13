@@ -1,4 +1,4 @@
-import { style, createVar } from '@vanilla-extract/css';
+import { createVar, style } from "@vanilla-extract/css";
 
 export const borderRadiusVar = createVar();
 export const widthVar = createVar();
@@ -18,5 +18,5 @@ export const profilePhotoImage = style({
   height: heightVar,
   borderRadius: borderRadiusVar,
   flexShrink: 0,
-  objectFit: 'cover',
-}); 
+  objectFit: "cover",
+});

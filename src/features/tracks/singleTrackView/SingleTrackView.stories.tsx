@@ -4,22 +4,22 @@ import { MemoryRouter } from "react-router";
 import TrackView from "./SingleTrackView";
 
 const meta: Meta<typeof TrackView> = {
-	title: "Components/TrackView",
-	component: TrackView,
-	tags: ["autodocs"],
-	parameters: {
-		layout: "centered",
-		backgrounds: {
-			default: "black",
-		},
-	},
-	decorators: [
-		(Story) => (
-			<MemoryRouter>
-				<Story />
-			</MemoryRouter>
-		),
-	],
+  title: "Components/TrackView",
+  component: TrackView,
+  tags: ["autodocs"],
+  parameters: {
+    layout: "centered",
+    backgrounds: {
+      default: "black",
+    },
+  },
+  decorators: [
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 };
 
 export default meta;
@@ -27,7 +27,7 @@ export default meta;
 type Story = StoryObj<typeof TrackView>;
 
 export const Default: Story = {
-	args: {
-		track: mockData.tracks[0],
-	},
+  args: {
+    track: mockData.tracks[0],
+  },
 };

@@ -1,8 +1,8 @@
-export function formatTime(seconds: number){
+export function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-};
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+}
 
 export const monthOrder: string[] = [
   "January",

@@ -1,25 +1,24 @@
-import type { User } from "./user"
-
+import type { User } from "./user";
 
 export interface AuthContextType {
-	isAuthenticated: boolean;
-	setIsAuthenticated: (value: boolean) => void;
-	user: User | null;
-	logout: () => void;
-	loading: boolean;
+  isAuthenticated: boolean;
+  setIsAuthenticated: (value: boolean) => void;
+  user: User | null;
+  logout: () => void;
+  loading: boolean;
 }
 
 export interface AuthProviderProps {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export interface LoginFormInput {
-	username: string;
-	password: string;
+  username: string;
+  password: string;
 }
 
 export interface SignupFormInput extends LoginFormInput {
-	email: string;
-	firstName?: string;
-	lastName?: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
 }

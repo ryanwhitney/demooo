@@ -1,6 +1,6 @@
 import { tokens } from "@/styles/tokens";
 import { style } from "@vanilla-extract/css";
-import { recipe} from "@vanilla-extract/recipes"
+import { recipe } from "@vanilla-extract/recipes";
 
 // Container styles
 export const uploadPageContainer = style({
@@ -14,7 +14,7 @@ export const uploadPageTitle = style({
   fontSize: tokens.fontSizes.xl,
   fontWeight: 500,
   textAlign: "center",
-  marginBottom: 2
+  marginBottom: 2,
 });
 
 export const uploadHeaderDescription = style({
@@ -32,8 +32,8 @@ export const errorText = style({
 // File list styles
 export const fileList = recipe({
   base: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     height: 0,
     opacity: 0,
     transition: "all 300ms ease-in",
@@ -62,10 +62,10 @@ export const removeButton = style({
   borderRadius: tokens.radii.full,
   color: tokens.colors.secondary,
   transition: "all 250ms ease",
-  ':hover': {
+  ":hover": {
     filter: "brightness(1.2)",
     color: tokens.colors.primary,
-  }
+  },
 });
 
 export const uploadCtaButton = style({
@@ -97,21 +97,21 @@ export const trackError = style({
 });
 
 export const demoLetterO1 = style({
-  fontSize: 17
+  fontSize: 17,
 });
 
 export const demoLetterO2 = style({
-  fontSize: 15
+  fontSize: 15,
 });
 
 export const demoLetterO3 = style({
-  fontSize: 12
+  fontSize: 12,
 });
 
 export const demoLetterO4 = style({
-  fontSize: 9
+  fontSize: 9,
 });
 
 export const demoLetterS = style({
-  fontSize: 6
+  fontSize: 6,
 });

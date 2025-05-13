@@ -83,14 +83,16 @@ export function useAudioEvents({
   }, [audioRef, isPlaying]);
 
   // Error handler
-  const handleError = onError ? useCallback(
-    (e: Event) => {
-      console.error("Audio error:", e);
-      onPlaybackStateChange?.(false);
-      onError?.(e);
-    },
-    [onError, onPlaybackStateChange]
-  ) : undefined;
+  const handleError = onError
+    ? useCallback(
+        (e: Event) => {
+          console.error("Audio error:", e);
+          onPlaybackStateChange?.(false);
+          onError?.(e);
+        },
+        [onError, onPlaybackStateChange],
+      )
+    : undefined;
 
   // Play event handler
   const handlePlay = useCallback(() => {
@@ -115,4 +117,4 @@ export function useAudioEvents({
     handlePlay,
     handlePause,
   };
-} 
+}

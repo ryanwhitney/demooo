@@ -1,7 +1,7 @@
 import UpdateProfile from "@/features/updateProfile/UpdateProfile";
 
 const Profile = () => {
-	return <UpdateProfile />;
+  return <UpdateProfile />;
 };
 
 export default Profile;

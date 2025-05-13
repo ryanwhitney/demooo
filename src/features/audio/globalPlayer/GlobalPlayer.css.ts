@@ -1,31 +1,32 @@
-import { style } from '@vanilla-extract/css';
-import { recipe } from '@vanilla-extract/recipes';
 import { tokens } from "@/styles/tokens";
+import { style } from "@vanilla-extract/css";
+import { recipe } from "@vanilla-extract/recipes";
 
 // Base container style
 export const container = style({
   position: "fixed",
   bottom: -100,
-  transition: "bottom 300ms ease-in-out, opacity 200ms ease-in-out, visibility 200ms ease-in-out",
+  transition:
+    "bottom 300ms ease-in-out, opacity 200ms ease-in-out, visibility 200ms ease-in-out",
   borderRadius: 0,
   backgroundColor: "rgba(60, 60, 69, 0.3)",
   backdropFilter: "blur(10px)",
   WebkitBackdropFilter: "blur(10px)",
   border: `.33px solid ${tokens.colors.secondaryDark}`,
   zIndex: 100,
-  display: 'flex',
+  display: "flex",
   right: 0,
   left: 0,
   paddingTop: 10,
-  justifyContent: 'center',
+  justifyContent: "center",
   overflow: "hidden",
-  '@media': {
-    'screen and (min-width: 480px)': {
+  "@media": {
+    "screen and (min-width: 480px)": {
       right: 8,
       bottom: -30,
       borderRadius: 23,
       paddingTop: 0,
-      left: 'unset',
+      left: "unset",
     },
   },
 });
@@ -37,43 +38,43 @@ export const playerContainer = recipe({
     visible: {
       true: {
         bottom: "0",
-        '@media': {
-          'screen and (min-width: 480px)': {
+        "@media": {
+          "screen and (min-width: 480px)": {
             bottom: 8,
           },
         },
       },
-      false: {}
+      false: {},
     },
     passive: {
       true: {
         opacity: 0,
-        pointerEvents: 'none',
-        visibility: 'hidden',
+        pointerEvents: "none",
+        visibility: "hidden",
         bottom: -100,
-        '@media': {
-          'screen and (min-width: 480px)': {
+        "@media": {
+          "screen and (min-width: 480px)": {
             bottom: -30,
           },
         },
       },
-      false: {}
-    }
+      false: {},
+    },
   },
   defaultVariants: {
     visible: false,
-    passive: false
-  }
+    passive: false,
+  },
 });
 
 export const playerWrapper = style({
-  '@media': {
-   'screen and (min-width: 480px)': {
-    scale: 0.5,
-    marginLeft: -56,
-    marginRight: -56,
-    marginBottom: -22,
-    marginTop: -12,
-   },
+  "@media": {
+    "screen and (min-width: 480px)": {
+      scale: 0.5,
+      marginLeft: -56,
+      marginRight: -56,
+      marginBottom: -22,
+      marginTop: -12,
+    },
   },
 });

@@ -5,22 +5,22 @@ import { fontSizes, fontWeights, fonts, lineHeights } from "./typography.css";
 
 // Export the combined tokens
 export const tokens = {
-	colors: colorTokens,
-	fonts,
-	fontSizes,
-	fontWeights,
-	lineHeights,
-	space,
-	radii,
+  colors: colorTokens,
+  fonts,
+  fontSizes,
+  fontWeights,
+  lineHeights,
+  space,
+  radii,
 };
 
 // Also export individual token categories for convenience
 export {
-	colorTokens,
-	fonts,
-	fontSizes,
-	fontWeights,
-	lineHeights,
-	space,
-	radii,
+  colorTokens,
+  fonts,
+  fontSizes,
+  fontWeights,
+  lineHeights,
+  space,
+  radii,
 };

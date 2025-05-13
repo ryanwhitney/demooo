@@ -1,4 +1,4 @@
-import type { Profile }  from "@/types/user"
+import type { Profile } from "@/types/user";
 
 export function getProfilePhotoUrl(profile: Profile): string | undefined {
   if (profile?.profilePictureOptimizedUrl) {

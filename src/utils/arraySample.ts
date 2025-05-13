@@ -5,10 +5,13 @@
 // const samples = evenSample(data, 4);
 // Result: [0.1, 0.3, 0.6, 0.8]
 
-export function arraySample({array, sampleCount}:{array: number[], sampleCount: number}): number[] {
+export function arraySample({
+  array,
+  sampleCount,
+}: { array: number[]; sampleCount: number }): number[] {
   const result: number[] = [];
   const ratio = array.length / sampleCount;
-  
+
   for (let i = 0; i < sampleCount; i++) {
     const index = Math.floor(i * ratio);
     result.push(array[index]);

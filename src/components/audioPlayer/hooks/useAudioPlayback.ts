@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { Track } from "@/types/track";
 import { useAudio } from "@/providers/AudioProvider";
+import type { Track } from "@/types/track";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseAudioPlaybackOptions {
   track: Track;
@@ -41,12 +41,12 @@ export function useAudioPlayback({
   const [duration, setDuration] = useState(0);
   const [isScrubbing, setIsScrubbing] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const wasPlayingRef = useRef(false);
   const previousTrackId = useRef<string | null>(null);
   const pendingSeekTimeRef = useRef<number | null>(null);
-  
+
   // Get the shared audio context
   const audioContext = useAudio();
   const isActiveSource = audioContext.isSourceActive?.(source);
@@ -104,14 +104,14 @@ export function useAudioPlayback({
     };
 
     // Add the direct event listeners
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('durationchange', handleDurationChange);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('pause', handlePause);
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('waiting', handleWaiting);
-    audio.addEventListener('playing', handlePlaying);
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("durationchange", handleDurationChange);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("pause", handlePause);
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("waiting", handleWaiting);
+    audio.addEventListener("playing", handlePlaying);
 
     // If duration is already available, use it
     if (audio.duration && !Number.isNaN(audio.duration)) {
@@ -121,14 +121,14 @@ export function useAudioPlayback({
     }
 
     return () => {
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('durationchange', handleDurationChange);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('waiting', handleWaiting);
-      audio.removeEventListener('playing', handlePlaying);
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("durationchange", handleDurationChange);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("waiting", handleWaiting);
+      audio.removeEventListener("playing", handlePlaying);
     };
   }, [isScrubbing, onDurationChange, onTimeUpdate, onEnded, onPlayPause]);
 
@@ -165,7 +165,11 @@ export function useAudioPlayback({
 
   // Sync with external play state if provided
   useEffect(() => {
-    if (externalIsPlaying !== undefined && externalIsPlaying !== isPlaying && isActiveSource) {
+    if (
+      externalIsPlaying !== undefined &&
+      externalIsPlaying !== isPlaying &&
+      isActiveSource
+    ) {
       if (externalIsPlaying) {
         if (audioRef.current && isLoaded) {
           audioRef.current.play().catch((error: Error) => {
@@ -187,19 +191,27 @@ export function useAudioPlayback({
   const togglePlayPause = useCallback(() => {
     if (audioRef.current) {
       const newPlayingState = !isPlaying;
-      
+
       // If we're not the active source but trying to play, transfer control
-      if (newPlayingState && !isActiveSource && audioContext.currentTrack?.id === track.id) {
+      if (
+        newPlayingState &&
+        !isActiveSource &&
+        audioContext.currentTrack?.id === track.id
+      ) {
         audioContext.transferControlTo(source);
       }
-      
+
       // If playing the same track that's already active elsewhere, transfer control
-      if (newPlayingState && !isActiveSource && audioContext.isPlaying && 
-          audioContext.currentTrack?.id === track.id) {
+      if (
+        newPlayingState &&
+        !isActiveSource &&
+        audioContext.isPlaying &&
+        audioContext.currentTrack?.id === track.id
+      ) {
         audioContext.transferControlTo(source);
         return;
       }
-      
+
       // If we're playing a different track than what's currently active, play through normal channels
       if (newPlayingState) {
         audioRef.current.play().catch((error: Error) => {
@@ -210,7 +222,7 @@ export function useAudioPlayback({
       } else {
         audioRef.current.pause();
       }
-      
+
       setIsPlaying(newPlayingState);
       onPlayPause?.(newPlayingState);
     }
@@ -235,7 +247,7 @@ export function useAudioPlayback({
       try {
         // Store the current play state
         const wasPlaying = isPlaying;
-        
+
         audioRef.current.currentTime = boundedTime;
         setCurrentTime(boundedTime);
         onTimeUpdate?.(boundedTime);
@@ -243,7 +255,7 @@ export function useAudioPlayback({
         // Resume playback only if we were already playing and not scrubbing
         if (wasPlaying && !isScrubbing) {
           const playPromise = audioRef.current.play();
-          
+
           if (playPromise !== undefined) {
             playPromise.catch((error) => {
               console.error("Error resuming after seek:", error);
@@ -268,12 +280,12 @@ export function useAudioPlayback({
       // When starting to scrub
       if (scrubbing && !isScrubbing) {
         wasPlayingRef.current = isPlaying;
-        
+
         // Pause if currently playing (but don't update UI state)
         if (isPlaying && audioRef.current) {
           audioRef.current.pause();
         }
-      } 
+      }
       // When ending a scrub
       else if (!scrubbing && isScrubbing) {
         // Only resume playback if we were playing before scrubbing
@@ -285,7 +297,7 @@ export function useAudioPlayback({
           }
 
           const playPromise = audioRef.current.play();
-          
+
           if (playPromise !== undefined) {
             playPromise.catch((err) => {
               console.error("Error resuming playback:", err);
@@ -299,7 +311,7 @@ export function useAudioPlayback({
             setIsPlaying(false);
             onPlayPause?.(false);
           }
-          
+
           // Ensure audio element is actually paused
           if (audioRef.current) {
             audioRef.current.pause();
@@ -314,7 +326,7 @@ export function useAudioPlayback({
       if (scrubbing) {
         setCurrentTime(previewTime);
         onTimeUpdate?.(previewTime);
-        
+
         if (audioRef.current && isLoaded) {
           try {
             audioRef.current.currentTime = previewTime;

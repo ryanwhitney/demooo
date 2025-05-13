@@ -53,7 +53,7 @@ export const timeDisplay = style({
 });
 
 export const waveformProgressIndicator = style({
-  display: 'none',
+  display: "none",
 });
 
 export const waveformSlider = style({

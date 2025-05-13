@@ -1,10 +1,10 @@
-import { inputContainer } from "@/components/textInput/TextInput.css"
+import { inputContainer } from "@/components/textInput/TextInput.css";
 import { tokens } from "@/styles/tokens";
 import { globalStyle, style } from "@vanilla-extract/css";
 
 export const uploadTrackListContainer = style({
-  display: 'flex',
-  flexDirection: 'column',
+  display: "flex",
+  flexDirection: "column",
   color: tokens.colors.secondary,
 });
 
@@ -43,43 +43,42 @@ export const uploadTrackListWrapper = style({
 
 export const uploadTrackListRow = style({
   display: "flex",
-  flexDirection: 'row',
-  justifyContent: 'space-between',
+  flexDirection: "row",
+  justifyContent: "space-between",
   alignItems: "center",
-  padding: '8px 16px',
+  padding: "8px 16px",
   backgroundColor: tokens.colors.backgroundSecondary,
   borderRadius: "8px",
   gap: 10,
 });
 
 export const fileItemError = style({
-  border: `1px dotted ${tokens.colors.error}`
+  border: `1px dotted ${tokens.colors.error}`,
 });
 
 export const uploadTrackListTrackContainer = style({
-width:'100%'
+  width: "100%",
 });
-
 
 // NOTE: this overrides a style imported from TextInput.css.ts
 globalStyle(`${uploadTrackListTrackContainer} ${inputContainer}`, {
   display: "flex",
-  flexDirection: 'column',
-  alignItems: 'flex-start',
+  flexDirection: "column",
+  alignItems: "flex-start",
   gap: 2,
   textIndent: 16,
   margin: 0,
-  '@media': {
-		'screen and (min-width: 480px)': {
+  "@media": {
+    "screen and (min-width: 480px)": {
       flexDirection: "row-reverse",
       gap: 10,
       textIndent: 0,
       alignItems: "center",
-		}
-	},
+    },
+  },
 });
 globalStyle(`${uploadTrackListTrackContainer} ${inputContainer} input`, {
-  flex: 0.5
+  flex: 0.5,
 });
 globalStyle(`${uploadTrackListTrackContainer} ${inputContainer} label`, {
   flex: 0.5,
@@ -87,16 +86,11 @@ globalStyle(`${uploadTrackListTrackContainer} ${inputContainer} label`, {
   color: tokens.colors.secondary,
 });
 
-
 export const errorText = style({
   color: tokens.colors.error,
 });
 
-export const uploadRowTitleInput = style({
-  
-});
-
-
+export const uploadRowTitleInput = style({});
 
 export const fileName = style({
   color: tokens.colors.secondary,
@@ -118,10 +112,10 @@ export const removeButton = style({
   borderRadius: tokens.radii.full,
   color: tokens.colors.secondary,
   transition: "all 250ms ease",
-  ':hover': {
+  ":hover": {
     filter: "brightness(1.2)",
     color: tokens.colors.primary,
-  }
+  },
 });
 
 export const statusIndicator = style({
@@ -143,8 +137,8 @@ export const errorStatus = style({
 });
 
 export const errorAsterisk = style({
-	color: tokens.colors.error,
-	fontWeight: "bold",
+  color: tokens.colors.error,
+  fontWeight: "bold",
   verticalAlign: "super",
   marginLeft: 2,
-}); 
+});

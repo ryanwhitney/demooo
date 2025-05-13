@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 export enum ModalType {
   LOGIN = "login",
   SIGNUP = "signup",
-  AUTH = "auth", 
+  AUTH = "auth",
   PROFILE = "profile",
   CUSTOM = "custom",
-  NONE = "none"
+  NONE = "none",
 }
 
 export interface ModalConfig {
@@ -38,4 +38,4 @@ export interface ModalProps {
 
 export interface ModalProviderProps {
   children: ReactNode;
-} 
+}
