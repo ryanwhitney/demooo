@@ -130,7 +130,7 @@ const GlobalPlayer = () => {
 
       // Prevent excessive logging - only log when state changes
       if (!loggedPlayPauseRef.current) {
-        console.log("[GlobalPlayer] PlayPause:", playing);
+        // console.log("[GlobalPlayer] PlayPause:", playing);
         loggedPlayPauseRef.current = true;
         // Reset log flag after a delay
         setTimeout(() => {

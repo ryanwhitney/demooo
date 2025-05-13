@@ -1,3 +1,4 @@
+import React from "react";
 import { LOGOUT } from "@/apollo/mutations/userMutations";
 import type { User } from "@/types/user";
 import { getCsrfToken } from "@/utils/csrf";
@@ -64,6 +65,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setInitialLoadComplete(true);
     },
     onError: (error) => {
+      // Check if this is a permission error for unauthenticated users
+      if (error.message.includes("You do not have permission")) {
+        // This is expected for unauthenticated users, handle silently
+        setIsAuthenticated(false);
+        setUser(null);
+        setInitialLoadComplete(true);
+        return;
+      }
+
+      // For other errors, log them
       console.error("AuthProvider: GET_ME query error:", error);
 
       // Check if this is a CSRF error or server unreachable

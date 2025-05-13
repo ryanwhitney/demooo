@@ -77,7 +77,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   // -------------------------------------------------------------------------
   useEffect(() => {
     if (!audioRef.current) {
-      console.log("Creating audio element");
       const audio = new Audio();
       audio.preload = "auto";
       audioRef.current = audio;
@@ -86,7 +85,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       return () => {
         audio.pause();
         audio.src = "";
-        console.log("Cleaning up audio element");
       };
     }
   }, []);
@@ -98,7 +96,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    console.log("Setting up audio element event listeners");
+    // console.log("Setting up audio element event listeners");
 
     // Simple timeupdate handler - don't update time during scrubbing/seeking
     const handleTimeUpdate = () => {
@@ -166,7 +164,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       const time = customEvent.detail?.time;
 
       if (typeof time === "number") {
-        console.log(`Manual time update: ${time.toFixed(2)}`);
+        // console.log(`Manual time update: ${time.toFixed(2)}`);
         // Just update the time state without triggering seeking behavior
         setCurrentTime(time);
       }
@@ -228,9 +226,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   // Change active source
   const changeActiveSource = useCallback(
     (source: PlayerSource) => {
-      console.log(
-        `Setting active source to ${source} for track: ${currentTrack?.title}`,
-      );
+      // console.log(
+      //   `Setting active source to ${source} for track: ${currentTrack?.title}`,
+      // );
       setActiveSource(source);
     },
     [currentTrack?.title],
@@ -239,13 +237,13 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   // Transfer control to another source, preserving playback state
   const transferControlTo = useCallback(
     (source: PlayerSource) => {
-      console.log(
-        `Transferring control to ${source} for track: ${currentTrack?.title} (was ${activeSource})`,
-      );
+      // console.log(
+      //   `Transferring control to ${source} for track: ${currentTrack?.title} (was ${activeSource})`,
+      // );
 
       // If we're already the active source, no need to transfer
       if (activeSource === source) {
-        console.log(`Already ${source}, skipping transfer`);
+        // console.log(`Already ${source}, skipping transfer`);
         return;
       }
 
@@ -253,9 +251,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       const now = Date.now();
       const lastTransferTime = transferDebounceRef.current;
       if (now - lastTransferTime < 300) {
-        console.log(
-          `Transfer too soon, debouncing (${now - lastTransferTime}ms since last)`,
-        );
+        // console.log(
+        //   `Transfer too soon, debouncing (${now - lastTransferTime}ms since last)`,
+        // );
         return;
       }
 
@@ -273,15 +271,15 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       const audio = audioRef.current;
       if (audio && currentTrack) {
         // Don't change actual audio playback, just the controlling source
-        console.log(
-          `Maintaining playback state: ${wasPlaying ? "playing" : "paused"} at position ${currentPosition.toFixed(2)}`,
-        );
+        // console.log(
+        //   `Maintaining playback state: ${wasPlaying ? "playing" : "paused"} at position ${currentPosition.toFixed(2)}`,
+        // );
 
         // Only adjust currentTime if significantly different
         if (Math.abs(audio.currentTime - currentPosition) > 0.5) {
-          console.log(
-            `Adjusting time from ${audio.currentTime.toFixed(2)} to ${currentPosition.toFixed(2)}`,
-          );
+          // console.log(
+          //   `Adjusting time from ${audio.currentTime.toFixed(2)} to ${currentPosition.toFixed(2)}`,
+          // );
           try {
             audio.currentTime = currentPosition;
           } catch (error) {
@@ -291,7 +289,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
         // Ensure play state is maintained
         if (wasPlaying && audio.paused) {
-          console.log("Audio was playing but is paused, resuming");
+          // console.log("Audio was playing but is paused, resuming");
           const playPromise = audio.play();
           if (playPromise !== undefined) {
             playPromise.catch((error) => {
@@ -300,7 +298,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
             });
           }
         } else if (!wasPlaying && !audio.paused) {
-          console.log("Audio was paused but is playing, pausing");
+          // console.log("Audio was paused but is playing, pausing");
           audio.pause();
         }
       }
@@ -317,7 +315,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (!audio || !currentTrack) return;
 
-    console.log(`Updating audio source for track: ${currentTrack.title}`);
+    // console.log(`Updating audio source for track: ${currentTrack.title}`);
 
     let trackUrl = "";
     if (currentTrack.audioUrl) {
@@ -353,13 +351,13 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     if (!audio || !currentTrack) return;
 
     if (isPlaying && audio.paused && !isScrubbing) {
-      console.log(`Playing track: ${currentTrack.title} (${activeSource})`);
+      // console.log(`Playing track: ${currentTrack.title} (${activeSource})`);
       audio.play().catch((error) => {
         console.error("Error playing audio:", error);
         setIsPlaying(false);
       });
     } else if (!isPlaying && !audio.paused && !isScrubbing) {
-      console.log(`Pausing track: ${currentTrack.title} (${activeSource})`);
+      // console.log(`Pausing track: ${currentTrack.title} (${activeSource})`);
       audio.pause();
     }
   }, [isPlaying, currentTrack, activeSource, isScrubbing]);
@@ -440,18 +438,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   // Play a specific track
   const playTrack = useCallback(
     (track: Track, source: PlayerSource) => {
-      console.log(`Play track requested: ${track.title} from source ${source}`);
+      // console.log(`Play track requested: ${track.title} from source ${source}`);
 
       // If it's the same track, just switch source and resume
       if (currentTrack?.id === track.id) {
-        console.log(`Same track - setting source to ${source} and resuming`);
+        // console.log(`Same track - setting source to ${source} and resuming`);
         setActiveSource(source);
         setIsPlaying(true);
         return;
       }
 
       // New track - reset state and play
-      console.log(`New track - playing ${track.title} from source ${source}`);
+      // console.log(`New track - playing ${track.title} from source ${source}`);
       setCurrentTrack(track);
       setActiveSource(source);
       setIsPlaying(true);
@@ -465,7 +463,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   // Play a track and set up a queue
   const playTrackInQueue = useCallback(
     (track: Track, queueTracks: Track[], source: PlayerSource) => {
-      console.log(`Play in queue requested: ${track.title} from ${source}`);
+      // console.log(`Play in queue requested: ${track.title} from ${source}`);
 
       // If it's the same track, just switch source and resume
       if (currentTrack?.id === track.id) {
@@ -519,7 +517,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    console.log(`Seeking to ${time.toFixed(2)} seconds`);
+    // console.log(`Seeking to ${time.toFixed(2)} seconds`);
 
     // Mark that we're in a seeking operation to block timeupdate events
     isSeekingRef.current = true;
