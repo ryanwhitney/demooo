@@ -69,12 +69,12 @@ const ProfileMenu = ({ me }: { me: User }) => {
             </Link>
           </MenuItem>
           <Separator className={style.separator} />
-          <MenuItem>
+          {/* <MenuItem>
             <Link to={"/manage-tracks"} className={style.menuItem}>
               Manage tracks
             </Link>
           </MenuItem>
-          <Separator className={style.separator} />
+          <Separator className={style.separator} /> */}
           <MenuItem>
             <Button onPress={auth.logout} className={style.menuItem}>
               Log out
