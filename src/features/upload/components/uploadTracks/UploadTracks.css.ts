@@ -95,3 +95,23 @@ export const trackError = style({
   fontSize: "11px",
   marginTop: "4px",
 });
+
+export const demoLetterO1 = style({
+  fontSize: 17
+});
+
+export const demoLetterO2 = style({
+  fontSize: 15
+});
+
+export const demoLetterO3 = style({
+  fontSize: 12
+});
+
+export const demoLetterO4 = style({
+  fontSize: 9
+});
+
+export const demoLetterS = style({
+  fontSize: 6
+});

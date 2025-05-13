@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router";
 import * as style from "./ProfileMenu.css";
+import { assignInlineVars } from "@vanilla-extract/dynamic";
 
 const ProfileMenu = ({ me }: { me: User }) => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,21 +34,23 @@ const ProfileMenu = ({ me }: { me: User }) => {
 		}
 	};
 
+	const popoverVars = assignInlineVars({
+		[style.transitionSpeedVar]: `${TRANSITION_SPEED}ms`,
+	});
+
 	return (
 		<MenuTrigger isOpen={isMenuOpen} onOpenChange={handleOpenChange}>
 			<Button
 				type="button"
 				aria-label="profile menu"
-				style={{
-					borderRadius: "50%",
-				}}
+				className={style.profileMenuButton}
 			>
 				<ProfilePhoto profile={me.profile} />
 			</Button>
 			<Popover
 				className={style.popover}
 				style={{
-					transition: `opacity ${TRANSITION_SPEED}ms cubic-bezier(.05, .69, .14, 1)`,
+					...popoverVars,
 					opacity: opacity,
 				}}
 			>

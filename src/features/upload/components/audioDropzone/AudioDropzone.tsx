@@ -138,7 +138,7 @@ const AudioDropzone = ({
 	const getInstructionText = () => {
 		if (dropped || isMinimized) return null;
 		return (
-			<small style={{ marginTop: 20, color: tokens.colors.secondary }}>
+			<small className={style.instructionText}>
 				(supports most audio files, max 30mb each.)
 			</small>
 		);

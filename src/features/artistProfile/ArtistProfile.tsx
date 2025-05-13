@@ -74,7 +74,7 @@ const ArtistProfile = ({ artistName }: { artistName: string }) => {
 	if (artist === null) return <NotFound />;
 
 	return (
-		<div style={{ width: "100%" }}>
+		<div className={style.artistProfileContainer}>
 			<div className={style.artistViewWrapper}>
 				<title>Music | {artist?.username}</title>
 				<div className={style.artistHeaderBackgroundGrain} aria-hidden>

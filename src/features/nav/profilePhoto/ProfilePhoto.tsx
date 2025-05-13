@@ -2,6 +2,8 @@ import { tokens } from "@/styles/tokens";
 import type { Profile } from "@/types/user";
 import { getProfilePhotoUrl } from "@/utils/getProfilePhotoUrl";
 import { useMemo } from "react";
+import { assignInlineVars } from "@vanilla-extract/dynamic";
+import * as style from "./ProfilePhoto.css";
 
 const DEFAULT_SIZE = 34;
 
@@ -38,27 +40,25 @@ const ProfilePhoto = ({
 
 	const profilePhotoUrl = useMemo(() => getProfilePhotoUrl(profile), [profile]);
 
+	const cssVars = assignInlineVars({
+		[style.widthVar]: toCssValue(width),
+		[style.heightVar]: toCssValue(height),
+		[style.borderRadiusVar]: borderRadius,
+		[style.backgroundVar]: generateGradient(),
+	});
+
 	return !profilePhotoUrl ? (
 		<div
-			style={{
-				width: toCssValue(width),
-				height: toCssValue(height),
-				borderRadius: borderRadius,
-				background: generateGradient(),
-				flexShrink: 0,
-			}}
+			className={style.profilePhotoContainer}
+			style={cssVars}
 			aria-hidden={ariaHidden}
 		/>
 	) : (
 		<img
-			width={toCssValue(width)}
-			height={toCssValue(height)}
+			className={style.profilePhotoImage}
+			style={cssVars}
 			src={profilePhotoUrl}
 			alt="profile photo"
-			style={{
-				borderRadius: `${borderRadius}`,
-				flexShrink: 0,
-			}}
 			aria-hidden={ariaHidden}
 		/>
 	);

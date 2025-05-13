@@ -1,5 +1,5 @@
 import { arraySample } from "@/utils/arraySample";
-import * as style from "../AudioPlayer.css";
+import * as style from "./Waveform.css";
 import { parseWaveformData } from "../utilities/parseWaveformData";
 
 interface WaveformProps {
@@ -39,7 +39,6 @@ const Waveform = ({
 				className={style.waveformProgress}
 				style={{
 					width: `${progressWidth}%`,
-					zIndex: 10,
 				}}
 			/>
 			<svg
@@ -49,7 +48,7 @@ const Waveform = ({
 				viewBox={`0 0 ${width} ${height}`}
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
-				style={{ display: "block", position: "relative", zIndex: 1 }}
+				className={style.waveformSvg}
 			>
 				{sampledWavelengthData.map((amplitude, index) => {
 					const barHeight = Math.min(height * amplitude, height);
@@ -63,7 +62,7 @@ const Waveform = ({
 							y={yPosition}
 							width={barWidth}
 							height={barHeight}
-							style={{ borderRadius: 20 }}
+							className={style.waveformBar}
 							fill="currentColor"
 							rx="0.5"
 						/>

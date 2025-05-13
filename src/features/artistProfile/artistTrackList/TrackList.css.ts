@@ -186,3 +186,7 @@ export const favoriteCount = recipe({
     isActive: false,
   },
 })
+
+export const monthListItem = style({
+  width: '100%',
+})

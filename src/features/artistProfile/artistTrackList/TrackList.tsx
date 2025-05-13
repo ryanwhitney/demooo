@@ -152,7 +152,7 @@ const TrackList = ({ tracks }: { tracks: Track[] }) => {
 						{Object.keys(groupedTracks[year])
 							.sort((a, b) => monthOrder.indexOf(b) - monthOrder.indexOf(a))
 							.map((month) => (
-								<li key={`${year}-${month}`} style={{ width: "100%" }}>
+								<li key={`${year}-${month}`} className={style.monthListItem}>
 									<h3
 										id={`year-${year}-month-${month}`}
 										className={style.monthHeading}

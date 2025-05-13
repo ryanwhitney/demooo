@@ -1,5 +1,7 @@
+import * as style from "./PauseSVG.css";
+
 const PauseSVG = () => (
-	<div style={{ marginLeft: -2 }}>
+	<div className={style.pauseSvgContainer}>
 		<svg width="9" height="11" viewBox="0 0 9 11" fill="none">
 			<title>pause</title>
 			<path

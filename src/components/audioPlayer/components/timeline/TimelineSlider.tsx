@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import * as style from "../AudioPlayer.css";
+import * as style from "./TimelineSlider.css";
 import { formatTime } from "@/utils/timeAndDate";
 import { VisuallyHidden } from "react-aria";
+import { assignInlineVars } from "@vanilla-extract/dynamic";
 
 interface TimelineSliderProps {
 	children: React.ReactNode;
@@ -387,21 +388,19 @@ const TimelineSlider = ({
 			{displayProgress > 0 && (
 				<div
 					className={style.playheadIndicator}
-					style={{ left: `${displayProgress * 100}%` }}
+					style={assignInlineVars({
+						[style.leftPositionVar]: `${displayProgress * 100}%`,
+					})}
 					aria-hidden="true"
 				/>
 			)}
 
 			{/* Progress for child waveform */}
 			<div
-				style={
-					{
-						"--progress": displayProgress,
-						position: "relative",
-						width: "100%",
-						height: "100%",
-					} as React.CSSProperties
-				}
+				className={style.progressContainer}
+				style={assignInlineVars({
+					[style.progressVar]: String(displayProgress),
+				})}
 			>
 				{children}
 			</div>

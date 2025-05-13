@@ -45,15 +45,6 @@ export const waveformContainer = style({
   justifyContent: "center",
 });
 
-export const waveformVisualization = style({
-  position: "relative",
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-});
-
 export const timeDisplay = style({
   color: tokens.colors.secondary,
   fontSize: tokens.fontSizes.xs,
@@ -65,43 +56,12 @@ export const waveformProgressIndicator = style({
   display: 'none',
 });
 
-export const waveformProgress = style({
-  position: "absolute",
-  left: 0,
-  top: 0,
-  bottom: 0,
-  backgroundImage: 'linear-gradient(90deg, #131313 50%, #131313cc)',
-  pointerEvents: "none",
-  opacity: 0.7,
-  zIndex: 1,
-});
-
 export const waveformSlider = style({
   position: "relative",
   height: 30,
   width: 240,
   cursor: "pointer",
   touchAction: "none",
-});
-
-export const timelineSlider = style({
-  position: "relative",
-  width: "100%",
-  height: "100%",
-  cursor: "pointer",
-  touchAction: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-});
-
-export const timelineFocused = style({
-  boxShadow: `0 0 0 2px ${tokens.colors.primary}`,
-  outline: 'none',
-});
-
-export const audioElement = style({
-  display: "none",
 });
 
 export const timelineWrapper = style({
@@ -111,13 +71,6 @@ export const timelineWrapper = style({
   width: "100%",
 });
 
-export const playheadIndicator = style({
-  position: "absolute",
-  width: 2,
-  top: -3,
-  bottom: -3,
-  background: tokens.colors.tintColor,
-  borderRadius: 2,
-  zIndex: 3,
-  pointerEvents: "none",
+export const audioElement = style({
+  display: "none",
 });

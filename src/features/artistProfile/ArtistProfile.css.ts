@@ -198,3 +198,7 @@ export const artistContentWrapper = style({
   justifyContent: 'center',
   width: '100%',
 })
+
+export const artistProfileContainer = style({
+  width: "100%",
+})

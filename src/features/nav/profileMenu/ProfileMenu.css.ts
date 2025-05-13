@@ -1,8 +1,14 @@
 import { tokens } from '@/styles/tokens'
-import { style } from '@vanilla-extract/css'
+import { style, createVar } from '@vanilla-extract/css'
+
+export const transitionSpeedVar = createVar();
 
 export const profilePhoto = style({
   borderRadius: tokens.radii.full,
+})
+
+export const profileMenuButton = style({
+  borderRadius: '50%',
 })
 
 export const popover = style({
@@ -10,6 +16,7 @@ export const popover = style({
   borderRadius: tokens.radii.lg,
   gap: tokens.space.lg,
   boxShadow: 'rgba(0, 0, 0, 0.28) 0px 2px 16px 0px',
+  transition: `opacity ${transitionSpeedVar} cubic-bezier(.05, .69, .14, 1)`,
 })
 
 export const profileContainer = style({

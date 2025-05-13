@@ -313,11 +313,11 @@ const UploadTracks = () => {
 		<section className={style.uploadPageContainer}>
 			<header>
 				<h1 className={style.uploadPageTitle}>
-					Upload your demo<span style={{ fontSize: 17 }}>o</span>
-					<span style={{ fontSize: 15 }}>o</span>
-					<span style={{ fontSize: 12 }}>o</span>
-					<span style={{ fontSize: 9 }}>o</span>
-					<span style={{ fontSize: 6 }}>s</span>
+					Upload your demo<span className={style.demoLetterO1}>o</span>
+					<span className={style.demoLetterO2}>o</span>
+					<span className={style.demoLetterO3}>o</span>
+					<span className={style.demoLetterO4}>o</span>
+					<span className={style.demoLetterS}>s</span>
 				</h1>
 				<p className={style.uploadHeaderDescription}>
 					Demos, experiments, sketches, etc. Just share it.

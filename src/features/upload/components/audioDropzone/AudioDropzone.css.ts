@@ -1,5 +1,6 @@
 import { tokens } from '@/styles/tokens'
 import { recipe } from '@vanilla-extract/recipes'
+import { style } from '@vanilla-extract/css'
 
 export const dropZone = recipe({
   base: {
@@ -86,3 +87,8 @@ export const addFilesButton = recipe({
     },
   },
 })
+
+export const instructionText = style({
+  marginTop: 20,
+  color: tokens.colors.secondary,
+});
