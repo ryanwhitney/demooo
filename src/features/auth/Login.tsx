@@ -4,6 +4,8 @@ import ErrorBox from "@/components/errorBox/ErrorBox.tsx";
 import ProgressIndicator from "@/components/dotLoadIndicator/DotLoadIndicator";
 import TextInput from "@/components/textInput/TextInput";
 import { useAuth } from "@/hooks/useAuth";
+import { useModal } from "@/hooks/useModal";
+import { ModalType } from "@/types/modal";
 import type { LoginFormInput } from "@/types/auth";
 import { useCsrf } from "@/utils/csrf";
 import { useMutation } from "@apollo/client";
@@ -20,6 +22,7 @@ const Login = ({ onSuccess }: { onSuccess?: () => void }) => {
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const { csrfFetched, error: csrfError, getToken } = useCsrf();
 	const { setIsAuthenticated } = useAuth();
+	const { openModal } = useModal();
 
 	const [login, { loading }] = useMutation(LOGIN, {
 		variables: {
@@ -73,6 +76,10 @@ const Login = ({ onSuccess }: { onSuccess?: () => void }) => {
 		login();
 	};
 
+	const handleSwitchToSignup = () => {
+		openModal(ModalType.SIGNUP, { onSuccess });
+	};
+
 	return (
 		<>
 			{errorMessage && <ErrorBox text={errorMessage} />}
@@ -113,6 +120,12 @@ const Login = ({ onSuccess }: { onSuccess?: () => void }) => {
 					{loading ? <ProgressIndicator /> : "Login"}
 				</Button>
 			</form>
+
+			<div style={{ textAlign: "center", marginTop: "16px" }}>
+				<Button variant="secondary" onClick={handleSwitchToSignup}>
+					Don't have an account? Sign up
+				</Button>
+			</div>
 		</>
 	);
 };

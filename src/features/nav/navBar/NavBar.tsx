@@ -16,6 +16,14 @@ const NavBar = () => {
 		fetchPolicy: "cache-and-network",
 	});
 
+	const handleLoginClick = () => {
+		openModal(ModalType.LOGIN);
+	};
+
+	const handleSignupClick = () => {
+		openModal(ModalType.SIGNUP);
+	};
+
 	return (
 		<nav className={navBar}>
 			<NavLink to={"/"} className={logo}>
@@ -34,12 +42,12 @@ const NavBar = () => {
 				) : (
 					<>
 						<li>
-							<Button variant="nav" onClick={() => openModal(ModalType.LOGIN)}>
+							<Button variant="nav" onClick={handleLoginClick}>
 								log in
 							</Button>
 						</li>
 						<li>
-							<Button variant="nav" onClick={() => openModal(ModalType.SIGNUP)}>
+							<Button variant="nav" onClick={handleSignupClick}>
 								join
 							</Button>
 						</li>

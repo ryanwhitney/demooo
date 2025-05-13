@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Modal from "@/components/modal/ModalForm";
@@ -12,7 +13,7 @@ import {
 } from "@/types/modal";
 import AuthPrompt from "@/components/auth/AuthPrompt";
 
-// Define modal configurations with their default properties
+// Modal configurations with their default properties
 const MODAL_CONFIGS: Record<ModalType, ModalConfig> = {
 	[ModalType.LOGIN]: {
 		type: ModalType.LOGIN,
@@ -26,7 +27,7 @@ const MODAL_CONFIGS: Record<ModalType, ModalConfig> = {
 	},
 	[ModalType.AUTH]: {
 		type: ModalType.AUTH,
-		defaultTitle: "Join demooo", // Default title when not specified
+		defaultTitle: "Join demooo",
 		minWidth: "400px",
 	},
 	[ModalType.PROFILE]: {
@@ -46,27 +47,27 @@ const MODAL_CONFIGS: Record<ModalType, ModalConfig> = {
 	},
 };
 
+const TRANSITION_DURATION = 150;
+
+/**
+ * Manages modal state and transitions between different modal types
+ */
 export function ModalProvider({ children }: ModalProviderProps) {
 	const [activeModal, setActiveModal] = useState<ModalType>(ModalType.NONE);
 	const [modalProps, setModalProps] = useState<ModalProps>({});
-	// Track if a modal is currently transitioning to avoid focus issues
 	const [isTransitioning, setIsTransitioning] = useState(false);
-	// Track the next modal to open after a transition
 	const [nextModal, setNextModal] = useState<{
 		type: ModalType;
 		props: Partial<ModalProps>;
 	} | null>(null);
 
 	const openModal = (type: ModalType, props: Partial<ModalProps> = {}) => {
-		// If a modal is already open, handle the transition properly
 		if (activeModal !== ModalType.NONE) {
-			// Queue the next modal
-			setNextModal({ type, props });
-			// Start the transition by closing the current modal
-			setIsTransitioning(true);
-			// The current modal will close and trigger onOpenChange
+			setActiveModal(type);
+			setModalProps(props);
+			setNextModal(null);
+			setIsTransitioning(false);
 		} else {
-			// If no modal is open, simply open the new modal
 			setActiveModal(type);
 			setModalProps(props);
 		}
@@ -79,34 +80,34 @@ export function ModalProvider({ children }: ModalProviderProps) {
 		setIsTransitioning(false);
 	};
 
-	// Handle modal transitions
+	// Handle transitions for closing modals only
 	useEffect(() => {
-		// If we're transitioning and the active modal is now NONE,
-		// open the next modal
 		if (isTransitioning && activeModal === ModalType.NONE && nextModal) {
-			// Increased timeout to allow the DOM to update and React Aria to clean up
-			// This ensures focus management works properly
 			const timer = setTimeout(() => {
 				setActiveModal(nextModal.type);
 				setModalProps(nextModal.props);
 				setNextModal(null);
 				setIsTransitioning(false);
-			}, 150); // Increased from 50ms to 150ms for better focus management
+			}, TRANSITION_DURATION);
 
 			return () => clearTimeout(timer);
 		}
 	}, [isTransitioning, activeModal, nextModal]);
 
-	// Get the configuration for the current modal
 	const getConfig = () =>
 		MODAL_CONFIGS[activeModal] || MODAL_CONFIGS[ModalType.CUSTOM];
+	const getModalTitle = () => modalProps.title || getConfig().defaultTitle;
+	const getMinWidth = () => modalProps.minWidth || getConfig().minWidth;
+	const shouldRenderModal = activeModal !== ModalType.NONE;
 
 	const renderModalContent = () => {
 		switch (activeModal) {
 			case ModalType.LOGIN:
 				return <Login onSuccess={modalProps.onSuccess} />;
+
 			case ModalType.SIGNUP:
 				return <CreateAccount onSuccess={modalProps.onSuccess} />;
+
 			case ModalType.AUTH:
 				return (
 					<AuthPrompt
@@ -116,26 +117,15 @@ export function ModalProvider({ children }: ModalProviderProps) {
 						onSuccess={modalProps.onSuccess}
 					/>
 				);
+
 			case ModalType.PROFILE:
 			case ModalType.CUSTOM:
 				return modalProps.content || null;
+
 			default:
 				return null;
 		}
 	};
-
-	// Get the title, using the user-provided title first, then falling back to the default
-	const getModalTitle = () => {
-		return modalProps.title || getConfig().defaultTitle;
-	};
-
-	// Get the appropriate min-width, using the user-provided value first
-	const getMinWidth = () => {
-		return modalProps.minWidth || getConfig().minWidth;
-	};
-
-	// Check if modal should be rendered
-	const shouldRenderModal = activeModal !== ModalType.NONE;
 
 	return (
 		<ModalContext.Provider

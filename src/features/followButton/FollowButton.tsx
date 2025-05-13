@@ -22,6 +22,7 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 
 	const handleFollowClick = () => {
 		if (!isAuthenticated) {
+			// Open the auth prompt modal which will handle the transition to signup/login
 			openModal(ModalType.AUTH, {
 				authRedirect: {
 					login: false,
@@ -38,7 +39,6 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 	const handleEditProfileClick = () => {
 		openModal(ModalType.PROFILE, {
 			content: <UpdateProfile />,
-			// We don't need to set title because it's already defined in MODAL_CONFIGS
 		});
 	};
 

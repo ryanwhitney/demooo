@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import Button from "../button/Button";
@@ -5,6 +6,7 @@ import * as style from "./ModalForm.css";
 import { Dialog, Modal, ModalOverlay } from "react-aria-components";
 import { assignInlineVars } from "@vanilla-extract/dynamic";
 
+const TRANSITION_DURATION = 150;
 const ModalForm = ({
 	children,
 	onOpenChange,
@@ -21,7 +23,6 @@ const ModalForm = ({
 	isOpen?: boolean;
 }) => {
 	const [isVisible, setIsVisible] = useState(false);
-	const TRANSITION_DURATION = 150;
 
 	const handleClose = () => {
 		setIsVisible(false);
@@ -31,12 +32,12 @@ const ModalForm = ({
 	};
 
 	useEffect(() => {
-		if (isOpen) {
-			setIsVisible(true);
-		} else {
-			// When isOpen becomes false, start the closing transition
+		if (!isOpen) {
 			setIsVisible(false);
+			return;
 		}
+
+		setIsVisible(true);
 	}, [isOpen]);
 
 	return (

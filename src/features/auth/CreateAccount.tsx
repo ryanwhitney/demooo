@@ -5,6 +5,8 @@ import ErrorBox from "@/components/errorBox/ErrorBox";
 import ProgressIndicator from "@/components/dotLoadIndicator/DotLoadIndicator";
 import TextInput from "@/components/textInput/TextInput";
 import { useAuth } from "@/hooks/useAuth";
+import { useModal } from "@/hooks/useModal";
+import { ModalType } from "@/types/modal";
 import type { SignupFormInput } from "@/types/auth";
 import { useCsrf } from "@/utils/csrf";
 import { useLazyQuery, useMutation } from "@apollo/client";
@@ -22,6 +24,7 @@ const CreateAccount = ({ onSuccess }: { onSuccess?: () => void }) => {
 
 	const { csrfFetched, error: csrfError, getToken } = useCsrf();
 	const { setIsAuthenticated } = useAuth();
+	const { openModal } = useModal();
 
 	const [checkUsername, { loading: checkingUsername }] = useLazyQuery(
 		GET_USERNAME,
@@ -72,6 +75,10 @@ const CreateAccount = ({ onSuccess }: { onSuccess?: () => void }) => {
 			console.error("Authentication error after signup:", error);
 		},
 	});
+
+	const handleSwitchToLogin = () => {
+		openModal(ModalType.LOGIN, { onSuccess });
+	};
 
 	const validateUsername = async (value: string) => {
 		if (!value) {
@@ -209,6 +216,12 @@ const CreateAccount = ({ onSuccess }: { onSuccess?: () => void }) => {
 					{loading ? <ProgressIndicator /> : "Joinnnn"}
 				</Button>
 			</form>
+
+			<div style={{ textAlign: "center", marginTop: "16px" }}>
+				<Button variant="secondary" onClick={handleSwitchToLogin}>
+					Already have an account? Log in
+				</Button>
+			</div>
 		</>
 	);
 };
