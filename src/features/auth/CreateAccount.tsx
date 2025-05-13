@@ -11,6 +11,7 @@ import type { SignupFormInput } from "@/types/auth";
 import { useCsrf } from "@/utils/csrf";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { useEffect, useState, useRef } from "react";
+import * as style from "./AuthForm.css";
 
 const DEBUG = false;
 
@@ -213,11 +214,11 @@ const CreateAccount = ({ onSuccess }: { onSuccess?: () => void }) => {
 						!formData.email
 					}
 				>
-					{loading ? <ProgressIndicator /> : "Joinnnn"}
+					{loading ? <ProgressIndicator /> : "Join demooo"}
 				</Button>
 			</form>
 
-			<div style={{ textAlign: "center", marginTop: "16px" }}>
+			<div className={style.authFormSwitchContainer}>
 				<Button variant="secondary" onClick={handleSwitchToLogin}>
 					Already have an account? Log in
 				</Button>

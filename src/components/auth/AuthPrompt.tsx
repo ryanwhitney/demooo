@@ -2,6 +2,7 @@ import React from "react";
 import Button from "@/components/button/Button";
 import { useModal } from "@/hooks/useModal";
 import { ModalType } from "@/types/modal";
+import * as style from "./AuthPrompt.css";
 
 /**
  * AuthPrompt provides an initial step before auth forms
@@ -31,8 +32,8 @@ const AuthPrompt = ({
 	};
 
 	return (
-		<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-			<p style={{ marginBottom: "20px" }}>{message}</p>
+		<div className={style.authPromptContainer}>
+			<p className={style.authPromptMessage}>{message}</p>
 			<Button variant="primary" onClick={handleContinue}>
 				{actionText}
 			</Button>

@@ -10,6 +10,7 @@ import type { LoginFormInput } from "@/types/auth";
 import { useCsrf } from "@/utils/csrf";
 import { useMutation } from "@apollo/client";
 import { useState } from "react";
+import * as style from "./AuthForm.css";
 
 const DEBUG = false;
 
@@ -121,7 +122,7 @@ const Login = ({ onSuccess }: { onSuccess?: () => void }) => {
 				</Button>
 			</form>
 
-			<div style={{ textAlign: "center", marginTop: "16px" }}>
+			<div className={style.authFormSwitchContainer}>
 				<Button variant="secondary" onClick={handleSwitchToSignup}>
 					Don't have an account? Sign up
 				</Button>

@@ -3,9 +3,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFollow } from "@/hooks/useFollow";
 import { useModal } from "@/hooks/useModal";
 import { ModalType } from "@/types/modal";
-import { tokens } from "@/styles/tokens";
 import type { User } from "@/types/user";
 import UpdateProfile from "../updateProfile/UpdateProfile";
+import * as style from "./FollowButton.css";
 
 const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 	const {
@@ -48,13 +48,7 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 				<Button
 					variant="primary"
 					onClick={handleEditProfileClick}
-					style={{
-						minWidth: 120,
-						borderRadius: 40,
-						fontSize: 11,
-						padding: " 6px 10px",
-						border: `2px solid ${tokens.colors.backgroundSecondary}`,
-					}}
+					className={style.followButtonBase}
 				>
 					Edit Profile
 				</Button>
@@ -62,14 +56,7 @@ const FollowButton = ({ userToFollow }: { userToFollow: User }) => {
 				<Button
 					variant={isFollowing ? "secondary" : "primary"}
 					onClick={handleFollowClick}
-					style={{
-						minWidth: 120,
-						borderRadius: 40,
-						fontSize: 11,
-						padding: " 6px 10px",
-						transition: "background-color 0s",
-						border: `2px solid ${tokens.colors.backgroundSecondary}`,
-					}}
+					className={`${style.followButtonBase} ${style.followButtonToggle}`}
 					disabled={isSameUser}
 				>
 					{isFollowing ? "Following" : "+ Follow"}
