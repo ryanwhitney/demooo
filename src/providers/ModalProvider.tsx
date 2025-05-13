@@ -1,5 +1,4 @@
-import { useState } from "react";
-import type { ReactNode } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Modal from "@/components/modal/ModalForm";
 import Login from "@/features/auth/Login";
@@ -50,16 +49,53 @@ const MODAL_CONFIGS: Record<ModalType, ModalConfig> = {
 export function ModalProvider({ children }: ModalProviderProps) {
 	const [activeModal, setActiveModal] = useState<ModalType>(ModalType.NONE);
 	const [modalProps, setModalProps] = useState<ModalProps>({});
+	// Track if a modal is currently transitioning to avoid focus issues
+	const [isTransitioning, setIsTransitioning] = useState(false);
+	// Track the next modal to open after a transition
+	const [nextModal, setNextModal] = useState<{
+		type: ModalType;
+		props: Partial<ModalProps>;
+	} | null>(null);
 
 	const openModal = (type: ModalType, props: Partial<ModalProps> = {}) => {
-		setActiveModal(type);
-		setModalProps(props);
+		// If a modal is already open, handle the transition properly
+		if (activeModal !== ModalType.NONE) {
+			// Queue the next modal
+			setNextModal({ type, props });
+			// Start the transition by closing the current modal
+			setIsTransitioning(true);
+			// The current modal will close and trigger onOpenChange
+		} else {
+			// If no modal is open, simply open the new modal
+			setActiveModal(type);
+			setModalProps(props);
+		}
 	};
 
 	const closeModal = () => {
 		setActiveModal(ModalType.NONE);
 		setModalProps({});
+		setNextModal(null);
+		setIsTransitioning(false);
 	};
+
+	// Handle modal transitions
+	useEffect(() => {
+		// If we're transitioning and the active modal is now NONE,
+		// open the next modal
+		if (isTransitioning && activeModal === ModalType.NONE && nextModal) {
+			// Increased timeout to allow the DOM to update and React Aria to clean up
+			// This ensures focus management works properly
+			const timer = setTimeout(() => {
+				setActiveModal(nextModal.type);
+				setModalProps(nextModal.props);
+				setNextModal(null);
+				setIsTransitioning(false);
+			}, 150); // Increased from 50ms to 150ms for better focus management
+
+			return () => clearTimeout(timer);
+		}
+	}, [isTransitioning, activeModal, nextModal]);
 
 	// Get the configuration for the current modal
 	const getConfig = () =>

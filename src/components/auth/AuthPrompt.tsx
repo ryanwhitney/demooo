@@ -1,35 +1,34 @@
 import { useState } from "react";
-import type { ReactNode } from "react";
 import Login from "@/features/auth/Login";
 import CreateAccount from "@/features/auth/CreateAccount";
 import Button from "@/components/button/Button";
 
-interface AuthPromptProps {
-	message?: string;
-	actionText?: string;
-	isLogin?: boolean;
-	onSuccess?: () => void;
-}
-
+/**
+ * AuthPrompt is used within a Modal and provides authentication flow options
+ * Accessibility notes:
+ * - When used inside a modal, the modal provides aria context (title, role, etc.)
+ * - The message serves as the description for the modal action
+ */
 const AuthPrompt = ({
 	message = "Sign up to access this feature",
 	actionText = "Continue",
 	isLogin = false,
 	onSuccess,
-}: AuthPromptProps) => {
+}: {
+	message?: string;
+	actionText?: string;
+	isLogin?: boolean;
+	onSuccess?: () => void;
+}) => {
 	const [showForm, setShowForm] = useState(false);
-	const [isLoginForm, setIsLoginForm] = useState(isLogin);
+	const [showLoginForm, setShowLoginForm] = useState(isLogin);
 
 	if (showForm) {
-		return isLoginForm ? (
+		return showLoginForm ? (
 			<>
 				<Login onSuccess={onSuccess} />
 				<div style={{ textAlign: "center", marginTop: "16px" }}>
-					<Button
-						variant="text"
-						onClick={() => setIsLoginForm(false)}
-						aria-label="Switch to sign up form"
-					>
+					<Button variant="secondary" onClick={() => setShowLoginForm(false)}>
 						Don't have an account? Sign up
 					</Button>
 				</div>
@@ -38,11 +37,7 @@ const AuthPrompt = ({
 			<>
 				<CreateAccount onSuccess={onSuccess} />
 				<div style={{ textAlign: "center", marginTop: "16px" }}>
-					<Button
-						variant="text"
-						onClick={() => setIsLoginForm(true)}
-						aria-label="Switch to login form"
-					>
+					<Button variant="secondary" onClick={() => setShowLoginForm(true)}>
 						Already have an account? Log in
 					</Button>
 				</div>
@@ -51,20 +46,21 @@ const AuthPrompt = ({
 	}
 
 	return (
-		<div
-			style={{ textAlign: "center", padding: "20px 0" }}
-			role="dialog"
-			aria-labelledby="auth-prompt-message"
-		>
-			<p id="auth-prompt-message" style={{ marginBottom: "20px" }}>
-				{message}
-			</p>
-			<Button
-				variant="primary"
-				onClick={() => setShowForm(true)}
-				aria-label={actionText}
-			>
+		<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+			<p style={{ marginBottom: "20px" }}>{message}</p>
+			<Button variant="primary" onClick={() => setShowForm(true)}>
 				{actionText}
+			</Button>
+			<Button
+				variant="secondary"
+				onClick={() => {
+					setShowLoginForm(!isLogin);
+					setShowForm(true);
+				}}
+			>
+				{isLogin
+					? "Don't have an account? Sign up"
+					: "Already have an account? Log in"}
 			</Button>
 		</div>
 	);

@@ -34,6 +34,7 @@ const ModalForm = ({
 		if (isOpen) {
 			setIsVisible(true);
 		} else {
+			// When isOpen becomes false, start the closing transition
 			setIsVisible(false);
 		}
 	}, [isOpen]);
