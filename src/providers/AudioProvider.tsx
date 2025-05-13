@@ -154,6 +154,11 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     };
 
     const handleError = (e: Event) => {
+      // Ignore errors when no track is loaded or during initial setup
+      if (!currentTrack || !audio.src || audio.src === window.location.href) {
+        return;
+      }
+
       console.error("Audio error:", e);
       setIsPlaying(false);
     };

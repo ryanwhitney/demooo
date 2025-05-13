@@ -1,4 +1,3 @@
-import React from "react";
 import { LOGOUT } from "@/apollo/mutations/userMutations";
 import type { User } from "@/types/user";
 import { getCsrfToken } from "@/utils/csrf";
